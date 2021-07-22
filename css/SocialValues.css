@@ -1,0 +1,50 @@
+/*
+ * CSS for Moral Values study
+ *
+ */
+
+/* Container layout for trials */
+
+body {
+    background-color: black;
+    color: white;
+}
+#grid {
+    display: grid;
+    grid-template-areas:
+        "question question"
+        "left-issue right-issue"
+        "left-photo right-photo";
+    grid-template-rows: 15vh minmax(20vh, auto) minmax(1fr, 500px);
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+    margin: 0;
+}
+#grid > div:nth-child(1) {
+    grid-column: span 2;
+    text-align: center;
+    margin-top: 3vh;
+    font-size:x-large;
+}
+#grid > div:nth-child(2) {
+    justify-self: end;
+    align-self: start;
+    width: 100%;
+}
+#grid > div:nth-child(4) {
+    justify-self: end;
+    align-self: start;
+}
+.issue {
+    display: flex;
+    justify-content: flex-start;
+}
+.issue > img {
+    height: 71px;
+    width: 56px;
+    margin-right: 20px;
+}
+.protest img {
+    max-width: 100%;
+    height: auto;
+}

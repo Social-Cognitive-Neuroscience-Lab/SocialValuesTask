@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="jspsych-6.3.1/jspsych.js"></script>
+        <script src="jspsych-6.3.1/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="jspsych-6.3.1/plugins/jspsych-image-keyboard-response.js"></script>
+        <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
+        <script src="jspsych-6.3.1/plugins/jspsych-survey-likert.js"></script>
+        <script src="jspsych-6.3.1/plugins/jspsych-survey-multi-choice.js"></script>
+        <link href="jspsych-6.3.1/css/jspsych.css" rel="stylesheet">
+        <link href="css/SocialValues.css" rel="stylesheet">
+        <script src="stimlist.js"></script>
+        <script src="issuelist.js"></script>
+        <script src="task_main.js"></script>
+    </head>
+    <body></body> 
+    <script>
+        // add a list of all images, these will be loaded right at the start
+        // to avoid delays
+        jsPsych.init({
+            timeline: timeline,
+            override_safe_mode: true,
+            use_webaudio: true,
+            on_finish: function() {
+                jsPsych.data.displayData();
+            }//,
+            //preload_images: all_images
+        });
+    </script>
+</html>
