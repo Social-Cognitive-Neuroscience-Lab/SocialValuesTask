@@ -181,9 +181,9 @@ function get_issues(issues, support, moral, s_target, m_target) {
 
 var sort_order = []; 
 var rating_pairs = []; // list of all possible pairs of issue ratings
-var unique_ratings = [];
+// var unique_ratings = [];
 var unique_pairs = [];
-var issue_array = [];
+// var issue_array = [];
 var pair_labels = [];
 
 /* remove duplicate entries from array */
@@ -195,14 +195,17 @@ function removeDup(arr) {
 /* generate all support-moral mappings */
 function find_unique(support, moral) {
     var ind_resps = [];
+    var unique_ratings = [];
     for (var i = 0; i < support.length; i++) {
         ind_resps.push(support[i] + "_" + moral[i]);
     }
     unique_ratings = removeDup(ind_resps);
+    return unique_ratings;
 }
 
 /* creature array structure to hold lists of unique responses */
 function prep_issue_array(unique_ratings, issues, support, moral) {
+    var issue_array = [];
     issue_array.length = 7;
     var found;
     for (var i=0; i < 10; i++) {
@@ -227,27 +230,19 @@ function prep_issue_array(unique_ratings, issues, support, moral) {
 
     console.log('issue_array is now:');
     console.log(issue_array);
+    return issue_array;
 }
-
-
-/* generate all pairs of support-moral mappings 
-function find_unique_pairs(support, moral) {
-    for (var i = 0; i < support.length; i++) {
-        for (var j = i+1; j < support.length; j++) {
-            rating_pairs.push(support[i] + "_" + moral[i] + "_" + support[j] + "_" + moral[j])
-        }
-    }
-}
-*/
 
 /* create map of all unique pairs of issues */
-function map_unique() {
+function map_unique(unique_ratings) {
+    var unique_pairs = [];
     // take values from unique_ratings and create all 2-way mappings
     for (var i = 0; i < unique_ratings.length; i++) {
         for (var j=i+1; j < unique_ratings.length; j++) {
             unique_pairs.push(unique_ratings[i] + "_" + unique_ratings[j]);
         }
     }
+    return unique_pairs;
 }
 
 /* return a shuffled copy of an array */
@@ -267,7 +262,7 @@ function shuffle(arr) {
     pair_labels : text labels for pair of issues
     issue_pairs : full pairs (issue1, support1, moral1, issue2, support2, moral2)
 */
-function populate_pairs() {
+function populate_pairs(unique_pairs, issue_array) {
     console.log("Populating pairs")
     trial_list = [];
     trial_list_unshuf = [];
@@ -462,23 +457,23 @@ var process_resps = {
 
         console.log('Mapping pairs')
         // generate list of unique support-moral responses
-        find_unique(support_sorted, moral_sorted)
+        unique_ratings = find_unique(support_sorted, moral_sorted)
 
         console.log('Preparing issue array')
         console.log('unique_ratings:')
         console.log(unique_ratings)
         // prepare the list of issues to use
-        prep_issue_array(unique_ratings, issues_sorted, support_sorted, moral_sorted);
+        issue_array = prep_issue_array(unique_ratings, issues_sorted, support_sorted, moral_sorted);
 
         console.log('Maping unique issues')
         // generate list of unique pairs of support and moral ratings
-        map_unique(support_sorted, moral_sorted)
+        unique_pairs = map_unique(unique_ratings)
         // ASSERT: unique_pairs now contains the list of all n choose 2
         // pairs of support-moral ratings, sorting in descending order of
         // support for first issue, then descending by second
         console.log('unique_pairs:')
         console.log(unique_pairs)
-        trial_list = populate_pairs()
+        trial_list = populate_pairs(unique_pairs, issue_array)
         
 
         console.log("trial_list returned:")
