@@ -6,8 +6,8 @@
 /* Container layout for trials */
 
 body {
-    background-color: black;
-    color: white;
+    background-color: white;
+    color: black;
 }
 #display_stage_background {
     width: 100vw;
