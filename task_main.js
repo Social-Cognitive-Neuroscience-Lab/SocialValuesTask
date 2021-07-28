@@ -188,8 +188,12 @@ var pair_labels = [];
 
 /* remove duplicate entries from array */
 function removeDup(arr) {
-    let out = Array.from(new Set(arr))
-    return out
+    console.log('array to have duplicates removed.');
+    console.log(arr);
+    var out = Array.from(new Set(arr));
+    console.log('new array is:');
+    console.log(out);
+    return out;
 }
 
 /* generate all support-moral mappings */
