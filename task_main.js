@@ -429,8 +429,8 @@ var process_resps = {
             i++;
         }
         sort_order = sort_order.concat(a7, a6, a5, a4, a3, a2, a1)
-        //console.log('Sort order:')
-        //console.log(sort_order);
+        console.log('Sort order:')
+        console.log(sort_order);
 
         // Create arrays of scene id, familiarity, support, and moral
         // sorted by support ratings in descending order
@@ -449,12 +449,16 @@ var process_resps = {
             trial_idx_sorted.push(trial_idx[idx]); // 1-indexed
             issues_sorted.push(issues[idx]);
         }
-        /*
+        
+        console.log('trial_idx_sorted:')
         console.log(trial_idx_sorted)
+        console.log('support_sorted:')
         console.log(support_sorted)
+        console.log('moral_sorted:')
         console.log(moral_sorted)
+        console.log('issues_sorted:')
         console.log(issues_sorted)
-        */
+        
 
         console.log('Mapping pairs')
         // generate list of unique support-moral responses
