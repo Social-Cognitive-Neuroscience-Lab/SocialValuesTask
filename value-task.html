@@ -20,6 +20,7 @@
         jsPsych.init({
             timeline: timeline,
             override_safe_mode: true,
+            display_element: 'display_stage', // put experiment in display_stage in Qualtrics
             use_webaudio: true,
             on_finish: function() {
                 jsPsych.data.displayData();
