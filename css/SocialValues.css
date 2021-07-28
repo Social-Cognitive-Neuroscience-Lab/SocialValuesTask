@@ -21,7 +21,8 @@ body {
     height: 90vh;
     width: 98vw;
     background-color: white;
-    box-shadow: 
+    box-shadow: 1px 1px 1px #999;
+    z-index: 0;
 }
 #grid {
     display: grid;
