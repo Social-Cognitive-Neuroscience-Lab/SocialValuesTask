@@ -190,7 +190,10 @@ var pair_labels = [];
 function removeDup(arr) {
     console.log('array to have duplicates removed.');
     console.log(arr);
-    var out = Array.from(new Set(arr));
+    var out = arr.filter(function(elem, pos){
+        return arr.indexOf(elem) == pos;
+    })
+    // var out = Array.from(new Set(arr));
     console.log('new array is:');
     console.log(out);
     return out;
