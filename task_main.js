@@ -196,9 +196,12 @@ function removeDup(arr) {
 function find_unique(support, moral) {
     var ind_resps = [];
     var unique_ratings = [];
+    console.log(support)
+    console.log(moral)
     for (var i = 0; i < support.length; i++) {
         ind_resps.push(support[i] + "_" + moral[i]);
     }
+    console.log(ind_resps)
     unique_ratings = removeDup(ind_resps);
     return unique_ratings;
 }
