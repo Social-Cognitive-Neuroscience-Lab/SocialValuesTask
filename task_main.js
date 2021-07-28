@@ -201,8 +201,10 @@ function find_unique(support, moral) {
     for (var i = 0; i < support.length; i++) {
         ind_resps.push(support[i] + "_" + moral[i]);
     }
-    console.log(ind_resps)
+    console.log(ind_resps);
     unique_ratings = removeDup(ind_resps);
+    console.log('After removing duplicates, unique_ratings is:');
+    console.log(unique_ratings);
     return unique_ratings;
 }
 
