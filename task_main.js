@@ -559,12 +559,12 @@ var trial = {
         // note: the outer parentheses are only here so we can break the line
         return (           
             '<span id="grid"><div>Which protestors do you support more?</div>'
-            + '<div class="issue"><img src=img/'+jsPsych.timelineVariable("pos_l", true)+'>'
+            + '<div class="issue"><img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/'+jsPsych.timelineVariable("pos_l", true)+'>'
             + '<p>'+jsPsych.timelineVariable("iss_l",true)+'</p></div>'
-            + '<div class="issue"><img src=img/'+jsPsych.timelineVariable("pos_r", true)+'>'
+            + '<div class="issue"><img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/'+jsPsych.timelineVariable("pos_r", true)+'>'
             + '<p>'+jsPsych.timelineVariable("iss_r",true)+'</p></div>'
-            + '<div class="protest"><img src=img/'+jsPsych.timelineVariable("photo_l", true)+' /></div>'
-            + '<div class="protest"><img src=img/'+jsPsych.timelineVariable("photo_r", true)+' /></div>'
+            + '<div class="protest"><img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/'+jsPsych.timelineVariable("photo_l", true)+' /></div>'
+            + '<div class="protest"><img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/'+jsPsych.timelineVariable("photo_r", true)+' /></div>'
             + '</span>'
             );
     },
