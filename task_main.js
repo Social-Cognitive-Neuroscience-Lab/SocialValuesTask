@@ -501,6 +501,10 @@ var process_resps = {
             stim_list[i].iss_l = trial_list[i][0]
             stim_list[i].iss_r = trial_list[i][1]
         }
+    },
+    on_finish: function() {
+        document.getElementById("display_stage").style.color = "blue";
+        document.getElementById("display_stage").style.backgroundColor = "red";
     }
 }
 timeline.push(process_resps)
