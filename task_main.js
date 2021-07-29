@@ -503,8 +503,9 @@ var process_resps = {
         }
     },
     on_finish: function() {
-        document.getElementById("display_stage").style.color = "blue";
-        document.getElementById("display_stage").style.backgroundColor = "red";
+        document.getElementById("display_stage").style.color = "black";
+        document.getElementById("display_stage").style.backgroundColor = "white";
+        document.getElementById("SurveyEngineBody").style.color = "black";
     }
 }
 timeline.push(process_resps)
