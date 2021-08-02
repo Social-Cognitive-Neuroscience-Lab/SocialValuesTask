@@ -514,9 +514,9 @@ timeline.push(process_resps)
 /* create choice instructions */
 var choice_inst = {
     type: 'html-keyboard-response',
-    stimulus: `<p>For the following task, you will be shown photographs of protestors and asked to 
-        indicate which group of protestors you support more. Above each photograph you will see what 
-        the protest was about and whether protestors supported or opposed the issue.</p>`,
+    stimulus: `<p>For the following task, you will see photographs of two groups of protestors.<br>
+                  Your job is to decide which group of protestors you support more.<br><br>
+                  Above each photograph you will see what each protest was about.</p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>'
 }
@@ -524,8 +524,8 @@ timeline.push(choice_inst);
 
 var choice_inst2 = {
     type: 'html-keyboard-response',
-    stimulus: `<p>You will use the 'f' and 'j' key to indicate your response.\n
-        Press 'f' if you support the group on the left more.\n
+    stimulus: `<p>You will use the 'f' and 'j' key to indicate your response.<br>
+        Press 'f' if you support the group on the left more.<br><br>
         Press 'j' if you support the group on the right more.</p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>'
