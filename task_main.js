@@ -506,6 +506,7 @@ var process_resps = {
         document.getElementById("display_stage").style.color = "black";
         document.getElementById("display_stage").style.backgroundColor = "white";
         document.getElementById("SurveyEngineBody").style.color = "black";
+        document.getElementById("SurveyEngineBody").style.backgroundColor = "white";
     }
 }
 timeline.push(process_resps)
