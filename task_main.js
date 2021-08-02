@@ -45,8 +45,7 @@ function randExp(mean=FIXATION_DURATION, lower_bound=FIXATION_MIN, upper_bound=F
 
 /* create survey instructions */
 var survey_inst = {
-    type: 'html-keyboard-response',
-    on_start: set_html_light,
+    type: 'html-keyboard-response', // on_start: set_html_light,
     stimulus: `<p>For this section, you will read about some social issues and then answer some
         questions about your views on those issues.</p>`,
     choices: jsPsych.ALL_KEYS,
@@ -527,7 +526,7 @@ var choice_inst2 = {
     type: 'html-keyboard-response',
     stimulus: `<p>You will use the 'f' and 'j' key to indicate your response.\n
         Press 'f' if you support the group on the left more.\n
-        Press 'j' if you support hte group on the right more.</p>`,
+        Press 'j' if you support the group on the right more.</p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>'
 }
@@ -538,8 +537,7 @@ var first_fixation = {
     type: 'html-keyboard-response',
     stimulus: '<p style="font-size:x-large;">+</p>',
     choices: jsPsych.NO_KEYS,
-    trial_duration: 30,
-    on_start: set_html_dark
+    trial_duration: 30 //,    on_start: set_html_dark
 };
 timeline.push(first_fixation)
 
