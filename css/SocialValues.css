@@ -53,8 +53,8 @@ body {
 .issue {
     display: flex;
     justify-content: flex-start;
-    background-color: white;
-    color: black;
+    background-color: black;
+    color: white;
 }
 .issue > img {
     height: 71px;
