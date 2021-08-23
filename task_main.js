@@ -18,13 +18,17 @@ var resp_fam = []; // hold array of familiarity ratings
 
 /* cosmetics */
 function set_html_light() {
-    document.body.style.backgroundColor = "#fff";
-    document.body.style.color = "#000";
+    document.getElementById("display_stage").color="#000";
+    document.getElementById("display_stage").backgroundColor="#fff";
+    //document.body.style.backgroundColor = "#fff";
+    //document.body.style.color = "#000";
 }
 
 function set_html_dark() {
-    document.body.style.backgroundColor = "#000";
-    document.body.style.color = "#fff";
+    document.getElementById("display_stage").color="#fff";
+    document.getElementById("display_stage").backgroundColor="#000";
+    //document.body.style.backgroundColor = "#000";
+    //document.body.style.color = "#fff";
 }
 
 /* function for ISI with exponential distribution with mean and min/max values */
@@ -518,11 +522,22 @@ var choice_inst = {
                   Your job is to decide which group of protestors you support more.<br><br>
                   Above each photograph you will see what each protest was about.</p>`,
     choices: jsPsych.ALL_KEYS,
-    prompt: '<p>Press any key to continue.</p>'
+    prompt: '<p>Press any key to continue.</p>',
+    on_start: set_html_dark
 }
 timeline.push(choice_inst);
 
 var choice_inst2 = {
+    type: 'html-keyboard-response',
+    stimulus: `<p>You will also see whether the protestors were for the issue or against the issue.<br>
+                  If they supported the issue, you will see a thumbs up:<img src="img/ThumbsUp.jpg"/><br><br>
+                  If they were against the issue, you will see a thumbs down:<img src="img/ThumbsDown.jpg" />.</p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>Press any key to continue.</p>'
+}
+timeline.push(choice_inst2);
+
+var choice_inst3 = {
     type: 'html-keyboard-response',
     stimulus: `<p>You will use the 'f' and 'j' key to indicate your response.<br>
         Press 'f' if you support the group on the left more.<br><br>
@@ -530,14 +545,14 @@ var choice_inst2 = {
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>'
 }
-timeline.push(choice_inst2);
+timeline.push(choice_inst3);
 
 /* create the trials */
 var first_fixation = {
     type: 'html-keyboard-response',
     stimulus: '<p style="font-size:x-large;">+</p>',
     choices: jsPsych.NO_KEYS,
-    trial_duration: 30 //,    on_start: set_html_dark
+    trial_duration: 30
 };
 timeline.push(first_fixation)
 
