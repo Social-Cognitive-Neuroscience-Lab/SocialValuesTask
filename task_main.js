@@ -530,8 +530,8 @@ timeline.push(choice_inst);
 var choice_inst2 = {
     type: 'html-keyboard-response',
     stimulus: `<p>You will also see whether the protestors were for the issue or against the issue.<br>
-                  If they supported the issue, you will see a thumbs up:<img src="img/ThumbsUp.jpg"/><br><br>
-                  If they were against the issue, you will see a thumbs down:<img src="img/ThumbsDown.jpg" />.</p>`,
+                  If they supported the issue, you will see a thumbs up:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsUp.jpg"/><br><br>
+                  If they were against the issue, you will see a thumbs down:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsDown.jpg" />.</p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>'
 }
