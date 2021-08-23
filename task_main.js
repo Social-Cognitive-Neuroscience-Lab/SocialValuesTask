@@ -523,7 +523,12 @@ var choice_inst = {
                   Above each photograph you will see what each protest was about.</p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>',
-    on_start: set_html_dark
+    on_start: function() {
+        document.getElementById("display_stage").style.color = "white";
+        document.getElementById("display_stage").style.backgroundColor = "black";
+        document.getElementById("SurveyEngineBody").style.color = "white";
+        document.getElementById("SurveyEngineBody").style.backgroundColor = "black";
+    }
 }
 timeline.push(choice_inst);
 
