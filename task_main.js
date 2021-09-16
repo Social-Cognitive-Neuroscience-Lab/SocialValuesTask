@@ -434,7 +434,7 @@ var process_resps = {
         moral = moral.concat(moral); // moral conviction does not change
         trial_idx = trial_idx.concat(trial_idx); // trial order does not change
         
-        var support_pos = support.copy(); // all original support ratings are positive
+        var support_pos = support; // all original support ratings are positive
         var issue_pos = [];
         var support_neg = [];
         var issue_neg = [];
