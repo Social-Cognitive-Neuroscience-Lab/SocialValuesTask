@@ -202,6 +202,13 @@ function removeDup(arr) {
     return out;
 }
 
+/* invert the support rating about the midpoint (4) */
+function flip(support) {
+    var flipped;
+    flipped = (support - 4) * -1 + 4;
+    return flipped
+}
+
 /* generate all support-moral mappings */
 function find_unique(support, moral) {
     var ind_resps = [];
@@ -210,6 +217,7 @@ function find_unique(support, moral) {
     console.log(moral)
     for (var i = 0; i < support.length; i++) {
         ind_resps.push(support[i] + "_" + moral[i]);
+        ind_resps.push(flip(support[i]) + "_" + moral[i])
     }
     console.log(ind_resps);
     unique_ratings = removeDup(ind_resps);
@@ -223,7 +231,7 @@ function prep_issue_array(unique_ratings, issues, support, moral) {
     var issue_array = [];
     issue_array.length = 7;
     var found;
-    for (var i=0; i < 10; i++) {
+    for (var i=0; i < issue_array.length; i++) {
         issue_array[i] = [];
         issue_array[i].length = 10;
     }
@@ -316,16 +324,32 @@ function populate_pairs(unique_pairs, issue_array) {
         if (iss2.length > 1) {
             iss2 = shuffle(iss2);
         }
-        iss1 = iss1[0];
-        iss2 = iss2[0];
-        issue_pair = shuffle([iss1, iss2])
+        iss1_vals = [iss1[0].slice(0,1), iss1[0].slice(1)];
+        iss2_vals = [iss2[0].slice(0,1), iss2[0].slice(1)];
+
+        if (iss1_vals[0] == "+") {
+            iss1_vals[0] = "ThumbsUp.jpg";
+        } else {
+            iss1_vals[0] = "ThumbsDown.jpg";
+        }
+        if (iss2_vals[0] == "+") {
+            iss2_vals[0] = "ThumbsUp.jpg";
+        } else {
+            iss2_vals[0] = "ThumbsDown.jpg";
+        }
+
+        issue_pair = shuffle([iss1_vals, iss2_vals])
         console.log('s1  m1')
         console.log([s1, m1])
         console.log('s2  m2')
         console.log([s2, m2])
         console.log('iss1   iss2')
-        console.log([iss1, iss2])
-        trial_list_unshuf.push(issue_pair);
+        console.log([iss1_vals, iss2_vals])
+
+        // decode for/against
+        
+
+        trial_list_unshuf.push(issue_pair[0].concat(issue_pair[1]));
 
         i = i+1;
         j = j+1;
@@ -391,7 +415,7 @@ var process_resps = {
         var support = ratings.select('support').values
         var moral = ratings.select('moral').values
         var trial_idx = ratings.select('trial_index').values
-        var issues = ratings.select('Issue').values
+        var issues_orig = ratings.select('Issue').values
         /*
         console.log("Trial index:")
         console.log(trial_idx)
@@ -402,6 +426,28 @@ var process_resps = {
         console.log("Support ratings:")
         console.log(support)
         */ 
+
+        // Double the length of each list, and add protest support coding
+        // + at first char means support
+        // - at first char means oppose
+        familiar = familiar.concat(familiar); // familiarity does not change
+        moral = moral.concat(moral); // moral conviction does not change
+        trial_idx = trial_idx.concat(trial_idx); // trial order does not change
+        
+        var support_pos = support.copy(); // all original support ratings are positive
+        var issue_pos = [];
+        var support_neg = [];
+        var issue_neg = [];
+
+        // Add protest code and flipped support values
+        for (var idx=0; idx < support.length; idx++) {
+            issue_pos.push( '+' + issues_orig[idx])
+            issue_neg.push( '-' + issues_orig[idx])
+            support_neg.push(flip(support[idx]))
+        }
+        
+        var issues = issue_pos.concat(issues_neg);
+        var support = support_pos.concat(support_neg);
 
         // Sort by support rating
 
@@ -501,8 +547,10 @@ var process_resps = {
 
         // update stim_list
         for (i=0; i < Math.min(STIM_N, trial_list.length); i++) {
-            stim_list[i].iss_l = trial_list[i][0]
-            stim_list[i].iss_r = trial_list[i][1]
+            stim_list[i].pos_l = trial_list[i][0];
+            stim_list[i].iss_l = trial_list[i][1];
+            stim_list[i].pos_r = trial_list[i][2];
+            stim_list[i].iss_r = trial_list[i][3];
         }
     },
     on_finish: function() {
