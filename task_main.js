@@ -446,7 +446,7 @@ var process_resps = {
             support_neg.push(flip(support[idx]))
         }
         
-        var issues = issue_pos.concat(issues_neg);
+        var issues = issue_pos.concat(issue_neg);
         var support = support_pos.concat(support_neg);
 
         // Sort by support rating
