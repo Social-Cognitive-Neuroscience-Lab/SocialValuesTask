@@ -112,7 +112,7 @@ var issue_trial = {
     ],
     data: {
         task: 'rating',
-        IssueID = jsPsych.timelineVariable('IssueID'),
+        IssueID: jsPsych.timelineVariable('IssueID'),
         Issue: jsPsych.timelineVariable('Issue'),
         Short: jsPsych.timelineVariable('Short'),
         For: jsPsych.timelineVariable('For'),
