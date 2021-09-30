@@ -112,8 +112,11 @@ var issue_trial = {
     ],
     data: {
         task: 'rating',
+        IssueID = jsPsych.timelineVariable('IssueID'),
         Issue: jsPsych.timelineVariable('Issue'),
-        Short: jsPsych.timelineVariable('Short')
+        Short: jsPsych.timelineVariable('Short'),
+        For: jsPsych.timelineVariable('For'),
+        Against: jsPsych.timelineVariable('Against')
     },
     on_finish: function(data){
         data.support = data.response['Support'];
@@ -416,6 +419,7 @@ var process_resps = {
         var moral = ratings.select('moral').values
         var trial_idx = ratings.select('trial_index').values
         var issues_orig = ratings.select('Issue').values
+        var issue_ids_orig = ratings.select('IssueID').values
         /*
         console.log("Trial index:")
         console.log(trial_idx)
@@ -441,8 +445,8 @@ var process_resps = {
 
         // Add protest code and flipped support values
         for (var idx=0; idx < support.length; idx++) {
-            issue_pos.push( '+' + issues_orig[idx])
-            issue_neg.push( '-' + issues_orig[idx])
+            issue_pos.push( '+' + issue_ids_orig[idx])
+            issue_neg.push( '-' + issue_ids_orig[idx])
             support_neg.push(flip(support[idx]))
         }
         
