@@ -31,7 +31,7 @@ var issue_list = [
     "IssueID": 105,
     "Short": "BorderWall",
     "Issue": "Build southern border wall",
-    "For": "Photo_282.png",
+    "For": "Photo_1011_02.png",
     "Against": "Photo_258.png"
   },
   {
