@@ -4,8 +4,8 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 12;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 5; // number of issues to show
-var STIM_N = 10; // number of trials in choice task
+var ISSUE_N = 30; // number of issues to show
+var STIM_N = 100; // number of trials in choice task
 
 var timeline = [];
 
@@ -47,100 +47,7 @@ function randExp(mean=FIXATION_DURATION, lower_bound=FIXATION_MIN, upper_bound=F
 
 }
 
-/* create survey instructions */
-var survey_inst = {
-    type: 'html-keyboard-response', // on_start: set_html_light,
-    stimulus: `<p>For this section, you will read about some social issues and then answer some
-        questions about your views on those issues.</p>`,
-    choices: jsPsych.ALL_KEYS,
-    prompt: '<p>Press any key to continue</p>'
-}
-timeline.push(survey_inst);
-
-/* create survey questions */
-var familiar_options = [
-    'Not at all familiar',
-    'Slightly familiar',
-    'Somewhat familiar',
-    'Moderately familiar',
-    'Very familiar'
-];
-
-var support_options = [
-    'Stongly oppose',
-    'Oppose',
-    'Somewhat oppose',
-    'Neutral',
-    'Somewhat support',
-    'Support',
-    'Strongly support'
-];
-
-var moral_options = [
-    'Not at all',
-    'Slightly',
-    'Somewhat',
-    'Moderately',
-    'Very much'
-]
-
-
-var issue_trial = {
-    type: 'survey-likert',
-    preamble: function () {
-        return ('<p style="font-size:x-large">'+jsPsych.timelineVariable("Issue", true)+'</p>');
-    },
-    questions: [
-        {prompt: function () {
-            return ('How familiar are you with arguments for or against '+jsPsych.timelineVariable("Issue", true).toLowerCase() +'?');
-            }, 
-            name: 'Familiar', labels: familiar_options, required: true},
-        {prompt: function () {
-            return ('How much do you support or oppose '+jsPsych.timelineVariable("Issue", true).toLowerCase() +'?');
-            }, 
-            name: 'Support', labels: support_options, required: true},
-        {prompt: function() {
-            return ('To what extent is your position on '+jsPsych.timelineVariable("Issue", true).toLowerCase() 
-            +' a reflection of your core moral beliefs and convictions?')
-        },
-            name: 'Moral1', labels: moral_options, required:true, horizontal: true},
-        {prompt: function() {
-            return ('To what extent is your position on '+jsPsych.timelineVariable("Issue", true).toLowerCase() +
-            ' connected to your beliefs about fundamental right and wrong?')
-        }, 
-            name: 'Moral2', labels: moral_options, required:true}
-    ],
-    data: {
-        task: 'rating',
-        IssueID: jsPsych.timelineVariable('IssueID'),
-        Issue: jsPsych.timelineVariable('Issue'),
-        Short: jsPsych.timelineVariable('Short'),
-        For: jsPsych.timelineVariable('For'),
-        Against: jsPsych.timelineVariable('Against')
-    },
-    on_finish: function(data){
-        data.support = data.response['Support'];
-        data.moral = data.response['Moral1'] + data.response['Moral2'];
-        data.mor1 = data.response['Moral1'];
-        data.mor2 = data.response['Moral2'];
-        data.familiar = data.response['Familiar'];
-
-        if(data.familiar == 0){
-            var dnk = true;
-        } else {
-            var dnk = false;
-        }
-        data.dnk = dnk;
-    }
-}
-
-var issues_with_variables = {
-    timeline: [issue_trial],
-    timeline_variables: issue_list.slice(0, ISSUE_N)
-};
-
-timeline.push(issues_with_variables)
-
+/* Functions */
 
 /* 
 search 'support' and 'moral' arrays for specific values of
@@ -418,6 +325,113 @@ function build_stim_list() {
     }
 
 }
+
+/* 
+given the list of issues, randomize the order and select the first N issues
+*/
+function prepare_issues(issue_list, n=ISSUE_N) {
+    iss_shuf = shuffle(issue_list);
+    issues_used = iss_shuf.slice(0, n);
+    return issues_used;
+    // issue_list.slice(0, ISSUE_N)
+}
+
+/* Create Timeline */
+
+/* create survey instructions */
+var survey_inst = {
+    type: 'html-keyboard-response', // on_start: set_html_light,
+    stimulus: `<p>For this section, you will read about some social issues and then answer some
+        questions about your views on those issues.</p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>Press any key to continue</p>'
+}
+timeline.push(survey_inst);
+
+/* create survey questions */
+var familiar_options = [
+    'Not at all familiar',
+    'Slightly familiar',
+    'Somewhat familiar',
+    'Moderately familiar',
+    'Very familiar'
+];
+
+var support_options = [
+    'Stongly oppose',
+    'Oppose',
+    'Somewhat oppose',
+    'Neutral',
+    'Somewhat support',
+    'Support',
+    'Strongly support'
+];
+
+var moral_options = [
+    'Not at all',
+    'Slightly',
+    'Somewhat',
+    'Moderately',
+    'Very much'
+]
+
+
+var issue_trial = {
+    type: 'survey-likert',
+    preamble: function () {
+        return ('<p style="font-size:x-large">'+jsPsych.timelineVariable("Issue", true)+'</p>');
+    },
+    questions: [
+        {prompt: function () {
+            return ('How familiar are you with arguments for or against '+jsPsych.timelineVariable("Issue", true).toLowerCase() +'?');
+            }, 
+            name: 'Familiar', labels: familiar_options, required: true},
+        {prompt: function () {
+            return ('How much do you support or oppose '+jsPsych.timelineVariable("Issue", true).toLowerCase() +'?');
+            }, 
+            name: 'Support', labels: support_options, required: true},
+        {prompt: function() {
+            return ('To what extent is your position on '+jsPsych.timelineVariable("Issue", true).toLowerCase() 
+            +' a reflection of your core moral beliefs and convictions?')
+        },
+            name: 'Moral1', labels: moral_options, required:true, horizontal: true},
+        {prompt: function() {
+            return ('To what extent is your position on '+jsPsych.timelineVariable("Issue", true).toLowerCase() +
+            ' connected to your beliefs about fundamental right and wrong?')
+        }, 
+            name: 'Moral2', labels: moral_options, required:true}
+    ],
+    data: {
+        task: 'rating',
+        IssueID: jsPsych.timelineVariable('IssueID'),
+        Issue: jsPsych.timelineVariable('Issue'),
+        Short: jsPsych.timelineVariable('Short'),
+        For: jsPsych.timelineVariable('For'),
+        Against: jsPsych.timelineVariable('Against')
+    },
+    on_finish: function(data){
+        data.support = data.response['Support'];
+        data.moral = data.response['Moral1'] + data.response['Moral2'];
+        data.mor1 = data.response['Moral1'];
+        data.mor2 = data.response['Moral2'];
+        data.familiar = data.response['Familiar'];
+
+        if(data.familiar == 0){
+            var dnk = true;
+        } else {
+            var dnk = false;
+        }
+        data.dnk = dnk;
+    }
+}
+
+var issues_with_variables = {
+    timeline: [issue_trial],
+    timeline_variables: prepare_issues(issue_list) // issue_list.slice(0, ISSUE_N)
+};
+
+timeline.push(issues_with_variables)
+
 
 /* score the responses and generate a list of issue pairs */
 var process_resps = {
