@@ -318,28 +318,40 @@ function populate_pairs(unique_pairs, issue_array) {
         s2 = pair_to_find[4];
         m2 = pair_to_find[6];
 
-        iss1 = issue_array[s1][m1]
-        iss2 = issue_array[s2][m2]
+        iss1 = issue_array[s1][m1] // array of issues with support=s1 and moral=m1
+        iss2 = issue_array[s2][m2] // array of issues with support=s2 and moral=m2
         
+        // If more than one issue of the exact Support_Moral rating, randomize the order
         if (iss1.length > 1) {
             iss1 = shuffle(iss1);
         }
         if (iss2.length > 1) {
             iss2 = shuffle(iss2);
         }
-        iss1_vals = [iss1[0].slice(0,1), iss1[0].slice(1)];
-        iss2_vals = [iss2[0].slice(0,1), iss2[0].slice(1)];
+        // Use the first issue in the list to prepare the stimuli
+        iss1_vals = [iss1[0].slice(0,1), iss1[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
+        iss2_vals = [iss2[0].slice(0,1), iss2[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
+
+        issue1 = issue_list.find(x => x.IssueID == iss1_vals[1]);
+        issue2 = issue_list.find(x => x.IssueID == iss2_vals[1]);
 
         if (iss1_vals[0] == "+") {
             iss1_vals[0] = "ThumbsUp.jpg";
+            iss1_vals[2] = issue1.For;
         } else {
             iss1_vals[0] = "ThumbsDown.jpg";
+            iss1_vals[2] = issue1.Against;
         }
         if (iss2_vals[0] == "+") {
             iss2_vals[0] = "ThumbsUp.jpg";
+            iss2_vals[2] = issue2.For;
         } else {
             iss2_vals[0] = "ThumbsDown.jpg";
+            iss2_vals[2] = issue2.Against;
         }
+        // update issue ID with issue text
+        iss1_vals[1] = issue1.Issue;
+        iss2_vals[1] = issue2.Issue;
 
         issue_pair = shuffle([iss1_vals, iss2_vals])
         console.log('s1  m1')
@@ -553,8 +565,10 @@ var process_resps = {
         for (i=0; i < Math.min(STIM_N, trial_list.length); i++) {
             stim_list[i].pos_l = trial_list[i][0];
             stim_list[i].iss_l = trial_list[i][1];
-            stim_list[i].pos_r = trial_list[i][2];
-            stim_list[i].iss_r = trial_list[i][3];
+            stim_list[i].photo_l = trial_list[i][2];
+            stim_list[i].pos_r = trial_list[i][3];
+            stim_list[i].iss_r = trial_list[i][4];
+            stim_list[i].photo_r = trial_list[i][5];
         }
     },
     on_finish: function() {
