@@ -4,8 +4,8 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 12;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 36; // number of issues to show
-var STIM_N = 100; // number of trials in choice task
+var ISSUE_N = 5; // number of issues to show
+var STIM_N = 20; // number of trials in choice task
 
 var timeline = [];
 
@@ -229,8 +229,8 @@ function populate_pairs(unique_pairs, issue_array) {
         // find the match needed
         pair_to_find = unique_pairs[j]
 
-        console.log("pair_to_find:")
-        console.log(pair_to_find)
+        //console.log("pair_to_find:")
+        //console.log(pair_to_find)
         s1 = pair_to_find[0];
         m1 = pair_to_find[2];
         s2 = pair_to_find[4];
@@ -504,11 +504,12 @@ var process_resps = {
         console.log(trial_idx)
         console.log("Familiarity ratings:")
         console.log(familiar)
+        */
         console.log("Moral ratings:")
         console.log(moral)
         console.log("Support ratings:")
         console.log(support)
-        */ 
+
 
         // Double the length of each list, and add protest support coding
         // + at first char means support
@@ -599,7 +600,7 @@ var process_resps = {
         console.log(issues_sorted)
         
 
-        console.log('Mapping pairs')
+        console.log('Identifying unique issues')
         // generate list of unique support-moral responses
         unique_ratings = find_unique(support_sorted, moral_sorted)
 
@@ -609,7 +610,7 @@ var process_resps = {
         // prepare the list of issues to use
         issue_array = prep_issue_array(unique_ratings, issues_sorted, support_sorted, moral_sorted);
 
-        console.log('Maping unique issues')
+        console.log('Mapping unique issues')
         // generate list of unique pairs of support and moral ratings
         unique_pairs = map_unique(unique_ratings)
         // ASSERT: unique_pairs now contains the list of all n choose 2
