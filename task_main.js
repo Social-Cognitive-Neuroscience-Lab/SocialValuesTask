@@ -648,6 +648,17 @@ var process_resps = {
 }
 timeline.push(process_resps)
 
+var images_left = stim_list.map(x => x.photo_l)
+var images_left = stim_list.map(x => x.photo_r)
+var images = images_left.concat(images_right);
+
+var preload = {
+    type: 'preload',
+    auto_preload: true,
+    images: images
+}
+
+timeline.push(preload);
 
 /* create choice instructions */
 var choice_inst = {
@@ -775,13 +786,6 @@ var trials_with_variables2 = {
     timeline_variables: stim_list.slice(STIM_N/2)
 };
 
-
-var preload = {
-    type: 'preload',
-    auto_preload: true
-}
-
-timeline.push(preload);
 timeline.push(trials_with_variables1);
 timeline.push(halfway_break);
 timeline.push(trials_with_variables2);
