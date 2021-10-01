@@ -150,12 +150,12 @@ function prep_issue_array(unique_ratings, issues, support, moral) {
         s = unique_ratings[i][0];
         m = unique_ratings[i][2];
         // console.log('Checking issues with [support, moral]')
-        // console.log([s, m])
+        console.log([s, m])
         // console.log('issues found:')
         found = get_issues(issues, support, moral, s, m);
         // console.log(found)
         fs = shuffle(found);
-        // console.log(fs);
+        console.log(fs);
         issue_array[s][m] = fs;
         // console.log('new issues:')
         // console.log(issue_array[s][m])
@@ -346,9 +346,9 @@ function prepare_issues(issue_list, n=ISSUE_N) {
 /* create survey instructions */
 var survey_inst = {
     type: 'html-keyboard-response', // on_start: set_html_light,
-    stimulus: `<p>For this section, you will read about some social issues and then answer some
-        questions about your views on those issues.
-        Use your cursor to click on your answer.</p>`,
+    stimulus: `<p>For this section, you will read about some social issues<br> 
+        and then answer some questions about your views on those issues.<br><br>
+        Use your cursor to click on your answer.<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue</p>'
 }
@@ -365,7 +365,7 @@ timeline.push(survey_inst2);
 
 var survey_inst3 = {
     type: 'html-keyboard-response', // on_start: set_html_light,
-    stimulus: `<p>The second question asks how much you support or oppose the issue.</p>`,
+    stimulus: `<p>The second question asks how much you support or oppose the issue<br><br>.</p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue</p>'
 }
