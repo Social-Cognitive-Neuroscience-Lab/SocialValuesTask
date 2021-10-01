@@ -122,7 +122,7 @@ function removeDup(arr) {
 /* invert the support rating about the midpoint (4) */
 function flip(support) {
     var flipped;
-    flipped = (support - 4) * -1 + 4;
+    flipped = (support - 3) * -1 + 3;
     return flipped
 }
 
