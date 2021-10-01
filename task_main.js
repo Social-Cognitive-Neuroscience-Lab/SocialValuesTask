@@ -427,20 +427,20 @@ var issue_trial = {
     },
     questions: [
         {prompt: function () {
-            return ('How familiar are you with arguments for or against '+jsPsych.timelineVariable("Issue", true).toLowerCase() +'?');
+            return ('How familiar are you with arguments for or against '+jsPsych.timelineVariable("Issue", true) +'?');
             }, 
             name: 'Familiar', labels: familiar_options, required: true},
         {prompt: function () {
-            return ('How much do you support or oppose '+jsPsych.timelineVariable("Issue", true).toLowerCase() +'?');
+            return ('How much do you support or oppose '+jsPsych.timelineVariable("Issue", true) +'?');
             }, 
             name: 'Support', labels: support_options, required: true},
         {prompt: function() {
-            return ('To what extent is your position on '+jsPsych.timelineVariable("Issue", true).toLowerCase() 
+            return ('To what extent is your position on '+jsPsych.timelineVariable("Issue", true) 
             +' a reflection of your core moral beliefs and convictions?')
         },
             name: 'Moral1', labels: moral_options, required:true, horizontal: true},
         {prompt: function() {
-            return ('To what extent is your position on '+jsPsych.timelineVariable("Issue", true).toLowerCase() +
+            return ('To what extent is your position on '+jsPsych.timelineVariable("Issue", true) +
             ' connected to your beliefs about fundamental right and wrong?')
         }, 
             name: 'Moral2', labels: moral_options, required:true}
