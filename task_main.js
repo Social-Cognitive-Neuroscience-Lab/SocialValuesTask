@@ -333,6 +333,7 @@ given the list of issues, randomize the order and select the first N issues
 function prepare_issues(issue_list, n=ISSUE_N) {
     iss_shuf = shuffle(issue_list);
     issues_used = iss_shuf.slice(0, n);
+    console.log(issues_used)
     return issues_used;
     // issue_list.slice(0, ISSUE_N)
 }
