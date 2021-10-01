@@ -4,7 +4,7 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 12;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 30; // number of issues to show
+var ISSUE_N = 36; // number of issues to show
 var STIM_N = 100; // number of trials in choice task
 
 var timeline = [];
@@ -336,17 +336,59 @@ function prepare_issues(issue_list, n=ISSUE_N) {
     // issue_list.slice(0, ISSUE_N)
 }
 
-/* Create Timeline */
+/*
+ * 
+ *  Create Timeline 
+ * 
+ * 
+*/
 
 /* create survey instructions */
 var survey_inst = {
     type: 'html-keyboard-response', // on_start: set_html_light,
     stimulus: `<p>For this section, you will read about some social issues and then answer some
-        questions about your views on those issues.</p>`,
+        questions about your views on those issues.
+        Use your cursor to click on your answer.</p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue</p>'
 }
 timeline.push(survey_inst);
+
+var survey_inst2 = {
+    type: 'html-keyboard-response', // on_start: set_html_light,
+    stimulus: `<p>The first question asks about how familiar you are with the issue.
+        If you haven't heard of the issue before, or don't know what it's about, please choose "Not at all familiar"</p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>Press any key to continue</p>'
+}
+timeline.push(survey_inst2);
+
+var survey_inst3 = {
+    type: 'html-keyboard-response', // on_start: set_html_light,
+    stimulus: `<p>The second question asks how much you support or oppose the issue.</p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>Press any key to continue</p>'
+}
+timeline.push(survey_inst3);
+
+var survey_inst4 = {
+    type: 'html-keyboard-response', // on_start: set_html_light,
+    stimulus: `<p>The last two questions ask you to think about why you support or oppose the issue.<br> 
+        Is your position based on your moral beliefs and view of right and wrong,<br> 
+        or something else, like feasibility or effectiveness?</p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>Press any key to continue</p>'
+}
+timeline.push(survey_inst4);
+
+var survey_inst5 = {
+    type: 'html-keyboard-response', // on_start: set_html_light,
+    stimulus: `<p>There are a total of 36 issues.<br> 
+        You can take as much time as you need for this part of the study.</p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>When you are ready to begin, press any key to continue</p>'
+}
+timeline.push(survey_inst5);
 
 /* create survey questions */
 var familiar_options = [
@@ -598,7 +640,7 @@ timeline.push(process_resps)
 /* create choice instructions */
 var choice_inst = {
     type: 'html-keyboard-response',
-    stimulus: `<p>For the following task, you will see photographs of two groups of protestors.<br>
+    stimulus: `<p>For the last part of the study, you will see photographs of two groups of protestors.<br>
                   Your job is to decide which group of protestors you support more.<br><br>
                   Above each photograph you will see what each protest was about.</p>`,
     choices: jsPsych.ALL_KEYS,
@@ -614,7 +656,7 @@ timeline.push(choice_inst);
 
 var choice_inst2 = {
     type: 'html-keyboard-response',
-    stimulus: `<p>You will also see whether the protestors were for the issue or against the issue.<br>
+    stimulus: `<p>You will also see whether the protestors were FOR or AGAINST the issue.<br>
                   If they supported the issue, you will see a thumbs up:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsUp.jpg"/><br><br>
                   If they were against the issue, you will see a thumbs down:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsDown.jpg" />.</p>`,
     choices: jsPsych.ALL_KEYS,
@@ -624,13 +666,31 @@ timeline.push(choice_inst2);
 
 var choice_inst3 = {
     type: 'html-keyboard-response',
-    stimulus: `<p>You will use the 'f' and 'j' key to indicate your response.<br>
+    stimulus: `<p>You will use the 'f' and 'j' keys to indicate your response.<br>
         Press 'f' if you support the group on the left more.<br><br>
         Press 'j' if you support the group on the right more.</p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>'
 }
 timeline.push(choice_inst3);
+
+var choice_inst4 = {
+    type: 'html-keyboard-response',
+    stimulus: `<p>Between each pair of protests, you'll see crosshairs like this: <br><br><br>
+    +<br><br><br>
+    </p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>Press any key to continue.</p>'
+}
+timeline.push(choice_inst4);
+
+var choice_inst5 = {
+    type: 'html-keyboard-response',
+    stimulus: `<p>Press the 'f' or 'j' key as soon as you make your decision.</p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>When you are ready, press any key to begin.</p>'
+}
+timeline.push(choice_inst5);
 
 /* create the trials */
 var first_fixation = {
@@ -686,9 +746,23 @@ var trial = {
     }
 };
 
-var trials_with_variables = {
+var halfway_break = {
+    type: 'html-keyboard-response',
+    stimulus: `<p>You are halfway done. <br><br>Keep up the good work!</p>`,
+    choices: jsPsych.ALL_KEYS,
+    prompt: '<p>When you are ready to continue, press any key.</p>'
+}
+
+var trials_with_variables1 = {
     timeline: [fixation, trial],
-    timeline_variables: stim_list.slice(0,STIM_N)
+    timeline_variables: stim_list.slice(0,STIM_N/2)
 };
 
-timeline.push(trials_with_variables);
+var trials_with_variables2 = {
+    timeline: [fixation, trial],
+    timeline_variables: stim_list.slice(STIM_N/2)
+};
+
+timeline.push(trials_with_variables1);
+timeline.push(halfway_break);
+timeline.push(trials_with_variables2);
