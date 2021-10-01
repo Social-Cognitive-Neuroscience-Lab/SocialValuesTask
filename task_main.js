@@ -356,8 +356,8 @@ timeline.push(survey_inst);
 
 var survey_inst2 = {
     type: 'html-keyboard-response', // on_start: set_html_light,
-    stimulus: `<p>The first question asks about how familiar you are with the issue.
-        If you haven't heard of the issue before, or don't know what it's about, please choose "Not at all familiar"</p>`,
+    stimulus: `<p>The first question asks about how familiar you are with the issue.<br>
+        If you haven't heard of the issue before, or don't know what it's about, <br>please choose "Not at all familiar"<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue</p>'
 }
@@ -375,7 +375,7 @@ var survey_inst4 = {
     type: 'html-keyboard-response', // on_start: set_html_light,
     stimulus: `<p>The last two questions ask you to think about why you support or oppose the issue.<br> 
         Is your position based on your moral beliefs and view of right and wrong,<br> 
-        or something else, like feasibility or effectiveness?</p>`,
+        or something else, like feasibility or effectiveness?<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue</p>'
 }
@@ -384,7 +384,7 @@ timeline.push(survey_inst4);
 var survey_inst5 = {
     type: 'html-keyboard-response', // on_start: set_html_light,
     stimulus: `<p>There are a total of 36 issues.<br> 
-        You can take as much time as you need for this part of the study.</p>`,
+        You can take as much time as you need for this part of the study.<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>When you are ready to begin, press any key to continue</p>'
 }
@@ -763,12 +763,13 @@ var trials_with_variables2 = {
     timeline_variables: stim_list.slice(STIM_N/2)
 };
 
-/*
+
 var preload = {
     type: 'preload',
     auto_preload: true
 }
-*/
+
+timeline.push(preload);
 timeline.push(trials_with_variables1);
 timeline.push(halfway_break);
 timeline.push(trials_with_variables2);
