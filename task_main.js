@@ -648,8 +648,8 @@ var process_resps = {
 }
 timeline.push(process_resps)
 
-var images_left = stim_list.map(x => x.photo_l)
-var images_right = stim_list.map(x => x.photo_r)
+var images_left = stim_list.map(x => "https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/" + x.photo_l)
+var images_right = stim_list.map(x => "https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/" + x.photo_r)
 var images = images_left.concat(images_right);
 
 var preload = {
