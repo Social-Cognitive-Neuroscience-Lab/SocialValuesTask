@@ -778,12 +778,12 @@ var choice_block = {
 
 var preload_survey = {
     type: 'preload',
-    trials = survey_block
+    trials: survey_block
 }
 
 var preload_choice = {
     type: 'preload',
-    trials = choice_block
+    trials: choice_block
 }
 
 var timeline = []
