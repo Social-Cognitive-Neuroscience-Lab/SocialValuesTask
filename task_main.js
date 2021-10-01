@@ -786,4 +786,8 @@ var preload_choice = {
     trials = choice_block
 }
 
-timeline = [preload_survey, survey_block, preload_choice, choice_block]
+var timeline = []
+timeline.push(preload_survey);
+timeline.push(survey_block);
+timeline.push(preload_choice);
+timeline.push(choice_block);
