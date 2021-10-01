@@ -89,6 +89,13 @@ function get_issues(issues, support, moral, s_target, m_target) {
                 iss.push(issues[ii])
             }
         } 
+    if (iss.length == 0 ) {
+        console.log('Tried to get issue but found no matches for:')
+        console.log([s_target, m_target])
+        console.log('In support and moral arrays:')
+        console.log(support)
+        console.log(moral)
+    }
     return iss;
 }
 
@@ -150,13 +157,17 @@ function prep_issue_array(unique_ratings, issues, support, moral) {
         s = unique_ratings[i][0];
         m = unique_ratings[i][2];
         // console.log('Checking issues with [support, moral]')
-        console.log([s, m])
+        //console.log([s, m])
         // console.log('issues found:')
         found = get_issues(issues, support, moral, s, m);
         // console.log(found)
         fs = shuffle(found);
-        console.log(fs);
-        issue_array[s][m] = fs;
+        if (fs.length == 0) {
+            console.log('Failed to find any issues for the following unique_rating:')
+            console.log([s, m])
+        } else {
+            issue_array[s][m] = fs;
+        }
         // console.log('new issues:')
         // console.log(issue_array[s][m])
     }
@@ -365,7 +376,7 @@ timeline.push(survey_inst2);
 
 var survey_inst3 = {
     type: 'html-keyboard-response', // on_start: set_html_light,
-    stimulus: `<p>The second question asks how much you support or oppose the issue<br><br>.</p>`,
+    stimulus: `<p>The second question asks how much you support or oppose the issue.<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue</p>'
 }
