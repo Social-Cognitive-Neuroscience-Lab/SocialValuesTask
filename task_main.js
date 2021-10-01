@@ -776,11 +776,6 @@ var choice_block = {
     timeline: choice_timeline
 }
 
-var preload = {
-    type: 'preload',
-    auto_preload: true
-}
-/*
 var preload_survey = {
     type: 'preload',
     trials: survey_block
@@ -790,9 +785,9 @@ var preload_choice = {
     type: 'preload',
     trials: choice_block
 }
-*/
 
 var timeline = []
-timeline.push(preload);
+timeline.push(preload_survey);
 timeline.push(survey_block);
+timeline.push(preload_choice);
 timeline.push(choice_block);
