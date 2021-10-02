@@ -2,10 +2,10 @@
 /* experiment parameters */
 var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
-var FIXATION_MAX = 12;
+var FIXATION_MAX = 8;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 5; // number of issues to show
-var STIM_N = 20; // number of trials in choice task
+var ISSUE_N = 36; // number of issues to show
+var STIM_N = 100; // number of trials in choice task
 
 var timeline = [];
 
@@ -665,7 +665,7 @@ var choice_inst = {
     type: 'html-keyboard-response',
     stimulus: `<p>For the last part of the study, you will see photographs of two groups of protestors.<br>
                   Your job is to decide which group of protestors you support more.<br><br>
-                  Above each photograph you will see what each protest was about.</p>`,
+                  Above each photograph you will see what each protest was about.<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>',
     on_start: function() {
@@ -681,7 +681,7 @@ var choice_inst2 = {
     type: 'html-keyboard-response',
     stimulus: `<p>You will also see whether the protestors were FOR or AGAINST the issue.<br>
                   If they supported the issue, you will see a thumbs up:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsUp.jpg"/><br><br>
-                  If they were against the issue, you will see a thumbs down:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsDown.jpg" />.</p>`,
+                  If they were against the issue, you will see a thumbs down:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsDown.jpg" />.<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>'
 }
@@ -691,7 +691,7 @@ var choice_inst3 = {
     type: 'html-keyboard-response',
     stimulus: `<p>You will use the 'f' and 'j' keys to indicate your response.<br>
         Press 'f' if you support the group on the left more.<br><br>
-        Press 'j' if you support the group on the right more.</p>`,
+        Press 'j' if you support the group on the right more.<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>Press any key to continue.</p>'
 }
@@ -709,7 +709,7 @@ timeline.push(choice_inst4);
 
 var choice_inst5 = {
     type: 'html-keyboard-response',
-    stimulus: `<p>Press the 'f' or 'j' key as soon as you make your decision.</p>`,
+    stimulus: `<p>Press the 'f' or 'j' key as soon as you make your decision.<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>When you are ready, press any key to begin.</p>'
 }
@@ -771,7 +771,7 @@ var trial = {
 
 var halfway_break = {
     type: 'html-keyboard-response',
-    stimulus: `<p>You are halfway done. <br><br>Keep up the good work!</p>`,
+    stimulus: `<p>You are halfway done. <br><br>Keep up the good work!<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>When you are ready to continue, press any key.</p>'
 }
