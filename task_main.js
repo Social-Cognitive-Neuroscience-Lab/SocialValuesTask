@@ -4,8 +4,8 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 8;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 36; // number of issues to show
-var STIM_N = 100; // number of trials in choice task
+var ISSUE_N = 3; // number of issues to show
+var STIM_N = 6; // number of trials in choice task
 
 var timeline = [];
 
@@ -626,8 +626,8 @@ var process_resps = {
 
         //build_stim_list()
 
-        console.log('Pair labels:')
-        console.log(trial_list)
+        //console.log('Pair labels:')
+        //console.log(trial_list)
 
         // update stim_list
         for (i=0; i < Math.min(STIM_N, trial_list.length); i++) {
