@@ -2,7 +2,7 @@
 /* experiment parameters */
 var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
-var FIXATION_MAX = 8;
+var FIXATION_MAX = 4;
 var STIMULUS_DURATION = 3000;
 var ISSUE_N = 36; // number of issues to show
 var STIM_N = 100; // number of trials in choice task
