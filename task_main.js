@@ -631,6 +631,8 @@ var process_resps = {
 
         // update stim_list
         for (i=0; i < Math.min(STIM_N, trial_list.length); i++) {
+            console.log('Setting trial:')
+            console.log(i)
             stim_list[i].pos_l = trial_list[i][0];
             stim_list[i].iss_l = trial_list[i][1];
             stim_list[i].photo_l = trial_list[i][2];
