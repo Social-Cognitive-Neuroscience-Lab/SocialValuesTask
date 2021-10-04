@@ -4,8 +4,8 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 8;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 3; // number of issues to show
-var STIM_N = 6; // number of trials in choice task
+var ISSUE_N = 36; // number of issues to show
+var STIM_N = 100; // number of trials in choice task
 
 var timeline = [];
 
@@ -130,8 +130,8 @@ function flip(support) {
 function find_unique(support, moral) {
     var ind_resps = [];
     var unique_ratings = [];
-    console.log(support)
-    console.log(moral)
+    //console.log(support)
+    //console.log(moral)
     for (var i = 0; i < support.length; i++) {
         ind_resps.push(support[i] + "_" + moral[i]);
         ind_resps.push(flip(support[i]) + "_" + moral[i])
@@ -210,8 +210,8 @@ function populate_pairs(unique_pairs, issue_array) {
     console.log("Populating pairs")
     trial_list = [];
     trial_list_unshuf = [];
-    console.log("unique_pairs")
-    console.log(unique_pairs)
+    //console.log("unique_pairs")
+    //console.log(unique_pairs)
     console.log("issue_array")
     console.log(issue_array)
     
@@ -626,8 +626,8 @@ var process_resps = {
 
         //build_stim_list()
 
-        //console.log('Pair labels:')
-        //console.log(trial_list)
+        console.log('Prepairing stim_list. Currently:')
+        console.log(stim_list)
 
         // update stim_list
         for (i=0; i < Math.min(STIM_N, trial_list.length); i++) {
