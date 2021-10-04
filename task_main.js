@@ -450,7 +450,7 @@ var issue_trial = {
             name: 'Moral1', labels: moral_options, required:true, horizontal: true},
         {prompt: function() {
             return ('To what extent is your position on '+jsPsych.timelineVariable("IssueText", true).toLowerCase() +
-            ' connected to your beliefs about fundamental right and wrong?')
+            ' based on fundamental questions of right and wrong?')
         }, 
             name: 'Moral2', labels: moral_options, required:true}
     ],
