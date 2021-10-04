@@ -1,44 +1,44 @@
-IssueID,Short,Issue,For,Against
-101,Confederate,Remove public confederate memorials,Photo_1050.png,Photo_1001.png
-102,BLM,Black Lives Matter,Photo_1034_01.png,Photo_1027_02.png
-103,AltRight,Allow alt-right speakers on campuses,Photo_262.png,Photo_1021_01.png
-104,MandatoryConsent,Mandatory training on sexual consent,Photo_275.png,Photo_1047_01.png
-105,BorderWall,Build southern border wall,Photo_282.png,Photo_258.png
-106,MigrantChildren,Detention of migrant children,Photo_1001.png,Photo_301.png
-107,EthnicHalloween,Ban on ethnic halloween costumes,Photo_362.png,Photo_276.png
-108,MandatoryVaccine,Mandatory vaccinations,Photo_1003_01.png,Photo_280.png
-109,BanAnimalResearch,Ban on research with animals,Photo_1016.png,Photo_1020_01.png
-110,ReligExempt,Religious exemptions for discrimination laws,Photo_320.png,Photo_1021_02.png
-111,AbortionRights,Abortion rights,Photo_316.png,Photo_1080.png
-112,ClimateLegislation,Climate change legislation,Photo_1014.png,Photo_1047_02.png
-113,AffirmativeAction,Affirmative action,Photo_272.png,Photo_337.png
-114,DormsGender,Dorms determined by gender identity,Photo_254.png,Photo_369.png
-115,ParksBudget,Cuts to national parks budget,Photo_1007_01.png,Photo_273.png
-116,TriggerWarnings,Mandatory trigger warnings,Photo_367.png,Photo_1020_02.png
-117,TuitionIncrease,Tuition increases,Photo_341.png,Photo_1075.png
-118,WarDrugs,War on drugs,Photo_1068_01.png,Photo_300.png
-119,CampusCarry,On campus concealed carry,Photo_1005_02.png,Photo_999.png
-120,DisarmCampus,Gun free campus police,Photo_202.png,Photo_377.png
-121,AbolishPrison,Abolishing private prisons,Photo_374.png,Photo_220.png
-122,StudentUnionization,Student worker unionization,Photo_217.png,Photo_1072.png
-123,AbolishFrats,Abolishing fraternities,Photo_257.png,Photo_206.png
-124,BathroomBioSex,Bathrooms restricted based on biological sex,Photo_230.png,Photo_1082.png
-125,BDSIsrael,"Boycott, Divest, and Sanction Israel",Photo_1038.png,Photo_1081.png
-126,WelfareDrugTest,Mandatory drug tests for welfare recipients,Photo_1034_02.png,Photo_261.png
-127,ExpelWhiteNationalists,Expel students with white nationlist views,Photo_1077.png,Photo_228.png
-128,Drones,U.S. drone strikes in Afghanistan,Photo_1065_01.png,Photo_1019_01.png
-129,JerusalemCapital,Recognize Jerusalem as capital of Israel,Photo_297.png,Photo_1008_01.png
-130,LegalizeMarijuana,Legalization of marijuana,Photo_333.png,Photo_225.png
-131,DefundPlannedParenthood,Defund Planned Parenthood,Photo_268.png,Photo_218.png
-132,InjectionSites,Safe injection locations,Photo_1079.png,Photo_1076_02.png
-133,HardenSchools,Hardening schools/Arming teachers,Photo_1008_02.png,Photo_1002_02.png
-134,Mask,Mask mandates,Photo_1002_01.png,Photo_1007_02.png
-135,SchoolPolice,Remove police from schools,Photo_1017_01.png,Photo_1001.png
-136,Euthanasia,Physician-assisted suicide,Photo_368.png,Photo_1004.png
-137,Sanctuary,University Campus should be a Sanctuary,Photo_1078.png,Photo_1006_02.png
-138,DefundPolice,Defund the police,Photo_1024_01.png,Photo_1083.png
-139,GunControl,Increased Gun regulations,Photo_1014.png,Photo_1026_01.png
-140,COVIDLockdown,Lift COVID lockdowns,Photo_1084.png,Photo_335.png
-141,ColumbusStatue,Remove Christopher Columbus statue,Photo_1045_02.png,Photo_1032.png
-142,PoliceBrut,Stop police brutality,Photo_1035_02.png,Photo_231.png
-143,MinimumWage,Raise the minimum wage,Photo_1059_01.png,Photo_1039_02.png
+IssueID,Short,Issue,IssueText,For,Against
+101,Confederate,Remove public Confederate memorials,removing Confederate memorials,Photo_1050.png,Photo_1001.png
+102,BLM,Black Lives Matter,Black Lives Matter,Photo_1034_01.png,Photo_1027_02.png
+103,AltRight,Allow alt-right speakers on campus,allowing alt-right speakers on campus,Photo_262.png,Photo_1021_01.png
+104,MandatoryConsent,Mandatory training on sexual consent,mandatory training on sexual consent,Photo_275.png,Photo_1047_01.png
+105,BorderWall,Build southern border wall,building the southern border wall,Photo_1011_02.png,Photo_258.png
+106,MigrantChildren,Detention of migrant children,detaining migrant children,Photo_1001.png,Photo_301.png
+107,EthnicHalloween,Ban on ethnic Halloween costumes,banning ethnic Halloween costumes,Photo_362.png,Photo_276.png
+108,MandatoryVaccine,Mandatory vaccinations,mandatory vaccinations,Photo_1003_01.png,Photo_280.png
+109,BanAnimalResearch,Ban on research with animals,banning research with animals,Photo_1016.png,Photo_1020_01.png
+110,ReligExempt,Religious exemptions for discrimination laws,religious exemptions for discrimination laws,Photo_320.png,Photo_1021_02.png
+111,AbortionRights,Abortion rights,abortion rights,Photo_316.png,Photo_1080.png
+112,ClimateLegislation,Climate change legislation,climate change legislation,Photo_1014.png,Photo_1047_02.png
+113,AffirmativeAction,Affirmative action,affirmative action,Photo_272.png,Photo_337.png
+114,DormsGender,Dorms determined by gender identity,dorms determined by gender identity,Photo_254.png,Photo_369.png
+115,ParksBudget,Cuts to National Parks budget,cutting the National Parks budget,Photo_1007_01.png,Photo_273.png
+116,TriggerWarnings,Mandatory trigger warnings,mandatory trigger warnings,Photo_367.png,Photo_1020_02.png
+117,TuitionIncrease,Tuition increases,tuition increases,Photo_341.png,Photo_1075.png
+118,WarDrugs,War on Drugs,the War of Drugs,Photo_1068_01.png,Photo_300.png
+119,CampusCarry,On campus concealed carry,on-campus concealed carry,Photo_1005_02.png,Photo_999.png
+120,DisarmCampus,Gun-free campus police,gun-free campus police,Photo_202.png,Photo_377.png
+121,AbolishPrison,Abolishing private prisons,abolishing private prisons,Photo_374.png,Photo_220.png
+122,StudentUnionization,Student worker unionization,student worker unionization,Photo_217.png,Photo_1072.png
+123,AbolishFrats,Abolishing fraternities,abolishing fraternities,Photo_257.png,Photo_206.png
+124,BathroomBioSex,Bathrooms restricted based on biological sex,bathrooms restricted based on biological sex,Photo_230.png,Photo_1082.png
+125,BDSIsrael,"Boycott, Divest, and Sanction Israel",BDS Israel,Photo_1038.png,Photo_1081.png
+126,WelfareDrugTest,Mandatory drug tests for welfare recipients,mandatory drug tests for welfare recipients,Photo_1034_02.png,Photo_261.png
+127,ExpelWhiteNationalists,Expel students with white nationlist views,expelling students with white nationlist views,Photo_1077.png,Photo_228.png
+128,Drones,U.S. drone strikes in Afghanistan,U.S. drone strikes in Afghanistan,Photo_1065_01.png,Photo_1019_01.png
+129,JerusalemCapital,Recognize Jerusalem as capital of Israel,recognizing Jerusalem as capital of Israel,Photo_297.png,Photo_1008_01.png
+130,LegalizeMarijuana,Legalization of marijuana,legalizing of marijuana,Photo_333.png,Photo_225.png
+131,DefundPlannedParenthood,Defund Planned Parenthood,defunding Planned Parenthood,Photo_268.png,Photo_218.png
+132,InjectionSites,Safe injection locations,safe injection locations,Photo_1079.png,Photo_1076_02.png
+133,HardenSchools,Hardening schools/Arming teachers,hardening schools/arming teachers,Photo_1008_02.png,Photo_1002_02.png
+134,Mask,Mask mandates,mask mandates,Photo_1002_01.png,Photo_1007_02.png
+135,SchoolPolice,Remove police from schools,removing police from schools,Photo_1017_01.png,Photo_1001.png
+136,Euthanasia,Physician-assisted suicide,physician-assisted suicide,Photo_368.png,Photo_1004.png
+137,Sanctuary,University Campus should be a Sanctuary,university campus being a sanctuary,Photo_1078.png,Photo_1006_02.png
+138,DefundPolice,Defund the police,defunding the police,Photo_1024_01.png,Photo_1083.png
+139,GunControl,Increased Gun regulations,increased gun regulations,Photo_1014.png,Photo_1026_01.png
+140,COVIDLockdown,Lift COVID lockdowns,lifting COVID lockdowns,Photo_1084.png,Photo_335.png
+141,ColumbusStatue,Remove Christopher Columbus statues,removing Christopher Columbus statues,Photo_1045_02.png,Photo_1032.png
+142,PoliceBrut,Stop police brutality,stopping police brutality,Photo_1035_02.png,Photo_231.png
+143,MinimumWage,Raise the minimum wage,raising the minimum wage,Photo_1059_01.png,Photo_1039_02.png
