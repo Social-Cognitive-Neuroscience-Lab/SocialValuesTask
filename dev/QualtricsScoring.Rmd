@@ -1,0 +1,138 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+require(tidyverse)
+require(readxl)
+```
+
+```{r}
+d <- read_xlsx('/Users/Keith Yoder/Desktop/MoralChoiceTest_October+11,+2021_08.56/MoralChoiceTest_October 11, 2021_08.56.xlsx',
+               skip=1)
+
+d_real <- d %>% filter(!is.na(`Please enter your age in years`))
+d_real$SID <- factor(d_real$`Response ID`)
+d_real
+```
+
+```{r}
+extract_js <- function(df, col_name, col_label, trials=100) {
+  df_out <- df %>%
+    separate(!!as.name(col_name), into=str_c(col_label, c(1:trials)),
+             sep = ",") %>%
+    separate(!!as.name(str_c(col_label,'1')), into=c(NA, str_c(col_label,'1')),
+                       sep="\\[") %>%
+    separate(!!as.name(str_c(col_label,trials)),
+                       into=c(str_c(col_label,trials), NA),
+                       sep="]")
+  return(df_out)
+}
+
+extract_js2 <- function(df, col_name, col_label, trials=100) {
+  clean_label = str_c(col_name, '_clean')
+  df_out <- df %>%
+    mutate({{clean_label}} := str_remove_all(!!as.name(col_name),
+                            '[\\[\\]values\\}\\{\\:\"]')) %>%
+    separate(!!as.name(clean_label), into=str_c(col_label, c(1:trials)),
+             sep = ",") %>%
+    select(-{{col_name}})
+  return(df_out)
+  
+}
+
+
+extract_js_text <- function(df, col_name, col_label, trials=80, n_iss=36) {
+  old_names <- str_c(col_label, c(1:trials))
+  new_names <- str_c(col_label, c(1:n_iss))
+  keep_idx <- seq(4, (n_iss*2)+2, 2)
+  
+  df_out <- df %>%
+    separate({{col_name}}, into=old_names, sep='\"') %>%
+    select(SID,str_c(col_label, keep_idx)) %>%
+    rename_at(vars(old_names[keep_idx]), ~ new_names)
+    
+  return(df_out)
+  
+}
+
+```
+
+  
+```{r}
+d_support <- d_real %>%
+  select(SID, support) %>%
+  extract_js2('support', 'Support', trials=36) %>%
+  pivot_longer(Support1:Support36, values_to = "Support") %>%
+  separate(name, into=c("Type", "Trial"), sep=7, remove=FALSE) %>%
+  select(SID, Trial, Support)
+d_moral <- d_real %>%
+  select(SID, moral) %>%
+  extract_js2('moral', 'Moral', trials=36) %>%
+  pivot_longer(Moral1:Moral36, values_to = "Moral") %>%
+  separate(name, into=c("Type", "Trial"), sep=5, remove=FALSE) %>%
+  select(SID, Trial, Moral)
+d_familiar <- d_real %>%
+  select(SID, familiar) %>%
+  extract_js2('familiar', 'Familiar', trials=36) %>%
+  pivot_longer(Familiar1:Familiar36, values_to = "Familiar") %>%
+  separate(name, into=c("Type", "Trial"), sep=8, remove=FALSE) %>%
+  select(SID, Trial, Familiar)
+d_issue <- d_real %>%
+  select(SID, issues) %>%
+  extract_js_text('issues', 'Issue') %>%
+  pivot_longer(Issue1:Issue36, values_to = "Issue") %>%
+  separate(name, into=c("Type", "Trial"), sep=5, remove=FALSE) %>%
+  select(SID, Trial, Issue) %>%
+  mutate(Issue = as.factor(Issue))
+  
+d_view <- d_support %>%
+  left_join(d_moral, by=c("SID", "Trial")) %>%
+  left_join(d_familiar, by=c("SID", "Trial")) %>%
+  left_join(d_issue, by=c('SID', 'Trial')) %>%
+  mutate_if(is.character, as.numeric)
+```
+  
+```{r}
+d_choice <- d_real %>%
+  select(SID, choice_resp) %>%
+  extract_js2('choice_resp', "Resp", trials=100) %>%
+  pivot_longer(Resp1:Resp100, values_to = "Resp") %>%
+  separate(name, into=c("Type", "Trial"), sep=4, remove=FALSE) %>%
+  select(SID, Trial, Resp) %>%
+  mutate(Response = case_when(
+    Resp == "f" ~ 1,
+    Resp == "j" ~ 2
+  ))
+d_rt <- d_real %>%
+  select(SID, choice_rt) %>%
+  extract_js2('choice_rt', "RT", trials=100) %>%
+  pivot_longer(RT1:RT100, values_to = "RT") %>%
+  separate(name, into=c("Type", "Trial"), sep=2, remove=FALSE) %>%
+  select(SID, Trial, RT) %>%
+  mutate(RT = as.double(RT))
+
+d_issue_l <- d_real %>%
+  select(SID, issue_left) %>%
+  extract_js_text('issue_left', 'IssueLeft', trials=260, n_iss = 100) %>%
+  pivot_longer(IssueLeft1:IssueLeft100, values_to = "IssueLeft") %>%
+  separate(name, into=c("Type", "Trial"), sep=9, remove=FALSE) %>%
+  select(SID, Trial, IssueLeft) %>%
+  mutate(IssueLeft = as.factor(IssueLeft))
+
+d_issue_r <- d_real %>%
+  select(SID, issue_right) %>%
+  extract_js_text('issue_right', 'IssueRight', trials=260, n_iss = 100) %>%
+  pivot_longer(IssueRight1:IssueRight100, values_to = "IssueRight") %>%
+  separate(name, into=c("Type", "Trial"), sep=10, remove=FALSE) %>%
+  select(SID, Trial, IssueRight) %>%
+  mutate(IssueRight = as.factor(IssueRight))
+
+d_choices <- d_choice %>%
+  left_join(d_rt, by=c("SID", "Trial")) %>%
+  left_join(d_issue_l, by=c("SID", "Trial")) %>%
+  left_join(d_issue_r, by=c('SID', 'Trial')) %>%
+  mutate(Trial = as.numeric(Trial))
+```
+
