@@ -414,14 +414,14 @@ var support_options = [
     'Strongly oppose',
     'Oppose',
     'Somewhat oppose',
-    'Neutral',
+    "Neutral / Don't know",
     'Somewhat support',
     'Support',
     'Strongly support'
 ];
 
 var moral_options = [
-    'Not at all',
+    "Not at all / Don't know",
     'Slightly',
     'Somewhat',
     'Moderately',
