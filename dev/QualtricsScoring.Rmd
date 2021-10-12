@@ -92,6 +92,23 @@ d_view <- d_support %>%
   left_join(d_familiar, by=c("SID", "Trial")) %>%
   left_join(d_issue, by=c('SID', 'Trial')) %>%
   mutate_if(is.character, as.numeric)
+
+dt <- d_view %>% 
+  mutate(S = Support - 3) %>% 
+  mutate(M = Moral-4) %>% 
+  mutate(SM = str_c(S,M)) %>% 
+  mutate(SMn = str_c(S*-1,M))
+
+subvals <- dt %>% 
+  select(SID, SM) %>% 
+  left_join(dt %>% select(SID, SMn), by="SID")
+
+subval <- tibble(SID = rep(subvals$SID, 2),
+                 SM = c(subvals$SM, subvals$SMn))
+
+subval %>% 
+  filter(!duplicated(select(., c(SID, SM) ))) %>% 
+  count(SID)
 ```
   
 ```{r}

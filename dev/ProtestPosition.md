@@ -39,6 +39,8 @@ One option is to add more information to issue_array so that each issue will be 
 
 Another option is to assign each survey response to two issues, with with the original issues and original support, and another with the issue and an inverted support.
 
+A third option is to add a tag to the issue description, so that it encodes the position, e.g. `+` or `-` as the first character.
+
 ## Overview of function calls
 
 Below are listed the elements added to the `timeline` variable in `jsPsych` along with any child calls
