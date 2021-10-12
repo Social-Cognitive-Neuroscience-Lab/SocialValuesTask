@@ -411,7 +411,7 @@ var familiar_options = [
 ];
 
 var support_options = [
-    'Stongly oppose',
+    'Strongly oppose',
     'Oppose',
     'Somewhat oppose',
     'Neutral',
