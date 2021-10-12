@@ -9,7 +9,7 @@ require(readxl)
 ```
 
 ```{r}
-d_raw <- read_xlsx('/Users/Keith Yoder/Desktop/MoralChoiceTest_October+11,+2021_08.56/MoralChoiceTest_October 11, 2021_08.56.xlsx',
+d_raw <- read_xlsx('/Users/Keith Yoder/Desktop/MoralChoiceTest_October+12,+2021_16.44/MoralChoiceTest_October 12, 2021_16.44.xlsx',
                skip=1)
 
 d_real <- d_raw %>% filter(!is.na(`Please enter your age in years`))
@@ -152,10 +152,32 @@ d_issue_r <- d_real %>%
   select(SID, Trial, IssueRight) %>%
   mutate(IssueRight = as.factor(IssueRight))
 
+d_pos_l <- d_real %>%
+  select(SID, position_left) %>%
+  extract_js_text('position_left', 'PosLeft', trials=260, n_iss = 100) %>%
+  pivot_longer(PosLeft1:PosLeft100, values_to = "PosLeft") %>%
+  separate(name, into=c("Type", "Trial"), sep=7, remove=FALSE) %>%
+  select(SID, Trial, PosLeft) %>%
+  mutate(PosLeft = case_when(
+    PosLeft == "ThumbsUp.jpg" ~ 1,
+    PosLeft == "ThumbsDown.jpg" ~ -1))
+
+d_pos_r <- d_real %>%
+  select(SID, position_right) %>%
+  extract_js_text('position_right', 'PosRight', trials=260, n_iss = 100) %>%
+  pivot_longer(PosRight1:PosRight100, values_to = "PosRight") %>%
+  separate(name, into=c("Type", "Trial"), sep=8, remove=FALSE) %>%
+  select(SID, Trial, PosRight) %>%
+  mutate(PosRight = case_when(
+    PosRight == "ThumbsUp.jpg" ~ 1,
+    PosRight == "ThumbsDown.jpg" ~ -1))
+
 d_choices <- d_choice %>%
   left_join(d_rt, by=c("SID", "Trial")) %>%
   left_join(d_issue_l, by=c("SID", "Trial")) %>%
   left_join(d_issue_r, by=c('SID', 'Trial')) %>%
+  left_join(d_pos_l, by=c('SID', 'Trial')) %>%
+  left_join(d_pos_r, by=c('SID', 'Trial')) %>%
   mutate(Trial = as.numeric(Trial))
 ```
 
