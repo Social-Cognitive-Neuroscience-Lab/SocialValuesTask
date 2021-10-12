@@ -9,26 +9,26 @@ require(readxl)
 ```
 
 ```{r}
-d <- read_xlsx('/Users/Keith Yoder/Desktop/MoralChoiceTest_October+11,+2021_08.56/MoralChoiceTest_October 11, 2021_08.56.xlsx',
+d_raw <- read_xlsx('/Users/Keith Yoder/Desktop/MoralChoiceTest_October+11,+2021_08.56/MoralChoiceTest_October 11, 2021_08.56.xlsx',
                skip=1)
 
-d_real <- d %>% filter(!is.na(`Please enter your age in years`))
+d_real <- d_raw %>% filter(!is.na(`Please enter your age in years`))
 d_real$SID <- factor(d_real$`Response ID`)
-d_real
+d_real %>% head()
 ```
 
 ```{r}
-extract_js <- function(df, col_name, col_label, trials=100) {
-  df_out <- df %>%
-    separate(!!as.name(col_name), into=str_c(col_label, c(1:trials)),
-             sep = ",") %>%
-    separate(!!as.name(str_c(col_label,'1')), into=c(NA, str_c(col_label,'1')),
-                       sep="\\[") %>%
-    separate(!!as.name(str_c(col_label,trials)),
-                       into=c(str_c(col_label,trials), NA),
-                       sep="]")
-  return(df_out)
-}
+# extract_js <- function(df, col_name, col_label, trials=100) {
+#   df_out <- df %>%
+#     separate(!!as.name(col_name), into=str_c(col_label, c(1:trials)),
+#              sep = ",") %>%
+#     separate(!!as.name(str_c(col_label,'1')), into=c(NA, str_c(col_label,'1')),
+#                        sep="\\[") %>%
+#     separate(!!as.name(str_c(col_label,trials)),
+#                        into=c(str_c(col_label,trials), NA),
+#                        sep="]")
+#   return(df_out)
+# }
 
 extract_js2 <- function(df, col_name, col_label, trials=100) {
   clean_label = str_c(col_name, '_clean')
@@ -104,7 +104,13 @@ d_choice <- d_real %>%
   mutate(Response = case_when(
     Resp == "f" ~ 1,
     Resp == "j" ~ 2
+  )) %>%
+  mutate(ChooseLeft = case_when(
+    Response == 1 ~ 1,
+    Response == 2 ~ 0
   ))
+
+
 d_rt <- d_real %>%
   select(SID, choice_rt) %>%
   extract_js2('choice_rt', "RT", trials=100) %>%
@@ -134,5 +140,107 @@ d_choices <- d_choice %>%
   left_join(d_issue_l, by=c("SID", "Trial")) %>%
   left_join(d_issue_r, by=c('SID', 'Trial')) %>%
   mutate(Trial = as.numeric(Trial))
+```
+
+```{r}
+prior_col <- c('Support', 'Moral', 'Familiar')
+d <- d_choices %>%
+  left_join(d_view %>% select(-Trial), 
+            by=c("SID"="SID", "IssueLeft"="Issue")) %>%
+  rename_at(vars(prior_col), ~ str_c('Left', prior_col)) %>%
+  left_join(d_view %>% select(-Trial),
+            by=c("SID"="SID", "IssueRight"="Issue")) %>%
+  rename_at(vars(prior_col), ~ str_c('Right', prior_col)) %>%
+  mutate(ChoiceSupport = case_when(
+    Response == 1 ~ LeftSupport - RightSupport,
+    Response == 2 ~ RightSupport - LeftSupport,
+    TRUE ~ NA_real_
+  )) %>%
+  mutate(ChoiceMoral = case_when(
+    Response == 1 ~ LeftMoral - RightMoral,
+    Response == 2 ~ RightMoral - LeftMoral,
+    TRUE ~ NA_real_
+  )) %>%
+  mutate(ChoiceSupportDist = abs(ChoiceSupport)) %>%
+  mutate(ChoiceMoralDist = abs(ChoiceMoral))
+```
+
+```{r}
+d <- d %>%
+  mutate(RTs = RT / 1000)
+```
+
+```{r}
+d %>% write_csv('ChoiceData.csv')
+```
+
+
+```{r}
+d_trim <- d %>%
+  filter(RT < 60000 & RT > 150)
+
+```
+
+```{r}
+choice.df <- data.frame(
+  subjID = as.numeric(d$SID),
+  choice = as.numeric(d$Response),
+  RT = as.double(d$RTs)
+)
+
+choice.mod <- hBayesDM::choiceRT_ddm(choice.df %>% filter(subjID %in% c(1,2)))
+```
+
+```{r}
+plot(choice.mod, type="trace")
+```
+
+```{r}
+plot(choice.mod)
+```
+
+
+
+```{r}
+mod <- lmerTest::lmer(RT ~ ChoiceSupportDist*ChoiceMoralDist +
+                    (1|SID) + (1|IssueLeft), data=d_trim)
+summary(mod)
+
+mod2 <- lme4::glmer(ChooseLeft ~ LeftSupport*LeftMoral +
+                          (1|SID) + (1|IssueLeft),
+                        data = d_trim, family=binomial)
+```
+
+```{r}
+require(rethinking)
+dat_list <- list(
+  ChooseLeft = d_trim$ChooseLeft,
+  M = d_trim$ChoiceMoral / 8,
+  S = d_trim$ChoiceSupport / 6,
+  Issue = as.numeric(d_trim$IssueLeft),
+  SID = as.numeric(d_trim$SID)
+)
+
+modb <- ulam(
+  alist(
+    ChooseLeft ~ dbinom(1, p),
+    logit(p) <- a[SID] + g[Issue] + bS*S + bM*M,
+    bS ~ normal(0, 1),
+    bM ~ normal(0, 1),
+    a[SID] ~ dnorm(a_bar, sigma_a),
+    g[Issue] ~ dnorm(0, sigma_g),
+    a_bar ~ dnorm(0, 1.5),
+    sigma_a ~ dexp(1),
+    sigma_g ~ dexp(1)
+  ), data = dat_list, chains=4, cores=4, log_lik=TRUE
+)
+```
+
+```{r}
+trankplot(modb)
+```
+
+```{r}
+precis(modb)
 ```
 
