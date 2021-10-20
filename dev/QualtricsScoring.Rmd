@@ -9,10 +9,10 @@ require(readxl)
 ```
 
 ```{r}
-d_raw <- read_xlsx('/Users/Keith Yoder/Desktop/MoralChoiceTest_October+12,+2021_16.44/MoralChoiceTest_October 12, 2021_16.44.xlsx',
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_1.xlsx',
                skip=1)
 
-d_real <- d_raw %>% filter(!is.na(`Please enter your age in years`))
+d_real <- d_raw %>% filter(!is.na(`Please enter your gender`))
 d_real$SID <- factor(d_real$`Response ID`)
 d_real %>% head()
 ```
@@ -186,11 +186,20 @@ prior_col <- c('Support', 'Moral', 'Familiar')
 d <- d_choices %>%
   left_join(d_view %>% select(-Trial), 
             by=c("SID"="SID", "IssueLeft"="Issue")) %>%
+  mutate(Support = Support - 3) %>%
   rename_at(vars(prior_col), ~ str_c('Left', prior_col)) %>%
   left_join(d_view %>% select(-Trial),
             by=c("SID"="SID", "IssueRight"="Issue")) %>%
+  mutate(Support = Support - 3) %>%
   rename_at(vars(prior_col), ~ str_c('Right', prior_col)) %>%
+  mutate(LeftAdj = LeftSupport * PosLeft) %>%
+  mutate(RightAdj = RightSupport * PosRight) %>%
   mutate(ChoiceSupport = case_when(
+    Response == 1 ~ LeftAdj - RightAdj,
+    Response == 2 ~ RightAdj - LeftAdj,
+    TRUE ~ NA_real_
+  )) %>%
+  mutate(ChoiceSupportNaive = case_when(
     Response == 1 ~ LeftSupport - RightSupport,
     Response == 2 ~ RightSupport - LeftSupport,
     TRUE ~ NA_real_
@@ -202,32 +211,42 @@ d <- d_choices %>%
   )) %>%
   mutate(ChoiceSupportDist = abs(ChoiceSupport)) %>%
   mutate(ChoiceMoralDist = abs(ChoiceMoral))
-```
 
-```{r}
 d <- d %>%
   mutate(RTs = RT / 1000)
-```
 
-```{r}
 d %>% write_csv('ChoiceData.csv')
-```
 
-
-```{r}
 d_trim <- d %>%
   filter(RT < 60000 & RT > 150)
 
 ```
 
 ```{r}
+ggplot(d_trim, aes(ChoiceSupport, Resp, color=SID)) +
+  geom_violin() +
+  theme_classic()
+```
+
+```{r}
+ggplot(d_trim, aes(ChoiceSupportNaive, Resp, color=SID)) +
+  geom_violin() +
+  theme_classic()
+```
+
+
+
+```{r}
 choice.df <- data.frame(
-  subjID = as.numeric(d$SID),
-  choice = as.numeric(d$Response),
-  RT = as.double(d$RTs)
+  subjID = as.numeric(d_trim$SID),
+  choice = as.numeric(d_trim$Response),
+  RT = as.double(d_trim$RTs)
 )
 
-choice.mod <- hBayesDM::choiceRT_ddm(choice.df %>% filter(subjID %in% c(1,2)))
+choice_trim <- choice.df %>%
+  filter( subjID %in% c(1,3,5,6))
+
+choice.mod <- hBayesDM::choiceRT_ddm(choice_trim)
 ```
 
 ```{r}
