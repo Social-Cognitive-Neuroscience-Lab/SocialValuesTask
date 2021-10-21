@@ -9,7 +9,7 @@ require(readxl)
 ```
 
 ```{r}
-d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_1.xlsx',
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_2.xlsx',
                skip=1)
 
 d_real <- d_raw %>% filter(!is.na(`Please enter your gender`))
@@ -91,7 +91,12 @@ d_view <- d_support %>%
   left_join(d_moral, by=c("SID", "Trial")) %>%
   left_join(d_familiar, by=c("SID", "Trial")) %>%
   left_join(d_issue, by=c('SID', 'Trial')) %>%
-  mutate_if(is.character, as.numeric)
+  mutate_if(is.character, as.numeric) %>%
+  group_by(SID) %>%
+  mutate(Support_z = 
+           (Support - mean(Support, na.rm=TRUE)) / 
+           sd(Support, na.rm=TRUE)) %>%
+  ungroup()
 
 dt <- d_view %>% 
   mutate(S = Support - 3) %>% 
@@ -184,6 +189,7 @@ d_choices <- d_choice %>%
 ```{r}
 prior_col <- c('Support', 'Moral', 'Familiar')
 d <- d_choices %>%
+  filter(!is.na(Resp)) %>%
   left_join(d_view %>% select(-Trial), 
             by=c("SID"="SID", "IssueLeft"="Issue")) %>%
   mutate(Support = Support - 3) %>%
@@ -210,15 +216,29 @@ d <- d_choices %>%
     TRUE ~ NA_real_
   )) %>%
   mutate(ChoiceSupportDist = abs(ChoiceSupport)) %>%
-  mutate(ChoiceMoralDist = abs(ChoiceMoral))
+  mutate(ChoiceMoralDist = abs(ChoiceMoral)) %>%
+  mutate(LeftAdjDiff = LeftAdj- RightAdj) %>%
+  mutate(RightAdjDiff = RightAdj - LeftAdj) %>%
+  mutate(LeftDiff_raw = LeftSupport - RightSupport) %>%
+  mutate(ChooseRight = case_when(
+    ChooseLeft == 1 ~ 0,
+    ChooseLeft == 0 ~ 1,
+    TRUE ~ NA_real_
+  ))
 
 d <- d %>%
-  mutate(RTs = RT / 1000)
+  mutate(RTs = RT / 1000) %>%
+  mutate(Subj = as.numeric(SID))
 
-d %>% write_csv('ChoiceData.csv')
+d %>% select(Subj, everything()) %>% write_csv('ChoiceData.csv')
+d %>% select(Subj, everything()) %>% 
+  filter(RT < 60000 & RT > 150) %>% 
+  write_csv('ChoiceData_trim.csv')
+
 
 d_trim <- d %>%
-  filter(RT < 60000 & RT > 150)
+  filter(RT < 60000 & RT > 150) %>%
+  mutate(Subj = as.numeric(as.factor(as.character(SID))))
 
 ```
 
@@ -234,6 +254,123 @@ ggplot(d_trim, aes(ChoiceSupportNaive, Resp, color=SID)) +
   theme_classic()
 ```
 
+When we say $y$ is normally distributed, we mean:
+$$\begin{equation}
+Normal(y|\mu, \sigma) = \frac{1}{\sigma\sqrt{2\pi}}
+e^{-\frac{1}{2}(\frac{y-\mu}{\sigma})^2}
+\end{equation}$$
+
+However, if $y$ is the result of a **Wiener First Passage Time Distribution**, then:
+$$\begin{equation}
+\text{Wiener} (y|\alpha,\tau,\beta,\delta) = 
+\frac{\alpha^3}{(y-\tau)^{3/2}} \text{exp}
+\begin{pmatrix} -\delta \alpha \beta - \frac{\delta^2(y-\tau)}{2}
+\end{pmatrix}
+\sum_{k=-\infty }^{\infty}(2k+\beta)\phi
+\begin{pmatrix} \frac{2k\alpha + \beta}{\sqrt{y - \tau}}
+\end{pmatrix}
+\end{equation}$$
+where $\phi(x)$ is the standard normal density.
+
+# Prepare data list for stan
+```{r}
+# number of subjects
+N <-length(unique(d_trim$SID))
+# count responses of each type
+choice_counts <- d_trim %>%
+  count(SID, Response)
+# left responses
+cl <- choice_counts %>% 
+  filter(Response == 1)
+# right responses
+cr <- choice_counts %>%
+  filter(Response == 2)
+# minimum RT for each subject
+min_RTs <- d_trim %>% 
+  group_by(SID) %>% 
+  summarize(RTs = min(RTs)) %>%
+  pull(RTs)
+
+# create list of RTs for each subject for each response type
+Left <- matrix(-1, nrow=N, ncol=max(cl$n))
+Right <- matrix(-1, nrow=N, ncol=max(cr$n))
+
+for (i in 1:N) {
+  #print(str_c('At [',i,' ',i,':cl$n[',i,']'))
+  Left[i, 1:cl$n[i]] = d_trim %>%
+    filter(Subj == i & Response == 1) %>%
+    pull(RTs)
+  
+  Right[i, 1:cr$n[i]] = d_trim %>%
+    filter(Subj == i & Response == 2) %>%
+    pull(RTs)
+}
+
+# store everything in list
+dat_list <- list(
+  N = N,
+  Nu_max = max(cl$n),
+  Nl_max = max(cr$n),
+  Nu = cl$n,
+  Nl = cr$n,
+  RTu = Left,
+  RTl = Right,
+  minRT = min_RTs,
+  RTbound = .1
+)
+
+# Check dat_list
+for (i in 1:dat_list$N) {
+  # minimum RT must be less than recorded minimum RT
+  minrt <- min(dat_list$RTu[i, 1:dat_list$Nu[i]])
+  if (minrt < dat_list$RTbound) {
+    print(str_c("Problem with subject ", i, 
+                "minimum left RT is too low! [", minrt,"]"))
+  }
+  minrt <- min(dat_list$RTl[i, 1:dat_list$Nl[i]])
+  if (minrt < dat_list$RTbound) {
+    print(str_c("Problem with subject ", i, 
+                "minimum right RT is too low! [", minrt,"]"))
+  }
+}
+
+```
+
+```{r}
+fit <- rstan::stan(file = '../../scratch-foo/choice_ddm.stan', 
+            data=dat_list, chains=4, cores=4)
+```
+
+## Try ulam
+```{r}
+ufit <- rethinking::ulam(
+  alist(
+    
+  )
+)
+```
+
+
+
+## Use StanDDM
+```{r}
+require(StanDDM)
+choice.df <- data.frame(
+  suj = str_c("Subject", as.numeric(d_trim$SID)),
+  rt = as.double(d_trim$RTs),
+  crit = d_trim$LeftAdj - d_trim$RightAdj,
+  cor = as.numeric(d_trim$ChooseLeft)
+)
+
+dat <- StanDDM::experimental_data_processing(choice.df)
+```
+
+```{r}
+mod <- StanDDM::StanDDM(data=dat, include_models = c('sv'))
+```
+
+
+
 
 
 ```{r}
@@ -241,6 +378,10 @@ choice.df <- data.frame(
   subjID = as.numeric(d_trim$SID),
   choice = as.numeric(d_trim$Response),
   RT = as.double(d_trim$RTs)
+)
+
+dat_list <- list(
+  
 )
 
 choice_trim <- choice.df %>%

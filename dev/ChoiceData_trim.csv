@@ -290,7 +290,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 7,R_2t56Fwl8ddfXWCS,89,f,1,1,1561.800000011921,Raise the minimum wage,Expel students with white nationlist views,1,-1,2,5,2,2.077849926597279,1,5,2,0.25973124082465976,2,-1,3,1,0,3,0,3,-3,1,0,1.561800000011921
 7,R_2t56Fwl8ddfXWCS,90,f,1,1,2086.199999988079,Affirmative action,Increased Gun regulations,1,-1,1,6,1,0.25973124082465976,1,7,2,0.25973124082465976,1,-1,2,0,-1,2,1,2,-2,0,0,2.086199999988079
 7,R_2t56Fwl8ddfXWCS,91,j,2,0,1858.699999988079,Defund Planned Parenthood,On campus concealed carry,1,1,2,3,2,2.077849926597279,1,5,2,0.25973124082465976,2,1,-1,-1,2,1,2,1,-1,1,1,1.858699999988079
-7,R_2t56Fwl8ddfXWCS,92,j,2,0,163285.19999998808,Increased Gun regulations,Increased Gun regulations,-1,1,1,7,2,0.25973124082465976,1,7,2,0.25973124082465976,-1,1,2,0,0,2,0,-2,2,0,1,163.28519999998807
 7,R_2t56Fwl8ddfXWCS,93,f,1,1,2865.600000023842,Hardening schools/Arming teachers,Defund Planned Parenthood,1,-1,0,6,3,-1.5583874449479593,2,3,2,2.077849926597279,0,-2,2,-2,3,2,3,2,-2,-2,0,2.865600000023842
 7,R_2t56Fwl8ddfXWCS,94,f,1,1,4361.899999976158,Ban on research with animals,Raise the minimum wage,1,1,0,5,2,-1.5583874449479593,2,5,2,2.077849926597279,0,2,-2,-2,0,2,0,-2,2,-2,0,4.361899999976158
 7,R_2t56Fwl8ddfXWCS,95,f,1,1,4150.599999964237,Bathrooms restricted based on biological sex,Remove public Confederate memorials,-1,-1,1,6,1,0.25973124082465976,0,5,3,-1.5583874449479593,-1,-0,-1,1,1,1,1,-1,1,1,0,4.150599999964237
@@ -312,7 +311,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 2,R_1ir3HZuypop5xQB,11,f,1,1,2167.5,On campus concealed carry,Recognize Jerusalem as capital of Israel,-1,-1,2,4,2,1.5168173299110996,0,7,3,-0.543764703175677,-2,-0,-2,2,-3,2,3,-2,2,2,0,2.1675
 2,R_1ir3HZuypop5xQB,12,f,1,1,1633.6999999284744,Abolishing fraternities,Mandatory drug tests for welfare recipients,-1,-1,2,6,2,1.5168173299110996,1,2,1,0.48652631336771124,-2,-1,-1,1,4,1,4,-1,1,1,0,1.6336999999284745
 2,R_1ir3HZuypop5xQB,13,j,2,0,794.2999999523163,"Boycott, Divest, and Sanction Israel",Safe injection locations,1,-1,-1,6,3,-1.5740557197190654,2,4,1,1.5168173299110996,-1,-2,-1,3,-2,1,2,1,-1,-3,1,0.7942999999523163
-2,R_1ir3HZuypop5xQB,14,f,1,1,92.19999992847443,University Campus should be a Sanctuary,Safe injection locations,1,1,2,7,2,1.5168173299110996,2,4,1,1.5168173299110996,2,2,0,0,3,0,3,0,0,0,0,0.09219999992847443
 2,R_1ir3HZuypop5xQB,15,j,2,0,4325.299999952316,War on Drugs,University Campus should be a Sanctuary,1,-1,2,5,2,1.5168173299110996,2,7,2,1.5168173299110996,2,-2,-4,0,2,4,2,4,-4,0,1,4.325299999952316
 2,R_1ir3HZuypop5xQB,16,f,1,1,1948.9000000953674,Safe injection locations,Dorms determined by gender identity,-1,-1,2,4,1,1.5168173299110996,1,4,2,0.48652631336771124,-2,-1,-1,1,0,1,0,-1,1,1,0,1.9489000000953673
 2,R_1ir3HZuypop5xQB,17,f,1,1,608.6000000238419,Abolishing fraternities,"Boycott, Divest, and Sanction Israel",-1,1,2,6,2,1.5168173299110996,-1,6,3,-1.5740557197190654,-2,-1,-1,3,0,1,0,-1,1,3,0,0.6086000000238418
@@ -330,9 +328,7 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 2,R_1ir3HZuypop5xQB,29,f,1,1,963.5,Abolishing fraternities,Affirmative action,1,1,2,6,2,1.5168173299110996,1,7,2,0.48652631336771124,2,1,1,1,-1,1,1,1,-1,1,0,0.9635
 2,R_1ir3HZuypop5xQB,30,j,2,0,214.29999995231628,Safe injection locations,Gun-free campus police,1,1,2,4,1,1.5168173299110996,1,5,2,0.48652631336771124,2,1,-1,-1,1,1,1,1,-1,1,1,0.21429999995231627
 2,R_1ir3HZuypop5xQB,31,f,1,1,314.7000000476837,Dorms determined by gender identity,Abolishing fraternities,1,-1,1,4,2,0.48652631336771124,2,6,2,1.5168173299110996,1,-2,3,-1,-2,3,2,3,-3,-1,0,0.3147000000476837
-2,R_1ir3HZuypop5xQB,32,f,1,1,84.70000004768372,Mandatory vaccinations,Abolishing fraternities,-1,1,1,5,1,0.48652631336771124,2,6,2,1.5168173299110996,-1,2,-3,-1,-1,3,1,-3,3,-1,0,0.08470000004768372
 2,R_1ir3HZuypop5xQB,33,f,1,1,1087.5,Abolishing private prisons,Abolishing fraternities,-1,1,0,5,3,-0.543764703175677,2,6,2,1.5168173299110996,-0,2,-2,-2,-1,2,1,-2,2,-2,0,1.0875
-2,R_1ir3HZuypop5xQB,34,f,1,1,29.700000047683716,Safe injection locations,Remove Christopher Columbus statues,-1,1,2,4,1,1.5168173299110996,0,6,1,-0.543764703175677,-2,0,-2,2,-2,2,2,-2,2,2,0,0.029700000047683715
 2,R_1ir3HZuypop5xQB,35,j,2,0,401.59999990463257,Affirmative action,War on Drugs,1,1,1,7,2,0.48652631336771124,2,5,2,1.5168173299110996,1,2,1,1,-2,1,2,-1,1,-1,1,0.4015999999046326
 2,R_1ir3HZuypop5xQB,36,j,2,0,770.2000000476837,On campus concealed carry,War on Drugs,1,-1,2,4,2,1.5168173299110996,2,5,2,1.5168173299110996,2,-2,-4,0,1,4,1,4,-4,0,1,0.7702000000476837
 2,R_1ir3HZuypop5xQB,37,f,1,1,1271.8000000715256,On campus concealed carry,Abolishing fraternities,-1,-1,2,4,2,1.5168173299110996,2,6,2,1.5168173299110996,-2,-2,0,0,-2,0,2,0,0,0,0,1.2718000000715255
@@ -349,7 +345,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 2,R_1ir3HZuypop5xQB,48,f,1,1,970.6999999284744,Abolishing private prisons,Safe injection locations,1,-1,0,5,3,-0.543764703175677,2,4,1,1.5168173299110996,0,-2,2,-2,1,2,1,2,-2,-2,0,0.9706999999284744
 2,R_1ir3HZuypop5xQB,49,j,2,0,1095.5,Stop police brutality,Safe injection locations,1,-1,-1,7,3,-1.5740557197190654,2,4,1,1.5168173299110996,-1,-2,-1,3,-3,1,3,1,-1,-3,1,1.0955
 2,R_1ir3HZuypop5xQB,50,j,2,0,2314.7999999523163,War on Drugs,Expel students with white nationlist views,1,1,2,5,2,1.5168173299110996,2,3,3,1.5168173299110996,2,2,0,0,-2,0,2,0,0,0,1,2.3147999999523163
-2,R_1ir3HZuypop5xQB,51,f,1,1,51.699999928474426,Abolishing fraternities,Mandatory drug tests for welfare recipients,1,-1,2,6,2,1.5168173299110996,1,2,1,0.48652631336771124,2,-1,3,1,4,3,4,3,-3,1,0,0.051699999928474426
 2,R_1ir3HZuypop5xQB,52,f,1,1,781.7000000476837,Safe injection locations,Bathrooms restricted based on biological sex,-1,1,2,4,1,1.5168173299110996,0,2,3,-0.543764703175677,-2,0,-2,2,2,2,2,-2,2,2,0,0.7817000000476837
 2,R_1ir3HZuypop5xQB,53,f,1,1,235,Ban on ethnic Halloween costumes,Abolishing fraternities,-1,-1,-1,5,3,-1.5740557197190654,2,6,2,1.5168173299110996,1,-2,3,-3,-1,3,1,3,-3,-3,0,0.235
 2,R_1ir3HZuypop5xQB,54,j,2,0,1037.1000000238419,Remove Christopher Columbus statues,On campus concealed carry,-1,1,0,6,1,-0.543764703175677,2,4,2,1.5168173299110996,-0,2,2,2,-2,2,2,-2,2,-2,1,1.037100000023842
@@ -373,32 +368,24 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 2,R_1ir3HZuypop5xQB,72,j,2,0,534.0999999046326,War on Drugs,Abolishing fraternities,1,-1,2,5,2,1.5168173299110996,2,6,2,1.5168173299110996,2,-2,-4,0,1,4,1,4,-4,0,1,0.5340999999046325
 2,R_1ir3HZuypop5xQB,73,j,2,0,875.3999999761581,Bathrooms restricted based on biological sex,On campus concealed carry,-1,1,0,2,3,-0.543764703175677,2,4,2,1.5168173299110996,-0,2,2,2,2,2,2,-2,2,-2,1,0.8753999999761581
 2,R_1ir3HZuypop5xQB,74,f,1,1,184.80000007152557,"Boycott, Divest, and Sanction Israel",On campus concealed carry,1,1,-1,6,3,-1.5740557197190654,2,4,2,1.5168173299110996,-1,2,-3,-3,2,3,2,-3,3,-3,0,0.18480000007152558
-2,R_1ir3HZuypop5xQB,75,f,1,1,11,Abolishing fraternities,Defund the police,-1,1,2,6,2,1.5168173299110996,1,7,2,0.48652631336771124,-2,1,-3,1,-1,3,1,-3,3,1,0,0.011
 2,R_1ir3HZuypop5xQB,76,j,2,0,263.89999997615814,Ban on ethnic Halloween costumes,Abolishing fraternities,-1,1,-1,5,3,-1.5740557197190654,2,6,2,1.5168173299110996,1,2,1,3,1,1,1,-1,1,-3,1,0.26389999997615815
 2,R_1ir3HZuypop5xQB,77,f,1,1,1044.8999999761581,War on Drugs,War on Drugs,-1,1,2,5,2,1.5168173299110996,2,5,2,1.5168173299110996,-2,2,-4,0,0,4,0,-4,4,0,0,1.0448999999761581
 2,R_1ir3HZuypop5xQB,78,f,1,1,352.5,Abolishing fraternities,On campus concealed carry,1,1,2,6,2,1.5168173299110996,2,4,2,1.5168173299110996,2,2,0,0,2,0,2,0,0,0,0,0.3525
-2,R_1ir3HZuypop5xQB,79,f,1,1,103.29999995231628,Lift COVID lockdowns,Abolishing fraternities,-1,1,0,2,3,-0.543764703175677,2,6,2,1.5168173299110996,-0,2,-2,-2,-4,2,4,-2,2,-2,0,0.10329999995231628
-2,R_1ir3HZuypop5xQB,80,j,2,0,38.89999997615814,Tuition increases,Abolishing fraternities,1,-1,0,5,3,-0.543764703175677,2,6,2,1.5168173299110996,0,-2,-2,2,1,2,1,2,-2,-2,1,0.038899999976158145
 2,R_1ir3HZuypop5xQB,81,j,2,0,327.7999999523163,Ban on ethnic Halloween costumes,On campus concealed carry,1,-1,-1,5,3,-1.5740557197190654,2,4,2,1.5168173299110996,-1,-2,-1,3,-1,1,1,1,-1,-3,1,0.3277999999523163
 2,R_1ir3HZuypop5xQB,82,j,2,0,423.89999997615814,On campus concealed carry,Gun-free campus police,-1,1,2,4,2,1.5168173299110996,1,5,2,0.48652631336771124,-2,1,3,-1,1,3,1,-3,3,1,1,0.4238999999761581
 2,R_1ir3HZuypop5xQB,83,f,1,1,151,Detention of migrant children,Abolishing fraternities,1,-1,2,3,3,1.5168173299110996,2,6,2,1.5168173299110996,2,-2,4,0,-3,4,3,4,-4,0,0,0.151
 2,R_1ir3HZuypop5xQB,84,j,2,0,216,On campus concealed carry,Affirmative action,1,1,2,4,2,1.5168173299110996,1,7,2,0.48652631336771124,2,1,-1,-1,3,1,3,1,-1,1,1,0.216
 2,R_1ir3HZuypop5xQB,85,j,2,0,235.39999997615814,Abolishing fraternities,Stop police brutality,1,1,2,6,2,1.5168173299110996,-1,7,3,-1.5740557197190654,2,-1,-3,-3,1,3,1,3,-3,3,1,0.23539999997615815
-2,R_1ir3HZuypop5xQB,86,f,1,1,87.10000002384186,Affirmative action,Abolishing fraternities,-1,-1,1,7,2,0.48652631336771124,2,6,2,1.5168173299110996,-1,-2,1,-1,1,1,1,1,-1,-1,0,0.08710000002384186
-2,R_1ir3HZuypop5xQB,87,f,1,1,113.39999997615814,Expel students with white nationlist views,War on Drugs,-1,1,2,3,3,1.5168173299110996,2,5,2,1.5168173299110996,-2,2,-4,0,-2,4,2,-4,4,0,0,0.11339999997615814
 2,R_1ir3HZuypop5xQB,88,j,2,0,624.1999999284744,Mandatory drug tests for welfare recipients,Abolishing fraternities,1,1,1,2,1,0.48652631336771124,2,6,2,1.5168173299110996,1,2,1,1,4,1,4,-1,1,-1,1,0.6241999999284744
 2,R_1ir3HZuypop5xQB,89,j,2,0,607.6000000238419,Recognize Jerusalem as capital of Israel,Safe injection locations,-1,1,0,7,3,-0.543764703175677,2,4,1,1.5168173299110996,-0,2,2,2,-3,2,3,-2,2,-2,1,0.6076000000238418
 2,R_1ir3HZuypop5xQB,90,j,2,0,742.2000000476837,Dorms determined by gender identity,On campus concealed carry,1,-1,1,4,2,0.48652631336771124,2,4,2,1.5168173299110996,1,-2,-3,1,0,3,0,3,-3,-1,1,0.7422000000476837
 2,R_1ir3HZuypop5xQB,91,j,2,0,533.5,On campus concealed carry,Abolishing fraternities,1,-1,2,4,2,1.5168173299110996,2,6,2,1.5168173299110996,2,-2,-4,0,2,4,2,4,-4,0,1,0.5335
-2,R_1ir3HZuypop5xQB,92,f,1,1,132.79999995231628,Abolishing fraternities,Climate change legislation,1,-1,2,6,2,1.5168173299110996,1,4,2,0.48652631336771124,2,-1,3,1,2,3,2,3,-3,1,0,0.13279999995231628
 2,R_1ir3HZuypop5xQB,93,j,2,0,310.7000000476837,On campus concealed carry,"Boycott, Divest, and Sanction Israel",1,-1,2,4,2,1.5168173299110996,-1,6,3,-1.5740557197190654,2,1,-1,-3,2,1,2,1,-1,3,1,0.3107000000476837
 2,R_1ir3HZuypop5xQB,94,j,2,0,279.10000002384186,Mandatory drug tests for welfare recipients,On campus concealed carry,-1,1,1,2,1,0.48652631336771124,2,4,2,1.5168173299110996,-1,2,3,1,2,3,2,-3,3,-1,1,0.27910000002384183
-2,R_1ir3HZuypop5xQB,95,f,1,1,1540182.3999999762,On campus concealed carry,Expel students with white nationlist views,1,1,2,4,2,1.5168173299110996,2,3,3,1.5168173299110996,2,2,0,0,1,0,1,0,0,0,0,1540.1823999999763
 2,R_1ir3HZuypop5xQB,96,j,2,0,825.3999999761581,Safe injection locations,Affirmative action,-1,1,2,4,1,1.5168173299110996,1,7,2,0.48652631336771124,-2,1,3,-1,3,3,3,-3,3,1,1,0.8253999999761581
 2,R_1ir3HZuypop5xQB,97,f,1,1,165.40000009536743,Abolishing fraternities,Expel students with white nationlist views,1,1,2,6,2,1.5168173299110996,2,3,3,1.5168173299110996,2,2,0,0,3,0,3,0,0,0,0,0.16540000009536743
 2,R_1ir3HZuypop5xQB,98,f,1,1,256.7000000476837,War on Drugs,Safe injection locations,1,-1,2,5,2,1.5168173299110996,2,4,1,1.5168173299110996,2,-2,4,0,1,4,1,4,-4,0,0,0.25670000004768373
 2,R_1ir3HZuypop5xQB,99,f,1,1,361.2000000476837,University Campus should be a Sanctuary,War on Drugs,1,1,2,7,2,1.5168173299110996,2,5,2,1.5168173299110996,2,2,0,0,2,0,2,0,0,0,0,0.3612000000476837
-2,R_1ir3HZuypop5xQB,100,f,1,1,85.20000004768372,Abolishing fraternities,Safe injection locations,1,-1,2,6,2,1.5168173299110996,2,4,1,1.5168173299110996,2,-2,4,0,2,4,2,4,-4,0,0,0.08520000004768372
 6,R_2Si8iSDiTMldrAB,1,j,2,0,11777.300000000745,Climate change legislation,On campus concealed carry,-1,1,3,8,3,1.1278690186247062,1,1,3,0.31874559222002574,-3,1,4,-2,-7,4,7,-4,4,2,1,11.777300000000745
 6,R_2Si8iSDiTMldrAB,2,j,2,0,4628.199999999255,Bathrooms restricted based on biological sex,Build southern border wall,1,-1,-3,4,4,-1.2995012605893355,-3,8,4,-1.2995012605893355,-3,3,6,0,4,6,4,-6,6,0,1,4.628199999999255
 6,R_2Si8iSDiTMldrAB,3,f,1,1,7049.0999999996275,Cuts to National Parks budget,Student worker unionization,-1,-1,-2,5,3,-0.8949395473869951,3,5,4,1.1278690186247062,2,-3,5,-5,0,5,0,5,-5,-5,0,7.049099999999627
@@ -600,7 +587,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 1,R_1eEotFgXgjm2k7Z,99,f,1,1,2894.5,Mandatory drug tests for welfare recipients,Legalization of marijuana,1,1,3,6,3,1.4970228592367723,-3,5,3,-1.029203215725281,3,-3,6,6,1,6,1,6,-6,6,0,2.8945
 1,R_1eEotFgXgjm2k7Z,100,j,2,0,1858.8000000715256,Remove police from schools,War on Drugs,1,1,-3,5,2,-1.029203215725281,3,7,4,1.4970228592367723,-3,3,6,6,2,6,2,-6,6,-6,1,1.8588000000715257
 11,R_32SljSkAHRv1s4C,1,f,1,1,2056.800000190735,Bathrooms restricted based on biological sex,Physician-assisted suicide,1,1,2,7,3,0.3486083443891983,2,6,3,0.3486083443891983,2,2,0,0,1,0,1,0,0,0,0,2.056800000190735
-11,R_32SljSkAHRv1s4C,2,f,1,1,78.30000019073486,Mandatory trigger warnings,Mandatory training on sexual consent,1,1,1,6,3,-1.2201292053621933,3,7,3,1.91734589414059,1,3,-2,-2,-1,2,1,-2,2,-2,0,0.07830000019073487
 11,R_32SljSkAHRv1s4C,3,f,1,1,229,Defund Planned Parenthood,Recognize Jerusalem as capital of Israel,1,-1,3,7,3,1.91734589414059,2,7,2,0.3486083443891983,3,-2,5,1,0,5,0,5,-5,1,0,0.229
 11,R_32SljSkAHRv1s4C,4,f,1,1,176.30000019073486,University Campus should be a Sanctuary,On campus concealed carry,1,-1,3,6,3,1.91734589414059,2,3,3,0.3486083443891983,3,-2,5,1,3,5,3,5,-5,1,0,0.17630000019073486
 11,R_32SljSkAHRv1s4C,5,f,1,1,721.1999998092651,On campus concealed carry,Mandatory training on sexual consent,-1,-1,2,3,3,0.3486083443891983,3,7,3,1.91734589414059,-2,-3,1,-1,-4,1,4,1,-1,-1,0,0.7211999998092652
@@ -619,7 +605,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 11,R_32SljSkAHRv1s4C,18,j,2,0,3520.4000000953674,Remove Christopher Columbus statues,Expel students with white nationlist views,-1,1,2,7,3,0.3486083443891983,1,6,4,-1.2201292053621933,-2,1,3,-1,-1,3,1,-3,3,1,1,3.5204000000953672
 11,R_32SljSkAHRv1s4C,19,j,2,0,1229,Mask mandates,Gun-free campus police,1,1,1,7,3,-1.2201292053621933,2,7,3,0.3486083443891983,1,2,1,1,0,1,0,-1,1,-1,1,1.229
 11,R_32SljSkAHRv1s4C,20,j,2,0,3489.5,Religious exemptions for discrimination laws,War on Drugs,1,1,3,7,2,1.91734589414059,2,6,3,0.3486083443891983,3,2,-1,-1,-1,1,1,1,-1,1,1,3.4895
-11,R_32SljSkAHRv1s4C,21,f,1,1,396014.39999961853,Cuts to National Parks budget,Ban on ethnic Halloween costumes,-1,-1,2,6,3,0.3486083443891983,1,7,3,-1.2201292053621933,-2,-1,-1,1,-1,1,1,-1,1,1,0,396.01439999961855
 11,R_32SljSkAHRv1s4C,22,f,1,1,1648.9000000953674,Mandatory vaccinations,Physician-assisted suicide,-1,-1,1,6,3,-1.2201292053621933,2,6,3,0.3486083443891983,-1,-2,1,-1,0,1,0,1,-1,-1,0,1.6489000000953675
 11,R_32SljSkAHRv1s4C,23,j,2,0,1809.3000001907349,Mask mandates,Remove public Confederate memorials,1,-1,1,7,3,-1.2201292053621933,2,7,3,0.3486083443891983,1,-2,-3,1,0,3,0,3,-3,-1,1,1.809300000190735
 11,R_32SljSkAHRv1s4C,24,f,1,1,2150,War on Drugs,Stop police brutality,-1,-1,2,6,3,0.3486083443891983,2,7,3,0.3486083443891983,-2,-2,0,0,-1,0,1,0,0,0,0,2.15
@@ -637,10 +622,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 11,R_32SljSkAHRv1s4C,36,j,2,0,1884.0999999046326,University Campus should be a Sanctuary,Mandatory training on sexual consent,1,1,3,6,3,1.91734589414059,3,7,3,1.91734589414059,3,3,0,0,1,0,1,0,0,0,1,1.8840999999046326
 11,R_32SljSkAHRv1s4C,37,f,1,1,1258.3999996185303,Tuition increases,On campus concealed carry,1,1,2,8,4,0.3486083443891983,2,3,3,0.3486083443891983,2,2,0,0,5,0,5,0,0,0,0,1.2583999996185302
 11,R_32SljSkAHRv1s4C,38,f,1,1,10111.699999809265,Religious exemptions for discrimination laws,University Campus should be a Sanctuary,1,-1,3,7,2,1.91734589414059,3,6,3,1.91734589414059,3,-3,6,0,1,6,1,6,-6,0,0,10.111699999809264
-11,R_32SljSkAHRv1s4C,39,f,1,1,95,Gun-free campus police,Tuition increases,-1,1,2,7,3,0.3486083443891983,2,8,4,0.3486083443891983,-2,2,-4,0,-1,4,1,-4,4,0,0,0.095
-11,R_32SljSkAHRv1s4C,40,f,1,1,60.39999961853027,Mask mandates,Mandatory training on sexual consent,1,1,1,7,3,-1.2201292053621933,3,7,3,1.91734589414059,1,3,-2,-2,0,2,0,-2,2,-2,0,0.06039999961853027
-11,R_32SljSkAHRv1s4C,41,f,1,1,26.5,On campus concealed carry,Safe injection locations,-1,-1,2,3,3,0.3486083443891983,2,7,3,0.3486083443891983,-2,-2,0,0,-4,0,4,0,0,0,0,0.0265
-11,R_32SljSkAHRv1s4C,42,j,2,0,47.89999961853027,Mask mandates,Gun-free campus police,-1,1,1,7,3,-1.2201292053621933,2,7,3,0.3486083443891983,-1,2,3,1,0,3,0,-3,3,-1,1,0.047899999618530274
 11,R_32SljSkAHRv1s4C,43,j,2,0,22632.800000190735,Mandatory trigger warnings,Religious exemptions for discrimination laws,-1,1,1,6,3,-1.2201292053621933,3,7,2,1.91734589414059,-1,3,4,2,1,4,1,-4,4,-2,1,22.632800000190734
 11,R_32SljSkAHRv1s4C,44,j,2,0,1945.5999999046326,University Campus should be a Sanctuary,Affirmative action,1,-1,3,6,3,1.91734589414059,2,6,3,0.3486083443891983,3,-2,-5,-1,0,5,0,5,-5,1,1,1.9455999999046325
 11,R_32SljSkAHRv1s4C,45,f,1,1,2702.5,University Campus should be a Sanctuary,Black Lives Matter,-1,1,3,6,3,1.91734589414059,1,7,3,-1.2201292053621933,-3,1,-4,2,-1,4,1,-4,4,2,0,2.7025
@@ -667,14 +648,11 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 11,R_32SljSkAHRv1s4C,66,f,1,1,865.5999999046326,Mandatory vaccinations,On campus concealed carry,1,1,1,6,3,-1.2201292053621933,2,3,3,0.3486083443891983,1,2,-1,-1,3,1,3,-1,1,-1,0,0.8655999999046325
 11,R_32SljSkAHRv1s4C,67,f,1,1,34452.90000009537,Expel students with white nationlist views,Defund Planned Parenthood,-1,-1,1,6,4,-1.2201292053621933,3,7,3,1.91734589414059,-1,-3,2,-2,-1,2,1,2,-2,-2,0,34.45290000009537
 11,R_32SljSkAHRv1s4C,68,f,1,1,2405.5,On campus concealed carry,Ban on ethnic Halloween costumes,1,1,2,3,3,0.3486083443891983,1,7,3,-1.2201292053621933,2,1,1,1,-4,1,4,1,-1,1,0,2.4055
-11,R_32SljSkAHRv1s4C,69,j,2,0,68706.30000019073,Tuition increases,Religious exemptions for discrimination laws,1,1,2,8,4,0.3486083443891983,3,7,2,1.91734589414059,2,3,1,1,-1,1,1,-1,1,-1,1,68.70630000019074
 11,R_32SljSkAHRv1s4C,70,f,1,1,392.09999990463257,Mandatory training on sexual consent,Tuition increases,-1,1,3,7,3,1.91734589414059,2,8,4,0.3486083443891983,-3,2,-5,1,-1,5,1,-5,5,1,0,0.39209999990463257
-11,R_32SljSkAHRv1s4C,71,j,2,0,53.09999990463257,On campus concealed carry,Cuts to National Parks budget,-1,1,2,3,3,0.3486083443891983,2,6,3,0.3486083443891983,-2,2,4,0,3,4,3,-4,4,0,1,0.053099999904632565
 11,R_32SljSkAHRv1s4C,72,f,1,1,5332.700000286102,On campus concealed carry,University Campus should be a Sanctuary,1,1,2,3,3,0.3486083443891983,3,6,3,1.91734589414059,2,3,-1,-1,-3,1,3,-1,1,-1,0,5.332700000286103
 11,R_32SljSkAHRv1s4C,73,f,1,1,1485.4000000953674,Tuition increases,University Campus should be a Sanctuary,-1,1,2,8,4,0.3486083443891983,3,6,3,1.91734589414059,-2,3,-5,-1,2,5,2,-5,5,-1,0,1.4854000000953673
 11,R_32SljSkAHRv1s4C,74,j,2,0,1449.0999999046326,On campus concealed carry,On campus concealed carry,-1,1,2,3,3,0.3486083443891983,2,3,3,0.3486083443891983,-2,2,4,0,0,4,0,-4,4,0,1,1.4490999999046326
 11,R_32SljSkAHRv1s4C,75,f,1,1,1460.2999997138977,Student worker unionization,University Campus should be a Sanctuary,1,1,1,6,2,-1.2201292053621933,3,6,3,1.91734589414059,1,3,-2,-2,0,2,0,-2,2,-2,0,1.4602999997138977
-11,R_32SljSkAHRv1s4C,76,j,2,0,655842.0999999046,Bathrooms restricted based on biological sex,Remove police from schools,-1,1,2,7,3,0.3486083443891983,2,6,3,0.3486083443891983,-2,2,4,0,-1,4,1,-4,4,0,1,655.8420999999046
 11,R_32SljSkAHRv1s4C,77,j,2,0,8620.099999904633,Allow alt-right speakers on campus,Tuition increases,-1,-1,2,7,3,0.3486083443891983,2,8,4,0.3486083443891983,-2,-2,0,0,1,0,1,0,0,0,1,8.620099999904632
 11,R_32SljSkAHRv1s4C,78,j,2,0,4249.599999904633,Safe injection locations,Gun-free campus police,1,-1,2,7,3,0.3486083443891983,2,7,3,0.3486083443891983,2,-2,-4,0,0,4,0,4,-4,0,1,4.249599999904633
 11,R_32SljSkAHRv1s4C,79,f,1,1,1455.5,University Campus should be a Sanctuary,Remove Christopher Columbus statues,-1,-1,3,6,3,1.91734589414059,2,7,3,0.3486083443891983,-3,-2,-1,1,-1,1,1,-1,1,1,0,1.4555
@@ -928,9 +906,7 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 9,R_2wvLMxIloZ7ffa5,27,j,2,0,3122.7000000178814,Increased Gun regulations,Mandatory drug tests for welfare recipients,1,-1,3,6,3,0.9923850164576297,3,5,3,0.9923850164576297,3,-3,-6,0,-1,6,1,6,-6,0,1,3.1227000000178813
 9,R_2wvLMxIloZ7ffa5,28,f,1,1,1493.699999988079,Legalization of marijuana,Cuts to National Parks budget,1,-1,3,5,3,0.9923850164576297,1,7,4,-0.43664940724135665,3,-1,4,2,-2,4,2,4,-4,2,0,1.4936999999880791
 9,R_2wvLMxIloZ7ffa5,29,f,1,1,1127,Ban on ethnic Halloween costumes,Mandatory trigger warnings,1,-1,1,7,2,-0.43664940724135665,2,5,4,0.2778678046081365,1,-2,3,-1,2,3,2,3,-3,-1,0,1.127
-9,R_2wvLMxIloZ7ffa5,30,f,1,1,78077.10000002384,Gun-free campus police,War on Drugs,1,1,0,7,3,-1.1511666190908498,3,5,3,0.9923850164576297,0,3,-3,-3,2,3,2,-3,3,-3,0,78.07710000002385
 9,R_2wvLMxIloZ7ffa5,31,j,2,0,1539.9000000059605,Increased Gun regulations,Ban on ethnic Halloween costumes,-1,-1,3,6,3,0.9923850164576297,1,7,2,-0.43664940724135665,-3,-1,2,-2,1,2,1,-2,2,2,1,1.5399000000059604
-9,R_2wvLMxIloZ7ffa5,32,f,1,1,267631,Affirmative action,Climate change legislation,1,1,1,7,2,-0.43664940724135665,3,5,3,0.9923850164576297,1,3,-2,-2,2,2,2,-2,2,-2,0,267.631
 9,R_2wvLMxIloZ7ffa5,33,f,1,1,841.2000000178814,Increased Gun regulations,Black Lives Matter,-1,1,3,6,3,0.9923850164576297,1,7,4,-0.43664940724135665,-3,1,-4,2,-1,4,1,-4,4,2,0,0.8412000000178814
 9,R_2wvLMxIloZ7ffa5,34,f,1,1,764.6999999880791,Allow alt-right speakers on campus,Ban on ethnic Halloween costumes,-1,-1,3,5,3,0.9923850164576297,1,7,2,-0.43664940724135665,-3,-1,-2,2,-2,2,2,-2,2,2,0,0.764699999988079
 9,R_2wvLMxIloZ7ffa5,35,f,1,1,758.1999999880791,Increased Gun regulations,Legalization of marijuana,-1,1,3,6,3,0.9923850164576297,3,5,3,0.9923850164576297,-3,3,-6,0,1,6,1,-6,6,0,0,0.7581999999880791
@@ -942,7 +918,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 9,R_2wvLMxIloZ7ffa5,41,j,2,0,925.9000000059605,Mandatory trigger warnings,Black Lives Matter,-1,-1,2,5,4,0.2778678046081365,1,7,4,-0.43664940724135665,-2,-1,1,-1,2,1,2,-1,1,1,1,0.9259000000059605
 9,R_2wvLMxIloZ7ffa5,42,f,1,1,200.60000002384186,Mandatory vaccinations,Mandatory trigger warnings,1,1,0,7,3,-1.1511666190908498,2,5,4,0.2778678046081365,0,2,-2,-2,2,2,2,-2,2,-2,0,0.20060000002384185
 9,R_2wvLMxIloZ7ffa5,43,j,2,0,821.5999999940395,Bathrooms restricted based on biological sex,Mandatory trigger warnings,-1,1,3,5,3,0.9923850164576297,2,5,4,0.2778678046081365,-3,2,5,-1,0,5,0,-5,5,1,1,0.8215999999940395
-9,R_2wvLMxIloZ7ffa5,44,f,1,1,115.09999999403954,Detention of migrant children,Remove police from schools,-1,-1,0,5,3,-1.1511666190908498,3,5,3,0.9923850164576297,-0,-3,3,-3,0,3,0,3,-3,-3,0,0.11509999999403954
 9,R_2wvLMxIloZ7ffa5,45,f,1,1,451.30000001192093,Increased Gun regulations,Gun-free campus police,1,-1,3,6,3,0.9923850164576297,0,7,3,-1.1511666190908498,3,-0,3,3,-1,3,1,3,-3,3,0,0.45130000001192094
 9,R_2wvLMxIloZ7ffa5,46,f,1,1,876.4000000059605,Tuition increases,Mandatory vaccinations,1,1,1,7,4,-0.43664940724135665,0,7,3,-1.1511666190908498,1,0,1,1,0,1,0,1,-1,1,0,0.8764000000059604
 9,R_2wvLMxIloZ7ffa5,47,f,1,1,1818.5999999940395,Bathrooms restricted based on biological sex,Black Lives Matter,-1,1,3,5,3,0.9923850164576297,1,7,4,-0.43664940724135665,-3,1,-4,2,-2,4,2,-4,4,2,0,1.8185999999940394
@@ -955,7 +930,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 9,R_2wvLMxIloZ7ffa5,54,f,1,1,814,Affirmative action,Increased Gun regulations,-1,-1,1,7,2,-0.43664940724135665,3,6,3,0.9923850164576297,-1,-3,2,-2,1,2,1,2,-2,-2,0,0.814
 9,R_2wvLMxIloZ7ffa5,55,f,1,1,1188.199999988079,Increased Gun regulations,Allow alt-right speakers on campus,1,-1,3,6,3,0.9923850164576297,3,5,3,0.9923850164576297,3,-3,6,0,1,6,1,6,-6,0,0,1.188199999988079
 9,R_2wvLMxIloZ7ffa5,56,j,2,0,1226.4000000059605,Ban on ethnic Halloween costumes,Remove public Confederate memorials,1,1,1,7,2,-0.43664940724135665,3,5,3,0.9923850164576297,1,3,2,2,-2,2,2,-2,2,-2,1,1.2264000000059605
-9,R_2wvLMxIloZ7ffa5,57,f,1,1,68469,Tuition increases,Increased Gun regulations,1,-1,1,7,4,-0.43664940724135665,3,6,3,0.9923850164576297,1,-3,4,-2,1,4,1,4,-4,-2,0,68.469
 9,R_2wvLMxIloZ7ffa5,58,f,1,1,611.0999999940395,Bathrooms restricted based on biological sex,Increased Gun regulations,-1,-1,3,5,3,0.9923850164576297,3,6,3,0.9923850164576297,-3,-3,0,0,-1,0,1,0,0,0,0,0.6110999999940395
 9,R_2wvLMxIloZ7ffa5,59,f,1,1,1040.199999988079,Increased Gun regulations,Safe injection locations,1,1,3,6,3,0.9923850164576297,3,5,3,0.9923850164576297,3,3,0,0,1,0,1,0,0,0,0,1.040199999988079
 9,R_2wvLMxIloZ7ffa5,60,j,2,0,857.4000000059605,Detention of migrant children,Increased Gun regulations,1,-1,0,5,3,-1.1511666190908498,3,6,3,0.9923850164576297,0,-3,-3,3,1,3,1,3,-3,-3,1,0.8574000000059605
@@ -981,21 +955,12 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 9,R_2wvLMxIloZ7ffa5,80,f,1,1,3614.5999999940395,Detention of migrant children,"Boycott, Divest, and Sanction Israel",1,1,0,5,3,-1.1511666190908498,0,7,3,-1.1511666190908498,0,0,0,0,-2,0,2,0,0,0,0,3.6145999999940397
 9,R_2wvLMxIloZ7ffa5,81,j,2,0,1593,Increased Gun regulations,Defund the police,-1,1,3,6,3,0.9923850164576297,0,7,3,-1.1511666190908498,-3,0,3,-3,1,3,1,-3,3,3,1,1.593
 9,R_2wvLMxIloZ7ffa5,82,f,1,1,2618.100000023842,Mandatory trigger warnings,Abolishing private prisons,-1,1,2,5,4,0.2778678046081365,0,7,3,-1.1511666190908498,-2,0,-2,2,-2,2,2,-2,2,2,0,2.618100000023842
-9,R_2wvLMxIloZ7ffa5,83,f,1,1,28.400000005960464,Remove public Confederate memorials,Mandatory trigger warnings,-1,-1,3,5,3,0.9923850164576297,2,5,4,0.2778678046081365,-3,-2,-1,1,0,1,0,-1,1,1,0,0.028400000005960463
 9,R_2wvLMxIloZ7ffa5,84,f,1,1,183.40000000596046,Mandatory trigger warnings,Mandatory trigger warnings,-1,1,2,5,4,0.2778678046081365,2,5,4,0.2778678046081365,-2,2,-4,0,0,4,0,-4,4,0,0,0.18340000000596046
 9,R_2wvLMxIloZ7ffa5,85,j,2,0,196.69999998807907,Mandatory trigger warnings,Increased Gun regulations,-1,1,2,5,4,0.2778678046081365,3,6,3,0.9923850164576297,-2,3,5,1,1,5,1,-5,5,-1,1,0.19669999998807908
 9,R_2wvLMxIloZ7ffa5,86,f,1,1,315.60000002384186,Stop police brutality,Mandatory trigger warnings,-1,-1,3,5,3,0.9923850164576297,2,5,4,0.2778678046081365,-3,-2,-1,1,0,1,0,-1,1,1,0,0.31560000002384186
 9,R_2wvLMxIloZ7ffa5,87,j,2,0,181.30000001192093,Remove police from schools,Student worker unionization,1,-1,3,5,3,0.9923850164576297,0,7,3,-1.1511666190908498,3,-0,-3,-3,2,3,2,3,-3,3,1,0.18130000001192093
-9,R_2wvLMxIloZ7ffa5,88,f,1,1,36.900000005960464,Mandatory trigger warnings,Mask mandates,-1,1,2,5,4,0.2778678046081365,3,5,3,0.9923850164576297,-2,3,-5,-1,0,5,0,-5,5,-1,0,0.036900000005960464
 9,R_2wvLMxIloZ7ffa5,89,f,1,1,868.7999999821186,Detention of migrant children,Mandatory trigger warnings,-1,-1,0,5,3,-1.1511666190908498,2,5,4,0.2778678046081365,-0,-2,2,-2,0,2,0,2,-2,-2,0,0.8687999999821187
-9,R_2wvLMxIloZ7ffa5,90,j,2,0,38.400000005960464,Increased Gun regulations,Abolishing private prisons,1,1,3,6,3,0.9923850164576297,0,7,3,-1.1511666190908498,3,0,-3,-3,1,3,1,3,-3,3,1,0.038400000005960465
-9,R_2wvLMxIloZ7ffa5,91,j,2,0,39.900000005960464,Mandatory trigger warnings,Increased Gun regulations,-1,1,2,5,4,0.2778678046081365,3,6,3,0.9923850164576297,-2,3,5,1,1,5,1,-5,5,-1,1,0.039900000005960466
-9,R_2wvLMxIloZ7ffa5,92,f,1,1,42.5,Ban on ethnic Halloween costumes,Abolishing private prisons,1,-1,1,7,2,-0.43664940724135665,0,7,3,-1.1511666190908498,1,-0,1,1,0,1,0,1,-1,1,0,0.0425
 9,R_2wvLMxIloZ7ffa5,93,f,1,1,7295.799999982119,Mandatory trigger warnings,Tuition increases,1,-1,2,5,4,0.2778678046081365,1,7,4,-0.43664940724135665,2,-1,3,1,-2,3,2,3,-3,1,0,7.295799999982119
-9,R_2wvLMxIloZ7ffa5,94,j,2,0,81.7000000178814,Detention of migrant children,Tuition increases,1,-1,0,5,3,-1.1511666190908498,1,7,4,-0.43664940724135665,0,-1,-1,1,2,1,2,1,-1,-1,1,0.0817000000178814
-9,R_2wvLMxIloZ7ffa5,95,f,1,1,9.599999994039536,Mandatory trigger warnings,Remove police from schools,-1,1,2,5,4,0.2778678046081365,3,5,3,0.9923850164576297,-2,3,-5,-1,0,5,0,-5,5,-1,0,0.009599999994039536
-9,R_2wvLMxIloZ7ffa5,96,f,1,1,22.099999994039536,Increased Gun regulations,Safe injection locations,-1,-1,3,6,3,0.9923850164576297,3,5,3,0.9923850164576297,-3,-3,0,0,1,0,1,0,0,0,0,0.022099999994039537
-9,R_2wvLMxIloZ7ffa5,97,j,2,0,109.69999998807907,"Boycott, Divest, and Sanction Israel",Ban on research with animals,1,-1,0,7,3,-1.1511666190908498,3,5,3,0.9923850164576297,0,-3,-3,3,-2,3,2,3,-3,-3,1,0.10969999998807907
 9,R_2wvLMxIloZ7ffa5,98,f,1,1,997.8000000119209,Increased Gun regulations,Mandatory trigger warnings,1,1,3,6,3,0.9923850164576297,2,5,4,0.2778678046081365,3,2,1,1,1,1,1,1,-1,1,0,0.9978000000119209
 9,R_2wvLMxIloZ7ffa5,99,j,2,0,882.3000000119209,Mandatory trigger warnings,Increased Gun regulations,1,-1,2,5,4,0.2778678046081365,3,6,3,0.9923850164576297,2,-3,-5,1,1,5,1,5,-5,-1,1,0.8823000000119209
 9,R_2wvLMxIloZ7ffa5,100,f,1,1,1050.4000000059605,Religious exemptions for discrimination laws,Raise the minimum wage,-1,-1,0,7,3,-1.1511666190908498,3,5,3,0.9923850164576297,-0,-3,3,-3,2,3,2,3,-3,-3,0,1.0504000000059606
@@ -1084,7 +1049,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 13,R_4U6m0ByV1TgPxf3,83,f,1,1,1694,Physician-assisted suicide,Student worker unionization,1,-1,1,7,4,-2.300697693427629,2,7,4,-0.3286710990610904,1,-2,3,-1,0,3,0,3,-3,-1,0,1.694
 13,R_4U6m0ByV1TgPxf3,84,f,1,1,6974,Physician-assisted suicide,Gun-free campus police,-1,1,1,7,4,-2.300697693427629,2,6,2,-0.3286710990610904,-1,2,-3,-1,1,3,1,-3,3,-1,0,6.974
 13,R_4U6m0ByV1TgPxf3,85,j,2,0,1174,Religious exemptions for discrimination laws,Stop police brutality,1,-1,3,8,3,1.6433554953054483,2,7,3,-0.3286710990610904,3,-2,-5,-1,-1,5,1,5,-5,1,1,1.174
-13,R_4U6m0ByV1TgPxf3,86,f,1,1,141,Physician-assisted suicide,Mandatory vaccinations,1,1,1,7,4,-2.300697693427629,1,6,3,-2.300697693427629,1,1,0,0,1,0,1,0,0,0,0,0.141
 13,R_4U6m0ByV1TgPxf3,87,j,2,0,748,Physician-assisted suicide,On campus concealed carry,1,1,1,7,4,-2.300697693427629,3,8,4,1.6433554953054483,1,3,2,2,1,2,1,-2,2,-2,1,0.748
 13,R_4U6m0ByV1TgPxf3,88,f,1,1,890,Remove public Confederate memorials,Physician-assisted suicide,-1,-1,2,8,4,-0.3286710990610904,1,7,4,-2.300697693427629,-2,-1,-1,1,1,1,1,-1,1,1,0,0.89
 13,R_4U6m0ByV1TgPxf3,89,j,2,0,766,"Boycott, Divest, and Sanction Israel",War on Drugs,-1,1,2,8,4,-0.3286710990610904,3,7,4,1.6433554953054483,-2,3,5,1,-1,5,1,-5,5,-1,1,0.766
@@ -1301,7 +1265,6 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 14,R_6rmmVOUTc01qvpD,100,f,1,1,3444.800000011921,On campus concealed carry,"Boycott, Divest, and Sanction Israel",-1,-1,0,0,1,-0.18444679058389993,2,8,3,0.5533403717516997,-0,-2,2,-2,-8,2,8,2,-2,-2,0,3.444800000011921
 3,R_1lrWlqblZ3mTGMR,1,f,1,1,9723.899999976158,Lift COVID lockdowns,Black Lives Matter,1,-1,-1,7,2,-0.9722280223008438,3,7,4,1.4957354189243752,-1,-3,2,-4,0,2,0,2,-2,-4,0,9.723899999976158
 3,R_1lrWlqblZ3mTGMR,2,j,2,0,918.8000000715256,Affirmative action,Safe injection locations,-1,-1,0,3,3,-0.35523716199453903,3,7,4,1.4957354189243752,-0,-3,-3,3,4,3,4,3,-3,-3,1,0.9188000000715256
-3,R_1lrWlqblZ3mTGMR,3,f,1,1,114.20000004768372,Dorms determined by gender identity,Defund the police,1,-1,3,5,4,1.4957354189243752,-2,6,3,-1.5892188826071485,3,2,1,5,-1,1,1,1,-1,5,0,0.11420000004768371
 3,R_1lrWlqblZ3mTGMR,4,f,1,1,9399.900000095367,Safe injection locations,University Campus should be a Sanctuary,1,1,3,7,4,1.4957354189243752,-1,5,3,-0.9722280223008438,3,-1,4,4,2,4,2,4,-4,4,0,9.399900000095368
 3,R_1lrWlqblZ3mTGMR,5,j,2,0,8303.700000047684,U.S. drone strikes in Afghanistan,Religious exemptions for discrimination laws,-1,-1,3,5,4,1.4957354189243752,-3,5,2,-2.2062097429134533,-3,3,6,-6,0,6,0,-6,6,6,1,8.303700000047684
 3,R_1lrWlqblZ3mTGMR,6,f,1,1,4516,Safe injection locations,U.S. drone strikes in Afghanistan,1,-1,3,7,4,1.4957354189243752,3,5,4,1.4957354189243752,3,-3,6,0,2,6,2,6,-6,0,0,4.516
@@ -1390,15 +1353,8 @@ Subj,SID,Trial,Resp,Response,ChooseLeft,RT,IssueLeft,IssueRight,PosLeft,PosRight
 3,R_1lrWlqblZ3mTGMR,89,j,2,0,1180.7000000476837,Dorms determined by gender identity,Legalization of marijuana,-1,-1,3,5,4,1.4957354189243752,-2,8,1,-1.5892188826071485,-3,2,5,-5,3,5,3,-5,5,5,1,1.1807000000476837
 3,R_1lrWlqblZ3mTGMR,90,f,1,1,2420.899999976158,U.S. drone strikes in Afghanistan,Abortion rights,-1,-1,3,5,4,1.4957354189243752,2,4,4,0.8787445586180704,-3,-2,-1,1,1,1,1,-1,1,1,0,2.4208999999761582
 3,R_1lrWlqblZ3mTGMR,91,f,1,1,1079.8000000715256,Defund the police,U.S. drone strikes in Afghanistan,-1,-1,-2,6,3,-1.5892188826071485,3,5,4,1.4957354189243752,2,-3,5,-5,1,5,1,5,-5,-5,0,1.0798000000715255
-3,R_1lrWlqblZ3mTGMR,92,f,1,1,2292067.7999999523,Dorms determined by gender identity,Allow alt-right speakers on campus,1,-1,3,5,4,1.4957354189243752,2,3,3,0.8787445586180704,3,-2,5,1,2,5,2,5,-5,1,0,2292.0677999999525
-3,R_1lrWlqblZ3mTGMR,93,j,2,0,113.29999995231628,Religious exemptions for discrimination laws,Legalization of marijuana,-1,1,-3,5,2,-2.2062097429134533,-2,8,1,-1.5892188826071485,3,-2,-5,1,3,5,3,5,-5,-1,1,0.11329999995231628
 3,R_1lrWlqblZ3mTGMR,94,f,1,1,191.39999997615814,Ban on research with animals,U.S. drone strikes in Afghanistan,-1,-1,1,3,4,0.2617536983117657,3,5,4,1.4957354189243752,-1,-3,2,-2,-2,2,2,2,-2,-2,0,0.19139999997615814
 3,R_1lrWlqblZ3mTGMR,95,f,1,1,1592.8999999761581,Safe injection locations,Abortion rights,1,-1,3,7,4,1.4957354189243752,2,4,4,0.8787445586180704,3,-2,5,1,3,5,3,5,-5,1,0,1.5928999999761582
-3,R_1lrWlqblZ3mTGMR,96,f,1,1,738783.7999999523,Religious exemptions for discrimination laws,Tuition increases,-1,1,-3,5,2,-2.2062097429134533,-1,5,2,-0.9722280223008438,3,-1,4,-2,0,4,0,4,-4,-2,0,738.7837999999523
-3,R_1lrWlqblZ3mTGMR,97,f,1,1,118.39999997615814,Black Lives Matter,Climate change legislation,1,1,3,7,4,1.4957354189243752,3,8,4,1.4957354189243752,3,3,0,0,-1,0,1,0,0,0,0,0.11839999997615815
-3,R_1lrWlqblZ3mTGMR,98,f,1,1,134.80000007152557,Safe injection locations,Physician-assisted suicide,-1,-1,3,7,4,1.4957354189243752,-1,5,2,-0.9722280223008438,-3,1,-4,4,2,4,2,-4,4,4,0,0.13480000007152557
-3,R_1lrWlqblZ3mTGMR,99,f,1,1,130.30000007152557,Abortion rights,Black Lives Matter,1,-1,2,4,4,0.8787445586180704,3,7,4,1.4957354189243752,2,-3,5,-1,-3,5,3,5,-5,-1,0,0.13030000007152556
-3,R_1lrWlqblZ3mTGMR,100,j,2,0,15.199999928474426,Religious exemptions for discrimination laws,Climate change legislation,-1,1,-3,5,2,-2.2062097429134533,3,8,4,1.4957354189243752,3,3,0,6,3,0,3,0,0,-6,1,0.015199999928474426
 15,R_8pQnbYPPeamBQ2J,1,f,1,1,2656.7000000476837,Religious exemptions for discrimination laws,Stop police brutality,-1,-1,0,0,1,-0.3518989217530848,3,8,3,0.8992972444801055,-0,-3,3,-3,-8,3,8,3,-3,-3,0,2.656700000047684
 15,R_8pQnbYPPeamBQ2J,2,j,2,0,3660.900000035763,Tuition increases,Hardening schools/Arming teachers,1,1,-3,6,2,-1.603095087986275,-3,7,1,-1.603095087986275,-3,-3,0,0,1,0,1,0,0,0,1,3.6609000000357628
 15,R_8pQnbYPPeamBQ2J,3,j,2,0,4042.800000011921,Mandatory vaccinations,Ban on research with animals,-1,1,3,8,2,0.8992972444801055,0,4,1,-0.3518989217530848,-3,0,3,-3,-4,3,4,-3,3,3,1,4.042800000011921
