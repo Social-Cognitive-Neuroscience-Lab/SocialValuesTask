@@ -8,12 +8,14 @@ require(tidyverse)
 require(readxl)
 ```
 
+# Import data
 ```{r}
-d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_2.xlsx',
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_3.xlsx',
                skip=1)
 
 d_real <- d_raw %>% filter(!is.na(`Please enter your gender`))
 d_real$SID <- factor(d_real$`Response ID`)
+print(str_c(nrow(d_raw)," subjects"))
 d_real %>% head()
 ```
 
@@ -220,10 +222,15 @@ d <- d_choices %>%
   mutate(LeftAdjDiff = LeftAdj- RightAdj) %>%
   mutate(RightAdjDiff = RightAdj - LeftAdj) %>%
   mutate(LeftDiff_raw = LeftSupport - RightSupport) %>%
+  mutate(LeftMoral_diff = LeftMoral - RightMoral) %>%
   mutate(ChooseRight = case_when(
     ChooseLeft == 1 ~ 0,
     ChooseLeft == 0 ~ 1,
     TRUE ~ NA_real_
+  )) %>%
+  mutate(Choice = case_when(
+    ChooseLeft == 1 ~ "Left",
+    ChooseLeft == 0 ~ "Right"
   ))
 
 d <- d %>%
@@ -243,15 +250,188 @@ d_trim <- d %>%
 ```
 
 ```{r}
-ggplot(d_trim, aes(ChoiceSupport, Resp, color=SID)) +
-  geom_violin() +
+d_trim$Subject <- as.factor(d_trim$Subj)
+
+ggplot(d_trim, aes(LeftAdjDiff, Choice)) +
+  geom_boxplot(aes(color=Subject)) +
+  geom_violin(aes(fill=Choice),
+              draw_quantiles=c(.25,.5,.75), alpha=.3) +
+  theme_classic() +
+  guides(fill = "none")
+ggsave('Choice_by_Support.png')
+```
+
+```{r}
+require(rethinking)
+```
+
+
+
+```{r}
+require(lme4)
+resp_mod <- glmer(ChooseLeft ~ LeftAdjDiff +
+                    (1|Subject), data = d_trim,
+                    family='binomial')
+resp_mod2 <- glmer(ChooseLeft ~ LeftMoral_diff +
+                    (1|Subject), data = d_trim,
+                    family='binomial')
+resp_mod3 <- glmer(ChooseLeft ~ LeftAdjDiff + LeftMoral_diff +
+                    (1|Subject), data = d_trim,
+                    family='binomial')
+resp_mod4 <- glmer(ChooseLeft ~ LeftAdjDiff * LeftMoral_diff +
+                    (1|Subject), data = d_trim,
+                    family='binomial')
+anova(resp_mod, resp_mod2, resp_mod3, resp_mod4)
+```
+```{r}
+require(sjPlot)
+plot_model(resp_mod, type="pred", terms=c('LeftAdjDiff')) +
+  labs(x="Support (Left - Right)", y="Probability of choose") +
   theme_classic()
 ```
 
 ```{r}
-ggplot(d_trim, aes(ChoiceSupportNaive, Resp, color=SID)) +
-  geom_violin() +
+plot_model(resp_mod4, type="int", 
+           terms = c("LeftAdjDiff", "LeftMoral_diff"),
+           mdrt.values="minmax") +
+  labs(x="Support (Left - Right)", y="Probability of choose",
+       color="MC (min/max)") +
   theme_classic()
+```
+
+
+```{r}
+ggplot(d_trim %>% filter(RTs < 30), aes(LeftAdjDiff, RTs)) +
+  geom_point(aes(color=Subject), alpha=.3) +
+  geom_smooth(aes(color=Subject), formula = y ~ x^2, se=FALSE) +
+  geom_smooth(formula=y ~ x^2) +
+  theme_classic()
+```
+
+
+```{r}
+ggplot(d_trim %>% filter(RTs < 5), aes(LeftAdjDiff, RTs)) +
+  geom_point(aes(color=Subject), alpha=.3) +
+  geom_smooth(aes(color=Subject), se=FALSE) +
+  geom_smooth(size=2) +
+  theme_classic()
+```
+
+
+```{r}
+ggplot(d_trim, aes(ChoiceSupportNaive, Choice)) +
+  geom_boxplot(aes(color=Subject)) +
+  geom_violin(aes(fill=Choice),
+              draw_quantiles=c(.25,.5,.75), alpha=.3) +
+  theme_classic()
+```
+
+## ulam for response
+$$\begin{equation}
+L_i ~ \text{Binomial}(1, p_i) \\
+\text{logit}(p_i) = \alpha_{\text{SID}[i]} + \beta_{\text{SID}[i]}*RDV \\
+\alpha_{\text{SID}[i]} = 
+\end{equation}$$
+
+```{r}
+dat_listr <- list(
+  L = d_trim$ChooseLeft,
+  RDV = d_trim$LeftAdjDiff,
+  sid = d_trim$Subj
+)
+  
+  
+resp.ulam <- ulam(
+  alist(
+    L ~ dbinom(1, p),
+    logit(p) <- a_sid[sid] + b_sid[sid]*RDV,
+    
+    # adaptive priors
+    c(a_sid, b_sid)[sid] ~ multi_normal( c(a,b), Rho, sigma_sid),
+    a ~ normal(5, 2),
+    b ~ normal(-1, 0.5),
+    sigma_sid ~ exponential(1),
+    Rho ~ dlkjcorr(2)
+  ), data = dat_listr, chains=4, cores=4, iter=2000
+)
+```
+```{r}
+dat_tib <- as_tibble(dat_listr)
+dat_tib
+```
+```{r}
+acp <- dat_tib %>%
+  group_by(sid, RDV) %>%
+  summarize(L = mean(L, na.rm=TRUE))
+
+acpm <- acp %>%
+  group_by(RDV) %>%
+  summarize(L = mean(L, na.rm=TRUE))
+```
+
+
+
+```{r}
+png('ValueMCMC.png', width=800, height=450)
+par(mfrow=c(1,2))
+plot(NULL, xlim=c(-6, 6), ylim=c(0, 1),
+     xlab="Relative value of Left",
+     ylab="% of Left",
+      main="Raw data")
+for (i in 1:length(unique(acp$sid))) {
+  sdat <- acp %>%
+    filter(sid == i)
+  x <- unique(sdat$RDV)
+  lines(x, sdat$L, col=grau(0.25))
+}
+lines(acpm$RDV, acpm$L, lwd=2)
+
+plot(NULL, xlim=c(-6, 6), ylim=c(0, 1),
+     xlab="Relative value of Left", 
+     ylab="Pr(Left)",
+     main="Posterior predictions (20 draws)")
+xseq <- seq(from=-6, to=6, by=1)
+post <- extract.samples(resp.ulam)
+
+for (i in 1:20) {
+  for (s in 1:26) {
+    sub_int <- post$a[i] + post$a_sid[i,s]
+    sub_slope <- post$b[i] + post$b_sid[i,s]
+    y = sub_int + sub_slope*xseq
+    lines(xseq, inv_logit(y), col=grau(0.1))
+  }
+}
+dev.off()
+```
+
+
+
+
+
+```{r}
+
+resp.ulam2 <- ulam(
+  alist(
+    L ~ dbinom(1, p),
+    logit(p) <- a_sid[sid] + b_sid[sid]*RDV,
+    
+    # adaptive priors
+    transpar> vector[sid]:sid <- compose_noncentered( sigma_sid,
+                                                      L_Rho,
+                                                      z_sid),
+    vector[sid]:z_sid ~ normal(0, 1)
+    
+    #fixed priors
+    sigma_sid ~ dexp(1),
+    cholesky_factor_corr:Rho ~ lkj_corr_cholesky( 2 )
+    
+    c(a_sid, b_sid)[sid] ~ multi_normal( c(a,b), Rho, sigma_sid),
+    a ~ normal(5, 2),
+    b ~ normal(-1, 0.5),
+    sigma_sid ~ exponential(1),
+    Rho ~ dlkjcorr(2)
+  ), data = dat_listr, chains=1
+)
 ```
 
 When we say $y$ is normally distributed, we mean:
@@ -336,10 +516,87 @@ for (i in 1:dat_list$N) {
 
 ```
 
+
+
+# DDMs
+
 ```{r}
 fit <- rstan::stan(file = '../../scratch-foo/choice_ddm.stan', 
             data=dat_list, chains=4, cores=4)
 ```
+
+```{r}
+fit_b0 <- rstan::stan(file = '../../scratch-foo/choice_ddm_0bias.stan', 
+            data=dat_list, chains=4, cores=4)
+```
+
+## attempt at value
+```{r}
+# create list of value diffs for each subject for each response type
+VLeft <- matrix(-1, nrow=N, ncol=max(cl$n))
+VRight <- matrix(-1, nrow=N, ncol=max(cr$n))
+
+for (i in 1:N) {
+  #print(str_c('At [',i,' ',i,':cl$n[',i,']'))
+  VLeft[i, 1:cl$n[i]] = d_trim %>%
+    filter(Subj == i & Response == 1) %>%
+    pull(LeftAdjDiff)
+  
+  VRight[i, 1:cr$n[i]] = d_trim %>%
+    filter(Subj == i & Response == 2) %>%
+    pull(RightAdjDiff)
+}
+# store everything in list
+dat_list <- list(
+  N = N,
+  Nu_max = max(cl$n),
+  Nl_max = max(cr$n),
+  Nu = cl$n,
+  Nl = cr$n,
+  RTu = Left,
+  RTl = Right,
+  minRT = min_RTs,
+  RTbound = .1,
+  RDVu = VLeft,
+  RDVl = VRight
+)
+
+```
+
+```{r}
+x = seq(from=-5, to=5, length.out=50)
+plot(x, 2^x)
+```
+
+```{r}
+x = seq(from=-5, to=5, length.out=50)
+plot(x, .5^x)
+```
+
+```{r}
+nsim = 1e4
+k <- rnorm(nsim, 0, 0.2)
+p <- rnorm(nsim, 0, 0.2)
+VL <- sample(-6:6, nsim, replace=TRUE)
+s <- sample(c(-1,1), nsim, replace=TRUE)
+d0 <- runif(nsim)
+
+drifts <- vector(mode="numeric", length=nsim)
+for (i in nsim) {
+  drifts[i] <- k[i]*s[i]*abs(VL[i])^p[i] + d0[i]
+}
+
+summary(drifts)
+```
+
+
+```{r}
+fit.val <- rstan::stan(file = '../../scratch-foo/choice_value_ddm.stan', 
+            data=dat_list, chains=4, cores=4)
+
+```
+
+
 
 ## Try ulam
 ```{r}
@@ -405,7 +662,7 @@ mod <- lmerTest::lmer(RT ~ ChoiceSupportDist*ChoiceMoralDist +
                     (1|SID) + (1|IssueLeft), data=d_trim)
 summary(mod)
 
-mod2 <- lme4::glmer(ChooseLeft ~ LeftSupport*LeftMoral +
+mod2 <- glmer(ChooseLeft ~ LeftSupport*LeftMoral +
                           (1|SID) + (1|IssueLeft),
                         data = d_trim, family=binomial)
 ```
