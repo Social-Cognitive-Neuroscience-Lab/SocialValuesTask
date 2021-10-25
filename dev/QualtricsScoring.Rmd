@@ -532,6 +532,68 @@ fit_b0 <- rstan::stan(file = '../../scratch-foo/choice_ddm_0bias.stan',
 
 ## attempt at value
 ```{r}
+# For value-based, remove all cases when support for
+# both was identical
+# number of subjects
+N <-length(unique(d_trim$SID))
+# count responses of each type
+choice_counts <- d_trim %>%
+  count(SID, Response)
+# left responses
+cl <- choice_counts %>% 
+  filter(Response == 1)
+# right responses
+cr <- choice_counts %>%
+  filter(Response == 2)
+# minimum RT for each subject
+min_RTs <- d_trim %>% 
+  group_by(SID) %>% 
+  summarize(RTs = min(RTs)) %>%
+  pull(RTs)
+
+# create list of RTs for each subject for each response type
+Left <- matrix(-1, nrow=N, ncol=max(cl$n))
+Right <- matrix(-1, nrow=N, ncol=max(cr$n))
+
+for (i in 1:N) {
+  #print(str_c('At [',i,' ',i,':cl$n[',i,']'))
+  Left[i, 1:cl$n[i]] = d_trim %>%
+    filter(Subj == i & Response == 1) %>%
+    pull(RTs)
+  
+  Right[i, 1:cr$n[i]] = d_trim %>%
+    filter(Subj == i & Response == 2) %>%
+    pull(RTs)
+}
+
+# store everything in list
+dat_list <- list(
+  N = N,
+  Nu_max = max(cl$n),
+  Nl_max = max(cr$n),
+  Nu = cl$n,
+  Nl = cr$n,
+  RTu = Left,
+  RTl = Right,
+  minRT = min_RTs,
+  RTbound = .1
+)
+
+# Check dat_list
+for (i in 1:dat_list$N) {
+  # minimum RT must be less than recorded minimum RT
+  minrt <- min(dat_list$RTu[i, 1:dat_list$Nu[i]])
+  if (minrt < dat_list$RTbound) {
+    print(str_c("Problem with subject ", i, 
+                "minimum left RT is too low! [", minrt,"]"))
+  }
+  minrt <- min(dat_list$RTl[i, 1:dat_list$Nl[i]])
+  if (minrt < dat_list$RTbound) {
+    print(str_c("Problem with subject ", i, 
+                "minimum right RT is too low! [", minrt,"]"))
+  }
+}
+
 # create list of value diffs for each subject for each response type
 VLeft <- matrix(-1, nrow=N, ncol=max(cl$n))
 VRight <- matrix(-1, nrow=N, ncol=max(cr$n))
@@ -544,7 +606,7 @@ for (i in 1:N) {
   
   VRight[i, 1:cr$n[i]] = d_trim %>%
     filter(Subj == i & Response == 2) %>%
-    pull(RightAdjDiff)
+    pull(LeftAdjDiff)
 }
 # store everything in list
 dat_list <- list(
@@ -592,8 +654,14 @@ summary(drifts)
 
 ```{r}
 fit.val <- rstan::stan(file = '../../scratch-foo/choice_value_ddm.stan', 
-            data=dat_list, chains=4, cores=4)
+            data=dat_list, chains=4,
+            cores=4, iter=2000)
 
+```
+```{r}
+fit.val2 <- rstan::stan(file = '../../scratch-foo/choice_value_ddm.stan', 
+            data=dat_list, chains=4,
+            cores=4, iter=2000)
 ```
 
 
