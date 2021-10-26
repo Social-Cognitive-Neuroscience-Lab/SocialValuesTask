@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
@@ -10,7 +12,7 @@ require(readxl)
 
 # Import data
 ```{r}
-d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_3.xlsx',
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_4.xlsx',
                skip=1)
 
 d_real <- d_raw %>% filter(!is.na(`Please enter your gender`))
@@ -18,6 +20,28 @@ d_real$SID <- factor(d_real$`Response ID`)
 print(str_c(nrow(d_raw)," subjects"))
 d_real %>% head()
 ```
+```{r}
+d_real$age <- as.numeric(d_real$`Please enter your age in years`) 
+d_real <- d_real %>%
+  mutate(age = case_when(
+    age > 100 ~ 2021 - age,
+    TRUE ~ age
+  )) %>%
+  rename(gender = `Please enter your gender`) %>%
+  mutate(gender = str_to_lower(gender)) %>%
+  mutate(gender = case_when(
+    str_detect(gender, 'female') ~ 'F',
+    str_detect(gender, 'woman') ~ 'F',
+    str_detect(gender, 'male') ~ 'M',
+    TRUE ~ 'Other'
+  ))
+```
+
+```{r}
+summary(d_real$age)
+d_real %>% count(gender)
+```
+
 
 ```{r}
 # extract_js <- function(df, col_name, col_label, trials=100) {
@@ -257,8 +281,8 @@ ggplot(d_trim, aes(LeftAdjDiff, Choice)) +
   geom_violin(aes(fill=Choice),
               draw_quantiles=c(.25,.5,.75), alpha=.3) +
   theme_classic() +
-  guides(fill = "none")
-ggsave('Choice_by_Support.png')
+  guides(fill = "none") 
+ggsave('Choice_by_Support.png', width=6, height=4.5)
 ```
 
 ```{r}
@@ -285,10 +309,17 @@ anova(resp_mod, resp_mod2, resp_mod3, resp_mod4)
 ```
 ```{r}
 require(sjPlot)
-plot_model(resp_mod, type="pred", terms=c('LeftAdjDiff')) +
+plot_model(resp_mod3, type="pred", terms=c('LeftAdjDiff')) +
   labs(x="Support (Left - Right)", y="Probability of choose") +
   theme_classic()
 ```
+```{r}
+plot_model(resp_mod3, type="pred", terms=c('LeftMoral_diff')) +
+  labs(x="Moral Conviction (Left - Right)", y="Probability of choose") +
+  theme_classic()
+```
+
+
 
 ```{r}
 plot_model(resp_mod4, type="int", 
@@ -522,6 +553,9 @@ for (i in 1:dat_list$N) {
 fit <- rstan::stan(file = '../../scratch-foo/choice_ddm.stan', 
             data=dat_list, chains=4, cores=4)
 ```
+```{r}
+precis(fit)
+```
 
 ## attempt at value
 ```{r}
@@ -614,33 +648,82 @@ D_list$RDVl <- DVRight
 
 
 ```{r}
-fit <- rstan::stan(file = '../../scratch-foo/choice_linearvalue_ddm.stan', 
+fit <- rstan::stan(file = '../../scratch-foo/choice_linearvalue_ddm2.stan', 
             data=D_list, chains=1)
 ```
+
+
+```{r}
+fit.precis <- precis(fit, depth=2)
+summary(fit.precis$n_eff)
+```
+
 ```{r}
 fit.multi <- rstan::stan(file = '../../scratch-foo/choice_linearvalue_ddm.stan', 
             data=D_list, chains=4, cores=4,
             control = list(adapt_delta=0.95))
 ```
+
 ```{r}
-write_rds(fit.multi, 'linearvalue_ddm_4chain.RDS')
+write_rds(fit.multi, 'linearvalue_ddm_4chain_batch42.RDS')
+```
+
+```{r}
+fit.multi.precis <- precis(fit.multi, depth=2)
+summary(fit.multi.precis$n_eff)
+```
+```{r}
+mp <- tibble(
+  param = rownames(fit.multi.precis),
+  mean = fit.multi.precis$mean,
+  sd = fit.multi.precis$sd,
+  lower = fit.multi.precis$`5.5%`,
+  upper = fit.multi.precis$`94.5%`,
+  n_eff = fit.multi.precis$n_eff,
+  Rhat = fit.multi.precis$Rhat4
+)
+```
+
+```{r}
+kappas <- mp %>%
+  filter(str_detect(param, 'kappa') & 
+           !(str_detect(param, '_pr') |
+               str_detect(param,'mu') ) 
+         )
+mu_kappa <- mp %>%
+  filter(str_detect(param, 'mu_kappa'))
+         
+kappas %>%
+  ggplot(aes(param, mean)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin=lower, ymax=upper), alpha=.3) +
+  geom_hline(yintercept = mu_kappa %>%
+               pull(mean), linetype="dashed") +
+  geom_hline(yintercept = mu_kappa %>%
+               pull(lower), linetype="dotted") +
+  geom_hline(yintercept = mu_kappa %>%
+               pull(upper), linetype="dotted") +
+  geom_hline(yintercept = 0, col = 'grey') +
+  labs(x = "Subject", y="estimated kappa") +
+  theme_classic() 
 ```
 
 
+
 ```{r}
-nsim = 1e4
-k <- rnorm(nsim, 0, 0.2)
-p <- rnorm(nsim, 0, 0.2)
-VL <- sample(c(-6:-1, 1:6), nsim, replace=TRUE)
-s <- sample(c(-1,1), nsim, replace=TRUE)
-d0 <- runif(nsim)
-
-drifts <- vector(mode="numeric", length=nsim)
-for (i in nsim) {
-  drifts[i] <- k[i]*s[i]*abs(VL[i])^p[i] + d0[i]
-}
-
-summary(drifts)
+# nsim = 1e4
+# k <- rnorm(nsim, 0, 0.2)
+# p <- rnorm(nsim, 0, 0.2)
+# VL <- sample(c(-6:-1, 1:6), nsim, replace=TRUE)
+# s <- sample(c(-1,1), nsim, replace=TRUE)
+# d0 <- runif(nsim)
+# 
+# drifts <- vector(mode="numeric", length=nsim)
+# for (i in nsim) {
+#   drifts[i] <- k[i]*s[i]*abs(VL[i])^p[i] + d0[i]
+# }
+# 
+# summary(drifts)
 ```
 
 
@@ -653,92 +736,53 @@ summary(drifts)
 
 ## Use StanDDM
 ```{r}
-require(StanDDM)
-choice.df <- data.frame(
-  suj = str_c("Subject", as.numeric(d_trim$SID)),
-  rt = as.double(d_trim$RTs),
-  crit = d_trim$LeftAdj - d_trim$RightAdj,
-  cor = as.numeric(d_trim$ChooseLeft)
-)
-
-dat <- StanDDM::experimental_data_processing(choice.df)
+# require(StanDDM)
+# choice.df <- data.frame(
+#   suj = str_c("Subject", as.numeric(d_trim$SID)),
+#   rt = as.double(d_trim$RTs),
+#   crit = d_trim$LeftAdj - d_trim$RightAdj,
+#   cor = as.numeric(d_trim$ChooseLeft)
+# )
+# 
+# dat <- StanDDM::experimental_data_processing(choice.df)
 ```
 
 ```{r}
-mod <- StanDDM::StanDDM(data=dat, include_models = c('sv'))
-```
-
-
-
-
-
-```{r}
-choice.df <- data.frame(
-  subjID = as.numeric(d_trim$SID),
-  choice = as.numeric(d_trim$Response),
-  RT = as.double(d_trim$RTs)
-)
-
-dat_list <- list(
-  
-)
-
-choice_trim <- choice.df %>%
-  filter( subjID %in% c(1,3,5,6))
-
-choice.mod <- hBayesDM::choiceRT_ddm(choice_trim)
-```
-
-```{r}
-plot(choice.mod, type="trace")
-```
-
-```{r}
-plot(choice.mod)
+# mod <- StanDDM::StanDDM(data=dat, include_models = c('sv'))
 ```
 
 
 
 ```{r}
-mod <- lmerTest::lmer(RT ~ ChoiceSupportDist*ChoiceMoralDist +
-                    (1|SID) + (1|IssueLeft), data=d_trim)
-summary(mod)
-
-mod2 <- glmer(ChooseLeft ~ LeftSupport*LeftMoral +
-                          (1|SID) + (1|IssueLeft),
-                        data = d_trim, family=binomial)
+# require(rethinking)
+# dat_list <- list(
+#   ChooseLeft = d_trim$ChooseLeft,
+#   M = d_trim$ChoiceMoral / 8,
+#   S = d_trim$ChoiceSupport / 6,
+#   Issue = as.numeric(d_trim$IssueLeft),
+#   SID = as.numeric(d_trim$SID)
+# )
+# 
+# modb <- ulam(
+#   alist(
+#     ChooseLeft ~ dbinom(1, p),
+#     logit(p) <- a[SID] + g[Issue] + bS*S + bM*M,
+#     bS ~ normal(0, 1),
+#     bM ~ normal(0, 1),
+#     a[SID] ~ dnorm(a_bar, sigma_a),
+#     g[Issue] ~ dnorm(0, sigma_g),
+#     a_bar ~ dnorm(0, 1.5),
+#     sigma_a ~ dexp(1),
+#     sigma_g ~ dexp(1)
+#   ), data = dat_list, chains=4, cores=4, log_lik=TRUE
+# )
 ```
 
 ```{r}
-require(rethinking)
-dat_list <- list(
-  ChooseLeft = d_trim$ChooseLeft,
-  M = d_trim$ChoiceMoral / 8,
-  S = d_trim$ChoiceSupport / 6,
-  Issue = as.numeric(d_trim$IssueLeft),
-  SID = as.numeric(d_trim$SID)
-)
-
-modb <- ulam(
-  alist(
-    ChooseLeft ~ dbinom(1, p),
-    logit(p) <- a[SID] + g[Issue] + bS*S + bM*M,
-    bS ~ normal(0, 1),
-    bM ~ normal(0, 1),
-    a[SID] ~ dnorm(a_bar, sigma_a),
-    g[Issue] ~ dnorm(0, sigma_g),
-    a_bar ~ dnorm(0, 1.5),
-    sigma_a ~ dexp(1),
-    sigma_g ~ dexp(1)
-  ), data = dat_list, chains=4, cores=4, log_lik=TRUE
-)
+# trankplot(modb)
 ```
 
 ```{r}
-trankplot(modb)
-```
-
-```{r}
-precis(modb)
+# precis(modb)
 ```
 
