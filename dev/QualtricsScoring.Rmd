@@ -406,32 +406,30 @@ dev.off()
 
 
 
-
-
 ```{r}
-
-resp.ulam2 <- ulam(
-  alist(
-    L ~ dbinom(1, p),
-    logit(p) <- a_sid[sid] + b_sid[sid]*RDV,
-    
-    # adaptive priors
-    transpar> vector[sid]:sid <- compose_noncentered( sigma_sid,
-                                                      L_Rho,
-                                                      z_sid),
-    vector[sid]:z_sid ~ normal(0, 1)
-    
-    #fixed priors
-    sigma_sid ~ dexp(1),
-    cholesky_factor_corr:Rho ~ lkj_corr_cholesky( 2 )
-    
-    c(a_sid, b_sid)[sid] ~ multi_normal( c(a,b), Rho, sigma_sid),
-    a ~ normal(5, 2),
-    b ~ normal(-1, 0.5),
-    sigma_sid ~ exponential(1),
-    Rho ~ dlkjcorr(2)
-  ), data = dat_listr, chains=1
-)
+# 
+# resp.ulam2 <- ulam(
+#   alist(
+#     L ~ dbinom(1, p),
+#     logit(p) <- a_sid[sid] + b_sid[sid]*RDV,
+#     
+#     # adaptive priors
+#     transpar> vector[sid]:sid <- compose_noncentered( sigma_sid,
+#                                                       L_Rho,
+#                                                       z_sid),
+#     vector[sid]:z_sid ~ normal(0, 1),
+#     
+#     #fixed priors
+#     sigma_sid ~ dexp(1),
+#     cholesky_factor_corr:Rho ~ lkj_corr_cholesky( 2 )
+#     
+#     c(a_sid, b_sid)[sid] ~ multi_normal( c(a,b), Rho, sigma_sid),
+#     a ~ normal(5, 2),
+#     b ~ normal(-1, 0.5),
+#     sigma_sid ~ exponential(1),
+#     Rho ~ dlkjcorr(2)
+#   ), data = dat_listr, chains=1
+# )
 ```
 
 When we say $y$ is normally distributed, we mean:
@@ -525,121 +523,115 @@ fit <- rstan::stan(file = '../../scratch-foo/choice_ddm.stan',
             data=dat_list, chains=4, cores=4)
 ```
 
-```{r}
-fit_b0 <- rstan::stan(file = '../../scratch-foo/choice_ddm_0bias.stan', 
-            data=dat_list, chains=4, cores=4)
-```
-
 ## attempt at value
 ```{r}
+
 # For value-based, remove all cases when support for
 # both was identical
+
+Dsup <- d_trim %>%
+  filter(LeftAdj != RightAdj)
+
 # number of subjects
-N <-length(unique(d_trim$SID))
+DN <-length(unique(Dsup$SID))
 # count responses of each type
-choice_counts <- d_trim %>%
+Dchoice_counts <- Dsup %>%
   count(SID, Response)
 # left responses
-cl <- choice_counts %>% 
+Dcl <- Dchoice_counts %>% 
   filter(Response == 1)
 # right responses
-cr <- choice_counts %>%
+Dcr <- Dchoice_counts %>%
   filter(Response == 2)
 # minimum RT for each subject
-min_RTs <- d_trim %>% 
+Dmin_RTs <- Dsup %>% 
   group_by(SID) %>% 
   summarize(RTs = min(RTs)) %>%
   pull(RTs)
 
 # create list of RTs for each subject for each response type
-Left <- matrix(-1, nrow=N, ncol=max(cl$n))
-Right <- matrix(-1, nrow=N, ncol=max(cr$n))
+DLeft <- matrix(-1, nrow=DN, ncol=max(Dcl$n))
+DRight <- matrix(-1, nrow=DN, ncol=max(Dcr$n))
 
-for (i in 1:N) {
+for (i in 1:DN) {
   #print(str_c('At [',i,' ',i,':cl$n[',i,']'))
-  Left[i, 1:cl$n[i]] = d_trim %>%
+  DLeft[i, 1:Dcl$n[i]] = Dsup %>%
     filter(Subj == i & Response == 1) %>%
     pull(RTs)
   
-  Right[i, 1:cr$n[i]] = d_trim %>%
+  DRight[i, 1:Dcr$n[i]] = Dsup %>%
     filter(Subj == i & Response == 2) %>%
     pull(RTs)
 }
 
 # store everything in list
-dat_list <- list(
-  N = N,
-  Nu_max = max(cl$n),
-  Nl_max = max(cr$n),
-  Nu = cl$n,
-  Nl = cr$n,
-  RTu = Left,
-  RTl = Right,
-  minRT = min_RTs,
-  RTbound = .1
+D_list <- list(
+  N = DN,
+  Nu_max = max(Dcl$n),
+  Nl_max = max(Dcr$n),
+  Nu = Dcl$n,
+  Nl = Dcr$n,
+  RTu = DLeft,
+  RTl = DRight,
+  minRT = Dmin_RTs,
+  RTbound = ifelse(min(Dmin_RTs) < .1, min(Dmin_RTs), .1)
 )
 
-# Check dat_list
-for (i in 1:dat_list$N) {
+# Check D_list
+for (i in 1:D_list$N) {
   # minimum RT must be less than recorded minimum RT
-  minrt <- min(dat_list$RTu[i, 1:dat_list$Nu[i]])
-  if (minrt < dat_list$RTbound) {
+  minrt <- min(D_list$RTu[i, 1:D_list$Nu[i]])
+  if (minrt < D_list$RTbound) {
     print(str_c("Problem with subject ", i, 
                 "minimum left RT is too low! [", minrt,"]"))
   }
-  minrt <- min(dat_list$RTl[i, 1:dat_list$Nl[i]])
-  if (minrt < dat_list$RTbound) {
+  minrt <- min(D_list$RTl[i, 1:D_list$Nl[i]])
+  if (minrt < D_list$RTbound) {
     print(str_c("Problem with subject ", i, 
                 "minimum right RT is too low! [", minrt,"]"))
   }
 }
 
 # create list of value diffs for each subject for each response type
-VLeft <- matrix(-1, nrow=N, ncol=max(cl$n))
-VRight <- matrix(-1, nrow=N, ncol=max(cr$n))
+DVLeft <- matrix(-1, nrow=DN, ncol=max(Dcl$n))
+DVRight <- matrix(-1, nrow=DN, ncol=max(Dcr$n))
 
-for (i in 1:N) {
+for (i in 1:DN) {
   #print(str_c('At [',i,' ',i,':cl$n[',i,']'))
-  VLeft[i, 1:cl$n[i]] = d_trim %>%
+  DVLeft[i, 1:Dcl$n[i]] = Dsup %>%
     filter(Subj == i & Response == 1) %>%
     pull(LeftAdjDiff)
   
-  VRight[i, 1:cr$n[i]] = d_trim %>%
+  DVRight[i, 1:Dcr$n[i]] = Dsup %>%
     filter(Subj == i & Response == 2) %>%
     pull(LeftAdjDiff)
 }
 # store everything in list
-dat_list <- list(
-  N = N,
-  Nu_max = max(cl$n),
-  Nl_max = max(cr$n),
-  Nu = cl$n,
-  Nl = cr$n,
-  RTu = Left,
-  RTl = Right,
-  minRT = min_RTs,
-  RTbound = .1,
-  RDVu = VLeft,
-  RDVl = VRight
-)
+D_list$RDVu <- DVLeft
+D_list$RDVl <- DVRight
 
 ```
+
 
 ```{r}
-x = seq(from=-5, to=5, length.out=50)
-plot(x, 2^x)
+fit <- rstan::stan(file = '../../scratch-foo/choice_linearvalue_ddm.stan', 
+            data=D_list, chains=1)
+```
+```{r}
+fit.multi <- rstan::stan(file = '../../scratch-foo/choice_linearvalue_ddm.stan', 
+            data=D_list, chains=4, cores=4,
+            control = list(adapt_delta=0.95))
+```
+```{r}
+write_rds(fit.multi, 'linearvalue_ddm_4chain.RDS')
 ```
 
-```{r}
-x = seq(from=-5, to=5, length.out=50)
-plot(x, .5^x)
-```
 
 ```{r}
 nsim = 1e4
 k <- rnorm(nsim, 0, 0.2)
 p <- rnorm(nsim, 0, 0.2)
-VL <- sample(-6:6, nsim, replace=TRUE)
+VL <- sample(c(-6:-1, 1:6), nsim, replace=TRUE)
 s <- sample(c(-1,1), nsim, replace=TRUE)
 d0 <- runif(nsim)
 
@@ -652,27 +644,9 @@ summary(drifts)
 ```
 
 
-```{r}
-fit.val <- rstan::stan(file = '../../scratch-foo/choice_value_ddm.stan', 
-            data=dat_list, chains=4,
-            cores=4, iter=2000)
-
-```
-```{r}
-fit.val2 <- rstan::stan(file = '../../scratch-foo/choice_value_ddm.stan', 
-            data=dat_list, chains=4,
-            cores=4, iter=2000)
-```
-
-
 
 ## Try ulam
 ```{r}
-ufit <- rethinking::ulam(
-  alist(
-    
-  )
-)
 ```
 
 
