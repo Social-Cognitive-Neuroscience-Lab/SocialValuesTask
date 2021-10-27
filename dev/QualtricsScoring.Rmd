@@ -281,6 +281,7 @@ ggplot(d_trim, aes(LeftAdjDiff, Choice)) +
   geom_violin(aes(fill=Choice),
               draw_quantiles=c(.25,.5,.75), alpha=.3) +
   theme_classic() +
+  labs(x="Relative value of Left", y="Choices") +
   guides(fill = "none") 
 ggsave('Choice_by_Support.png', width=6, height=4.5)
 ```
@@ -293,32 +294,57 @@ require(rethinking)
 
 ```{r}
 require(lme4)
-resp_mod <- glmer(ChooseLeft ~ LeftAdjDiff +
-                    (1|Subject), data = d_trim,
+d_lmer <- d_trim %>%
+  mutate(Support = LeftAdjDiff / 6) %>%
+  mutate(Moral = LeftMoral_diff / 8)
+
+resp_mod <- glmer(ChooseLeft ~ Support +
+                    (1|Subject), data = d_lmer,
                     family='binomial')
-resp_mod2 <- glmer(ChooseLeft ~ LeftMoral_diff +
-                    (1|Subject), data = d_trim,
+resp_mod2 <- glmer(ChooseLeft ~ Moral +
+                    (1|Subject), data = d_lmer,
                     family='binomial')
-resp_mod3 <- glmer(ChooseLeft ~ LeftAdjDiff + LeftMoral_diff +
-                    (1|Subject), data = d_trim,
+resp_mod3 <- glmer(ChooseLeft ~ Support + Moral +
+                    (1|Subject), data = d_lmer,
                     family='binomial')
-resp_mod4 <- glmer(ChooseLeft ~ LeftAdjDiff * LeftMoral_diff +
-                    (1|Subject), data = d_trim,
+resp_mod4 <- glmer(ChooseLeft ~ Support * Moral +
+                    (1|Subject), data = d_lmer,
                     family='binomial')
 anova(resp_mod, resp_mod2, resp_mod3, resp_mod4)
 ```
+
 ```{r}
 require(sjPlot)
-plot_model(resp_mod3, type="pred", terms=c('LeftAdjDiff')) +
-  labs(x="Support (Left - Right)", y="Probability of choose") +
-  theme_classic()
-```
-```{r}
-plot_model(resp_mod3, type="pred", terms=c('LeftMoral_diff')) +
-  labs(x="Moral Conviction (Left - Right)", y="Probability of choose") +
+plot_model(resp_mod3, type="pred", terms=c('Support')) +
+  labs(x="Relative Support (Left - Right)", y="Probability of choose") +
   theme_classic()
 ```
 
+```{r}
+plot_model(resp_mod3, type="pred", terms=c('Moral')) +
+  labs(x="Relative Moral Conviction (Left - Right)", y="Probability of choose") +
+  theme_classic()
+```
+
+```{r}
+mod_sup <- get_model_data(resp_mod3, type="pred", terms=c('Support'))
+mod_mc <- get_model_data(resp_mod3, type="pred", terms=c('Moral'))
+
+m <- tibble(x = c(mod_sup$x, mod_mc$x),
+            pred = c(mod_sup$predicted, mod_mc$predicted),
+            u = c(mod_sup$conf.high, mod_mc$conf.high),
+            l = c(mod_sup$conf.low, mod_mc$conf.low),
+            Relative = c(rep('Support', length(mod_sup$x)),
+                        rep('Moral Conviction', length(mod_mc$x))))
+
+ggplot(m, aes(x, pred, color=Relative, fill=Relative)) + 
+  geom_line() + geom_ribbon(aes(ymin=l, ymax=u), alpha=.3) +
+  labs(x='Standardized predictor', y='Predicted Pr(Choose Left)') +
+  geom_hline(yintercept = 0.5, linetype="dashed", color='grey') +
+  geom_vline(xintercept = 0, linetype="dashed", color='grey') +
+  theme_classic()
+ggsave('MLM_choice.png')
+```
 
 
 ```{r}
@@ -386,10 +412,12 @@ resp.ulam <- ulam(
   ), data = dat_listr, chains=4, cores=4, iter=2000
 )
 ```
+
 ```{r}
 dat_tib <- as_tibble(dat_listr)
 dat_tib
 ```
+
 ```{r}
 acp <- dat_tib %>%
   group_by(sid, RDV) %>%
