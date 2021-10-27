@@ -8,6 +8,9 @@ output:
 ```{r}
 require(tidyverse)
 require(readxl)
+require(rethinking)
+require(lme4)
+require(sjPlot)
 ```
 
 # Import data
@@ -269,12 +272,28 @@ d %>% select(Subj, everything()) %>%
 
 d_trim <- d %>%
   filter(RT < 60000 & RT > 150) %>%
-  mutate(Subj = as.numeric(as.factor(as.character(SID))))
-
+  mutate(Subj = as.numeric(as.factor(as.character(SID)))) %>%
+  mutate(Support_bin = case_when(
+    LeftAdjDiff %in% c(-6,-5) ~ -2,
+    LeftAdjDiff %in% c(-4, -3,-2) ~ -1,
+    LeftAdjDiff %in% c(-1, 0, 1) ~ 0,
+    LeftAdjDiff %in% c(2, 3, 4) ~ 1,
+    LeftAdjDiff %in% c(5, 6) ~ 2,
+    TRUE ~ NA_real_
+  )) %>%
+  mutate(Moral_bin = case_when(
+    LeftAdjDiff %in% c(-8,-7,-6,-5) ~ -2,
+    LeftAdjDiff %in% c(-5,-3,-2) ~ -1,
+    LeftAdjDiff %in% c(-1, 0, 1) ~ 0,
+    LeftAdjDiff %in% c( 2, 3, 4) ~ 1,
+    LeftAdjDiff %in% c(5, 6, 7, 8) ~ 2,
+    TRUE ~ NA_real_
+  )) 
+d_trim$Subject <- as.factor(d_trim$Subj)
 ```
 
+## Visualize data
 ```{r}
-d_trim$Subject <- as.factor(d_trim$Subj)
 
 ggplot(d_trim, aes(LeftAdjDiff, Choice)) +
   geom_boxplot(aes(color=Subject)) +
@@ -287,34 +306,55 @@ ggsave('Choice_by_Support.png', width=6, height=4.5)
 ```
 
 ```{r}
-require(rethinking)
+N <- length(unique(d_trim$Subj))
+choice_betas <- vector('numeric', length=N)
+rt_betas <- vector('numeric', length=N)
+for (i in 1:N) {
+  d_sub <- d_trim %>% filter(Subj == i)
+  sub_mod <- glm(ChooseLeft ~ LeftAdjDiff, family='binomial',
+               data = d_sub)
+  choice_betas[i] <- exp(coefficients(sub_mod)[2])
+  sub_mod2 <- lm(log(RTs) ~ I(abs(LeftAdjDiff)), data=d_sub)
+  rt_betas[i] <- coefficients(sub_mod2)[2]
+}
+plot(choice_betas, rt_betas)
 ```
 
-
-
+## MLMs for response
 ```{r}
-require(lme4)
 d_lmer <- d_trim %>%
   mutate(Support = LeftAdjDiff / 6) %>%
   mutate(Moral = LeftMoral_diff / 8)
 
 resp_mod <- glmer(ChooseLeft ~ Support +
-                    (1|Subject), data = d_lmer,
+                    (Support|Subject), data = d_lmer,
                     family='binomial')
 resp_mod2 <- glmer(ChooseLeft ~ Moral +
-                    (1|Subject), data = d_lmer,
+                    (Moral|Subject), data = d_lmer,
                     family='binomial')
+# singular fit
 resp_mod3 <- glmer(ChooseLeft ~ Support + Moral +
-                    (1|Subject), data = d_lmer,
+                    (Support|Subject) + (Moral|Subject),
+                   data = d_lmer,
                     family='binomial')
-resp_mod4 <- glmer(ChooseLeft ~ Support * Moral +
-                    (1|Subject), data = d_lmer,
+
+resp_mod4 <- glmer(ChooseLeft ~ Support + Moral +
+                    (Support + Moral|Subject),
+                   data = d_lmer,
                     family='binomial')
-anova(resp_mod, resp_mod2, resp_mod3, resp_mod4)
+
+resp_mod5 <- glmer(ChooseLeft ~ Support * Moral +
+                    (Support*Moral|Subject), data = d_lmer,
+                    family='binomial')
+resp_mod6 <- glmer(ChooseLeft ~ Support * Moral +
+                    (Support|Subject) + (Moral|Subject) +
+                     (Support:Moral|Subject), data = d_lmer,
+                    family='binomial')
+anova(resp_mod, resp_mod2, resp_mod3, resp_mod4,
+      resp_mod5, resp_mod6)
 ```
 
 ```{r}
-require(sjPlot)
 plot_model(resp_mod3, type="pred", terms=c('Support')) +
   labs(x="Relative Support (Left - Right)", y="Probability of choose") +
   theme_classic()
@@ -348,12 +388,12 @@ ggsave('MLM_choice.png')
 
 
 ```{r}
-plot_model(resp_mod4, type="int", 
-           terms = c("LeftAdjDiff", "LeftMoral_diff"),
-           mdrt.values="minmax") +
-  labs(x="Support (Left - Right)", y="Probability of choose",
-       color="MC (min/max)") +
-  theme_classic()
+# plot_model(resp_mod4, type="int", 
+#            terms = c("LeftAdjDiff", "LeftMoral_diff"),
+#            mdrt.values="minmax") +
+#   labs(x="Support (Left - Right)", y="Probability of choose",
+#        color="MC (min/max)") +
+#   theme_classic()
 ```
 
 
@@ -383,6 +423,73 @@ ggplot(d_trim, aes(ChoiceSupportNaive, Choice)) +
   theme_classic()
 ```
 
+## MLMs for RTs
+```{r}
+d_trim$LeftAbs <- abs(d_trim$LeftAdjDiff) - mean(d_trim$LeftAdjDiff, na.rm=TRUE)
+d_trim <- d_trim %>%
+  mutate(time_bin = case_when(
+    Trial < 21 ~ 1,
+    Trial < 41 ~ 2,
+    Trial < 61 ~ 3,
+    Trial < 81 ~ 4,
+    Trial > 80 ~ 5
+  ))
+rt.mod <- lmerTest::lmer(log(RTs) ~ LeftAbs * time_bin +
+                 (time_bin|Subject),
+               data = d_trim,
+               control=lmerControl(optimizer='bobyqa'))
+anova(rt.mod, ddf='Kenward-Roger')
+```
+
+```{r}
+plot_model(rt.mod, type='int')
+```
+
+```{r}
+N <- length(unique(d_trim$Subj))
+K <- length(unique(d_trim$time_bin))
+RTBeta <- matrix(-1, nrow=N, ncol=K)
+for (i in 1:N) {
+  for (j in 1:K) {
+    dd <- d_trim %>%
+      filter(Subj == i & time_bin == j)
+    if (dim(dd)[1] < 2) {
+      RTBeta[i, j] <- NA
+    } else {
+      m <- lm(log(RTs) ~ LeftAbs, data=dd)
+      RTBeta[i, j] <- coefficients(m)[2]
+    }
+  }
+}
+```
+
+```{r}
+plot(NULL, xlim=c(1,K), ylim=c(-.5, .5),
+     xlab="Time bin", ylab="Beta (log RT ~ abs(Support) )")
+for (i in 1:N) {
+  lines(1:K, RTBeta[i,], col=grau(.2))
+}
+abline(h=0, lty=2)
+```
+
+
+
+```{r}
+d_trim %>% count(Subj) %>% filter(n < 80)
+```
+
+```{r}
+plot(NULL, xlim=c(1,K), ylim=c(-.5, 1),
+     xlab="Time bin", ylab="Beta (log RT ~ abs(Support) )")
+for (i in c(11, 31, 42)) {
+  lines(1:K, RTBeta[i,], col=grau(.2))
+}
+abline(h=0, lty=2)
+```
+
+
+
+
 ## ulam for response
 $$\begin{equation}
 L_i ~ \text{Binomial}(1, p_i) \\
@@ -394,6 +501,7 @@ L_i ~ \text{Binomial}(1, p_i) \\
 dat_listr <- list(
   L = d_trim$ChooseLeft,
   RDV = d_trim$LeftAdjDiff,
+  RMC = d_trim$LeftMoral_diff,
   sid = d_trim$Subj
 )
   
@@ -414,6 +522,79 @@ resp.ulam <- ulam(
 ```
 
 ```{r}
+resp.ulam2 <- ulam(
+  alist(
+    L ~ dbinom(1, p),
+    logit(p) <- a_sid[sid] + b_sup[sid]*RDV + b_mc[sid]*RMC,
+    
+    # adaptive priors
+    c(a_sid, b_sup, b_mc)[sid] ~ multi_normal( c(a,bs,bm), Rho, sigma_sid),
+    a ~ normal(0, 1),
+    c(bs, bm) ~ normal(0, 0.5),
+    sigma_sid ~ exponential(1),
+    Rho ~ dlkjcorr(3)
+  ), data = dat_listr, chains=4, cores=4, iter=2000
+)
+```
+
+```{r}
+art <- d_trim %>%
+  group_by(Subj, Support_bin) %>%
+  summarize(RTs = mean(RTs, na.rm=TRUE))
+
+artm <- d_trim %>%
+  group_by(Support_bin) %>%
+  summarize(RTs = mean(RTs, na.rm=TRUE))
+  
+ggplot(art, aes(Support_bin, RTs)) +
+  geom_line(aes(group=Subj), alpha=.2) +
+  geom_line(data=artm, size=3) +
+  theme_classic()
+```
+
+```{r}
+plot(NULL, xlim=c(-6, 6), ylim=c(0, 1),
+     xlab="Relative value of Left",
+     ylab="% of Left",
+      main="Raw data")
+for (i in 1:length(unique(acp$sid))) {
+  sdat <- acp %>%
+    filter(sid == i)
+  x <- unique(sdat$RDV)
+  lines(x, sdat$L, col=grau(0.25))
+}
+lines(acpm$RDV, acpm$L, lwd=2)
+```
+
+
+```{r}
+dat_listrt <- list(
+  L = d_trim$ChooseLeft,
+  RT = d_trim$RTs,
+  RDV = d_trim$LeftAdjDiff,
+  RDVabs = abs(d_trim$LeftAdjDiff),
+  RMC = d_trim$LeftMoral_diff,
+  sid = d_trim$Subj
+)
+
+rt.ulam <- ulam(
+  alist(
+    log(RT) ~ normal(mu, sigma),
+    mu <- a_sid[sid] + b_sid[sid]*RDVabs,
+    
+    # adaptive priors
+    c(a_sid, b_sid)[sid] ~ multi_normal( c(a,b), Rho, sigma_sid),
+    a ~ normal(5, 2),
+    b ~ normal(-1, 0.5),
+    c(sigma, sigma_sid) ~ exponential(1),
+    Rho ~ dlkjcorr(2)
+  ), data = dat_listrt, chains=4, cores=4, iter=2000
+)
+```
+
+
+
+```{r}
 dat_tib <- as_tibble(dat_listr)
 dat_tib
 ```
@@ -426,9 +607,78 @@ acp <- dat_tib %>%
 acpm <- acp %>%
   group_by(RDV) %>%
   summarize(L = mean(L, na.rm=TRUE))
+
+acp_mc <- dat_tib %>%
+  group_by(sid, RMC) %>%
+  summarize(L = mean(L, na.rm=TRUE))
+
+acp_mcm <- acp_mc %>%
+  group_by(RMC) %>%
+  summarize(L = mean(L, na.rm=TRUE))
 ```
 
 
+
+```{r}
+png('ValueMCMCs.png', width=800, height=800)
+par(mfrow=c(2,2))
+plot(NULL, xlim=c(-6, 6), ylim=c(0, 1),
+     xlab="Relative value of Left",
+     ylab="% of Left",
+      main="Raw data")
+for (i in 1:length(unique(acp$sid))) {
+  sdat <- acp %>%
+    filter(sid == i)
+  x <- unique(sdat$RDV)
+  lines(x, sdat$L, col=grau(0.25))
+}
+lines(acpm$RDV, acpm$L, lwd=2)
+
+plot(NULL, xlim=c(-6, 6), ylim=c(0, 1),
+     xlab="Relative value of Left", 
+     ylab="Pr(Left)",
+     main="Posterior predictions (20 draws)")
+xseq <- seq(from=-6, to=6, by=1)
+post <- extract.samples(resp.ulam2)
+
+for (i in 1:20) {
+  for (s in 1:26) {
+    sub_int <- post$a[i] + post$a_sid[i,s]
+    sub_slope <- post$bs[i] + post$b_sup[i,s]
+    y = sub_int + sub_slope*xseq
+    lines(xseq, inv_logit(y), col=grau(0.1))
+  }
+}
+
+plot(NULL, xlim=c(-8, 8), ylim=c(0, 1),
+     xlab="Relative Moral Conviction of Left",
+     ylab="% of Left",
+      main="Raw data")
+for (i in 1:length(unique(acp$sid))) {
+  sdat <- acp_mc %>%
+    filter(sid == i)
+  x <- unique(sdat$RMC)
+  lines(x, sdat$L, col=grau(0.25))
+}
+lines(acp_mcm$RMC, acp_mcm$L, lwd=2)
+
+plot(NULL, xlim=c(-8, 8), ylim=c(0, 1),
+     xlab="Relative Moral Conviction of Left", 
+     ylab="Pr(Left)",
+     main="Posterior predictions (20 draws)")
+xseq <- seq(from=-8, to=8, by=1)
+post <- extract.samples(resp.ulam2)
+
+for (i in 1:20) {
+  for (s in 1:26) {
+    sub_int <- post$a[i] + post$a_sid[i,s]
+    sub_slope <- post$bm[i] + post$b_mc[i,s]
+    y = sub_int + sub_slope*xseq
+    lines(xseq, inv_logit(y), col=grau(0.1))
+  }
+}
+dev.off()
+```
 
 ```{r}
 png('ValueMCMC.png', width=800, height=450)
