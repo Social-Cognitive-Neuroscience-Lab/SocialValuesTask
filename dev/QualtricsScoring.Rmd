@@ -125,6 +125,9 @@ d_view <- d_support %>%
   mutate(Support_z = 
            (Support - mean(Support, na.rm=TRUE)) / 
            sd(Support, na.rm=TRUE)) %>%
+  mutate(Moral_z = 
+           (Moral - mean(Moral, na.rm=TRUE)) /
+           sd(Moral, na.rm=TRUE)) %>%
   ungroup()
 
 dt <- d_view %>% 
@@ -143,6 +146,7 @@ subval <- tibble(SID = rep(subvals$SID, 2),
 subval %>% 
   filter(!duplicated(select(., c(SID, SM) ))) %>% 
   count(SID)
+
 ```
   
 ```{r}
@@ -212,11 +216,12 @@ d_choices <- d_choice %>%
   left_join(d_issue_r, by=c('SID', 'Trial')) %>%
   left_join(d_pos_l, by=c('SID', 'Trial')) %>%
   left_join(d_pos_r, by=c('SID', 'Trial')) %>%
-  mutate(Trial = as.numeric(Trial))
+  mutate(Trial = as.numeric(Trial)) 
 ```
 
 ```{r}
-prior_col <- c('Support', 'Moral', 'Familiar')
+prior_col <- c('Support', 'Moral', 'Familiar', 
+               'Support_z', 'Moral_z')
 d <- d_choices %>%
   filter(!is.na(Resp)) %>%
   left_join(d_view %>% select(-Trial), 
@@ -229,6 +234,8 @@ d <- d_choices %>%
   rename_at(vars(prior_col), ~ str_c('Right', prior_col)) %>%
   mutate(LeftAdj = LeftSupport * PosLeft) %>%
   mutate(RightAdj = RightSupport * PosRight) %>%
+  mutate(LeftAdjz = LeftSupport_z * PosLeft) %>%
+  mutate(RightAdjz = RightSupport_z * PosRight) %>%
   mutate(ChoiceSupport = case_when(
     Response == 1 ~ LeftAdj - RightAdj,
     Response == 2 ~ RightAdj - LeftAdj,
@@ -248,8 +255,10 @@ d <- d_choices %>%
   mutate(ChoiceMoralDist = abs(ChoiceMoral)) %>%
   mutate(LeftAdjDiff = LeftAdj- RightAdj) %>%
   mutate(RightAdjDiff = RightAdj - LeftAdj) %>%
+  mutate(LeftRDV = LeftAdjz - RightAdjz) %>%
   mutate(LeftDiff_raw = LeftSupport - RightSupport) %>%
   mutate(LeftMoral_diff = LeftMoral - RightMoral) %>%
+  mutate(LeftRMC = LeftMoral_z - RightMoral_z) %>%
   mutate(ChooseRight = case_when(
     ChooseLeft == 1 ~ 0,
     ChooseLeft == 0 ~ 1,
@@ -258,20 +267,31 @@ d <- d_choices %>%
   mutate(Choice = case_when(
     ChooseLeft == 1 ~ "Left",
     ChooseLeft == 0 ~ "Right"
-  ))
+  )) 
 
 d <- d %>%
   mutate(RTs = RT / 1000) %>%
-  mutate(Subj = as.numeric(SID))
+  mutate(Subj = as.numeric(SID)) %>%
+  group_by(SID, Choice) %>%
+  mutate(RTqtile = ntile(RTs, 5)) %>%
+  mutate(BinLeft = mean(ChooseLeft, na.rm=TRUE)) %>%
+  ungroup()
 
 d %>% select(Subj, everything()) %>% write_csv('ChoiceData.csv')
 d %>% select(Subj, everything()) %>% 
   filter(RT < 60000 & RT > 150) %>% 
   write_csv('ChoiceData_trim.csv')
 
-
+# generate RT quantile plots for different 
+# levels of moralization and/or different
+# levels of relative support
 d_trim <- d %>%
   filter(RT < 60000 & RT > 150) %>%
+  group_by(SID) %>%
+  mutate(RTqtile = ntile(RTs, 5)) %>%
+  ungroup() %>%
+  mutate(BinLeft = mean(ChooseLeft, na.rm=TRUE)) %>%
+  ungroup() %>%
   mutate(Subj = as.numeric(as.factor(as.character(SID)))) %>%
   mutate(Support_bin = case_when(
     LeftAdjDiff %in% c(-6,-5) ~ -2,
@@ -282,14 +302,15 @@ d_trim <- d %>%
     TRUE ~ NA_real_
   )) %>%
   mutate(Moral_bin = case_when(
-    LeftAdjDiff %in% c(-8,-7,-6,-5) ~ -2,
-    LeftAdjDiff %in% c(-5,-3,-2) ~ -1,
-    LeftAdjDiff %in% c(-1, 0, 1) ~ 0,
-    LeftAdjDiff %in% c( 2, 3, 4) ~ 1,
-    LeftAdjDiff %in% c(5, 6, 7, 8) ~ 2,
+    LeftMoral_diff %in% c(-8,-7,-6,-5) ~ -2,
+    LeftMoral_diff %in% c(-4,-3,-2) ~ -1,
+    LeftMoral_diff %in% c(-1, 0, 1) ~ 0,
+    LeftMoral_diff %in% c( 2, 3, 4) ~ 1,
+    LeftMoral_diff %in% c(5, 6, 7, 8) ~ 2,
     TRUE ~ NA_real_
   )) 
 d_trim$Subject <- as.factor(d_trim$Subj)
+d_trim$RTbin <- as.factor(d_trim$RTqtile)
 ```
 
 ## Visualize data
@@ -304,6 +325,63 @@ ggplot(d_trim, aes(LeftAdjDiff, Choice)) +
   guides(fill = "none") 
 ggsave('Choice_by_Support.png', width=6, height=4.5)
 ```
+
+
+```{r}
+d_trim %>%
+  group_by(SID) %>%
+  mutate(ChoiceB)
+  ggplot(aes(RTbin, BinLeft, color=Choice)) + 
+  geom_boxplot()
+```
+
+
+```{r}
+bin_choice <- d_trim %>%
+  group_by(Subj, Support_bin) %>%
+  summarize(ChooseLeft = mean(ChooseLeft, na.rm=TRUE))
+
+bin_choicem <- bin_choice %>%
+  group_by(Support_bin) %>%
+  summarize(ChooseLeft = mean(ChooseLeft, na.rm=TRUE))
+
+bin_choice_mc <- d_trim %>%
+  group_by(Subj, Moral_bin) %>%
+  summarize(ChooseLeft = mean(ChooseLeft, na.rm=TRUE))
+
+bin_choice_mcm <- bin_choice_mc %>%
+  group_by(Moral_bin) %>%
+  summarize(ChooseLeft = mean(ChooseLeft, na.rm=TRUE))
+
+par(mfrow=c(1,2))
+plot(NULL, xlim=c(-2, 2), ylim=c(0, 1),
+     xlab="Relative value of Left (binned)",
+     ylab="% of Left")
+for (i in 1:length(unique(bin_choice$Subj))) {
+  sdat <- bin_choice %>%
+    filter(Subj == i)
+  x <- unique(sdat$Support_bin)
+  lines(x, sdat$ChooseLeft, col=grau(0.25))
+}
+lines(bin_choicem$Support_bin, bin_choicem$ChooseLeft, lwd=2)
+
+
+plot(NULL, xlim=c(-2, 2), ylim=c(0, 1),
+     xlab="Relative MC of Left (binned)",
+     ylab="% of Left")
+for (i in 1:length(unique(bin_choice_mc$Subj))) {
+  sdat <- bin_choice_mc %>%
+    filter(Subj == i)
+  x <- unique(sdat$Moral_bin)
+  lines(x, sdat$ChooseLeft, col=grau(0.25))
+}
+lines(bin_choice_mcm$Moral_bin, bin_choice_mcm$ChooseLeft, lwd=2)
+```
+```{r}
+bin_choice %>%
+  filter(Support_bin == -2 & ChooseLeft > .6)
+```
+Subj 24, 31, 36, 37
 
 ```{r}
 N <- length(unique(d_trim$Subj))
@@ -470,6 +548,13 @@ for (i in 1:N) {
   lines(1:K, RTBeta[i,], col=grau(.2))
 }
 abline(h=0, lty=2)
+```
+
+Check choice probability and reaction time
+```{r}
+ggplot(d_trim %>% filter(PosLeft == 1 & PosRight == 1), aes(LeftAbs, RTs, color=Subject)) +
+  geom_smooth(se = FALSE, method="lm") +
+  theme_classic()
 ```
 
 
