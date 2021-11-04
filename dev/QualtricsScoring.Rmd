@@ -15,15 +15,17 @@ require(sjPlot)
 
 # Import data
 ```{r}
-d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_4.xlsx',
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_5.xlsx',
                skip=1)
+d_raw <- d_raw %>%
+  mutate(StartTime = lubridate::as_datetime(`Start Date`)) %>%
+  mutate(EndTime = lubridate::as_datetime(`End Date`)) %>%
+  mutate(Duration = EndTime - StartTime)
 
 d_real <- d_raw %>% filter(!is.na(`Please enter your gender`))
 d_real$SID <- factor(d_real$`Response ID`)
 print(str_c(nrow(d_raw)," subjects"))
-d_real %>% head()
-```
-```{r}
+
 d_real$age <- as.numeric(d_real$`Please enter your age in years`) 
 d_real <- d_real %>%
   mutate(age = case_when(
@@ -38,27 +40,12 @@ d_real <- d_real %>%
     str_detect(gender, 'male') ~ 'M',
     TRUE ~ 'Other'
   ))
-```
-
-```{r}
 summary(d_real$age)
 d_real %>% count(gender)
 ```
 
 
 ```{r}
-# extract_js <- function(df, col_name, col_label, trials=100) {
-#   df_out <- df %>%
-#     separate(!!as.name(col_name), into=str_c(col_label, c(1:trials)),
-#              sep = ",") %>%
-#     separate(!!as.name(str_c(col_label,'1')), into=c(NA, str_c(col_label,'1')),
-#                        sep="\\[") %>%
-#     separate(!!as.name(str_c(col_label,trials)),
-#                        into=c(str_c(col_label,trials), NA),
-#                        sep="]")
-#   return(df_out)
-# }
-
 extract_js2 <- function(df, col_name, col_label, trials=100) {
   clean_label = str_c(col_name, '_clean')
   df_out <- df %>%
@@ -128,24 +115,31 @@ d_view <- d_support %>%
   mutate(Moral_z = 
            (Moral - mean(Moral, na.rm=TRUE)) /
            sd(Moral, na.rm=TRUE)) %>%
+  mutate(Support_zm = mean(Support, na.rm=TRUE)) %>%
+  mutate(Moral_z = 
+           (Moral - mean(Moral, na.rm=TRUE)) /
+           sd(Moral, na.rm=TRUE)) %>%
+  mutate(Moral_zm = mean(Moral, na.rm=TRUE)) %>%
   ungroup()
 
-dt <- d_view %>% 
+# count number of unique support ratings
+s_uniq <- d_view %>%
   mutate(S = Support - 3) %>% 
   mutate(M = Moral-4) %>% 
   mutate(SM = str_c(S,M)) %>% 
   mutate(SMn = str_c(S*-1,M))
 
-subvals <- dt %>% 
-  select(SID, SM) %>% 
-  left_join(dt %>% select(SID, SMn), by="SID")
+unique_ratings <- tibble(
+  SID = c(s_uniq$SID, s_uniq$SID),
+  S = c(s_uniq$S, s_uniq$S),
+  M = c(s_uniq$M, s_uniq$M),
+  SM = c(s_uniq$SM, s_uniq$SMn)
+)
 
-subval <- tibble(SID = rep(subvals$SID, 2),
-                 SM = c(subvals$SM, subvals$SMn))
-
-subval %>% 
+enough <- unique_ratings %>% 
   filter(!duplicated(select(., c(SID, SM) ))) %>% 
-  count(SID)
+  count(SID) %>%
+  filter(n >= 15)
 
 ```
   
@@ -221,7 +215,8 @@ d_choices <- d_choice %>%
 
 ```{r}
 prior_col <- c('Support', 'Moral', 'Familiar', 
-               'Support_z', 'Moral_z')
+               'Support_z', 'Moral_z',
+               'Support_zm', 'Moral_zm')
 d <- d_choices %>%
   filter(!is.na(Resp)) %>%
   left_join(d_view %>% select(-Trial), 
@@ -267,14 +262,16 @@ d <- d_choices %>%
   mutate(Choice = case_when(
     ChooseLeft == 1 ~ "Left",
     ChooseLeft == 0 ~ "Right"
-  )) 
+  )) %>%
+  filter(SID %in% enough$SID)
 
 d <- d %>%
   mutate(RTs = RT / 1000) %>%
   mutate(Subj = as.numeric(SID)) %>%
-  group_by(SID, Choice) %>%
+  group_by(SID) %>%
+  # within-cluster quantiles
   mutate(RTqtile = ntile(RTs, 5)) %>%
-  mutate(BinLeft = mean(ChooseLeft, na.rm=TRUE)) %>%
+  mutate(RT_mean = mean(RTs, na.rm=TRUE)) %>%
   ungroup()
 
 d %>% select(Subj, everything()) %>% write_csv('ChoiceData.csv')
@@ -288,6 +285,7 @@ d %>% select(Subj, everything()) %>%
 d_trim <- d %>%
   filter(RT < 60000 & RT > 150) %>%
   group_by(SID) %>%
+  # subject-specific RT quantiles
   mutate(RTqtile = ntile(RTs, 5)) %>%
   ungroup() %>%
   mutate(BinLeft = mean(ChooseLeft, na.rm=TRUE)) %>%
@@ -308,33 +306,270 @@ d_trim <- d %>%
     LeftMoral_diff %in% c( 2, 3, 4) ~ 1,
     LeftMoral_diff %in% c(5, 6, 7, 8) ~ 2,
     TRUE ~ NA_real_
-  )) 
+  )) %>%
+  group_by(SID, Support_bin) %>%
+  # subject-specific RTs for support bins
+  mutate(RT_supbin = ntile(RTs, 5)) %>%
+  mutate(ChoiceProb_sup = mean(ChooseLeft, na.rm=TRUE)) %>%
+  ungroup() %>%
+  group_by(SID, Support_bin, Moral_bin) %>%
+  mutate(RT_supmorbin = ntile(RTs, 5)) %>%
+  ungroup() %>%
+  group_by(SID, RT_supbin) %>%
+  mutate(ChoiceProb_rt = mean(ChooseLeft, na.rm=TRUE)) %>%
+  ungroup()
 d_trim$Subject <- as.factor(d_trim$Subj)
 d_trim$RTbin <- as.factor(d_trim$RTqtile)
+d_trim$logRT <- log(d_trim$RTs)
 ```
 
+```{r}
+rt.mod <- lmer(logRT ~ 1 + (1|Subject), data=d_trim)
+
+coefs <- summary(rt.mod)$coef
+meanRT <- coefs[1]
+RTsd <- coefs[2]
+(exp(meanRT))
+(exp(meanRT + RTsd))
+```
+
+```{r}
+ggplot(d_trim, aes(SID, RTs)) +
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75),
+              width=3) +
+  coord_cartesian(ylim=c(0, 60)) +
+  theme_classic() +
+  coord_flip()
+```
+
+```{r}
+d_trim %>%
+  group_by(SID) %>%
+  summarize(RTs = median(RTs, na.rm=TRUE)) %>%
+  ungroup() %>%
+  pull(RTs) %>% 
+  hist(main="Subject median RT (sec)")
+```
+```{r}
+d_trim %>%
+  group_by(SID) %>%
+  summarize(RTs = quantile(RTs, probs=.75, na.rm=TRUE)) %>%
+  ungroup() %>%
+  pull(RTs) %>% 
+  hist(main="Subject 75th %-ile RT (sec)")
+```
+```{r}
+d_trim %>%
+  group_by(SID) %>%
+  summarize(RTlow = quantile(RTs, probs=.25, na.rm=TRUE),
+            RTmed = median(RTs, na.rm=TRUE),
+            RThigh = quantile(RTs, probs=.75, na.rm=TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(SID, RTmed)) +
+  geom_point() + geom_errorbar(aes(ymin=RTlow, ymax=RThigh)) +
+  theme_classic() +
+  labs(y='RT (sec)') +
+  ggtitle('Median and IQR RTs') +
+  theme(axis.text.x = element_blank())
+```
+```{r}
+d_trim %>%
+  mutate(MoralBoth = LeftMoral_z + RightMoral_z) %>%
+  ggplot(aes(MoralBoth, logRT, color=SID)) +
+  geom_jitter(alpha=.2) +
+  theme_classic() +
+  theme(legend.position = 'none') 
+
+```
+
+
 ## Visualize data
+```{r}
+dg <- d_trim %>%
+  group_by(RTbin, Support_bin) %>%
+  summarize(ChoiceProb_rt = mean(ChoiceProb_rt, na.rm=TRUE))
+
+d_trim %>%
+  ggplot(aes(RTbin, ChoiceProb_rt,
+             color=as.factor(Support_bin))) +
+  geom_violin(draw_quantiles=c(.5)) +
+  geom_point(data=dg, position=position_dodge2(width=1)) +
+  geom_path(data=dg, aes(group=as.factor(Support_bin))) +
+  geom_hline(yintercept = 0.5, alpha=.5, linetype="dashed") +
+  theme_classic() 
+```
+
+```{r}
+dg <- d_trim %>%
+  group_by(RTbin, Support_bin) %>%
+  mutate(SD = case_when(
+    is.na(ChoiceProb_sup) ~ NA_real_,
+    TRUE ~ sd(ChoiceProb_sup, na.rm=TRUE))) %>% 
+  summarize(ChoiceProb_sup = mean(ChoiceProb_sup, na.rm=TRUE),
+            Choice.sd = sd(ChoiceProb_sup, na.rm=TRUE),
+            n = n()) %>%
+  mutate(se = Choice.sd / sqrt(n),
+         lower = ChoiceProb_sup - qt(1 - (0.05/2), n-1) * se,
+         upper = ChoiceProb_sup + qt(1 - (0.05/2), n-1) * se)
+
+d_trim %>%
+  ggplot(aes(RTbin, ChoiceProb_sup,
+             color=as.factor(Support_bin))) +
+  geom_violin(draw_quantiles=c(.5)) +
+  geom_point(data=dg, position=position_dodge2(width=1)) +
+  geom_path(data=dg, aes(group=as.factor(Support_bin)),
+            position=position_dodge2(width=1)) +
+  geom_hline(yintercept = 0.5, alpha=.5, linetype="dashed") +
+  theme_classic() 
+```
+
+```{r}
+sim_perf <- tibble(
+  support = rep(c(-2,-1,0,1,2), each=30),
+  rts = c(rnorm(30, 300, 75),
+          rnorm(30, 450, 75),
+          rnorm(30, 600, 75),
+          rnorm(30, 450, 75),
+          rnorm(30, 300, 75)),
+  choice = c(rnorm(30, .25, .05),
+             rnorm(30, .30, .05),
+             rnorm(30, .50, .05),
+             rnorm(30, .60, .05),
+             rnorm(30, .75, .05))
+)
+sim_perf$support.f = as.factor(sim_perf$support)
+
+ggplot(sim_perf, aes(support, rts)) +
+  geom_violin(aes(group=support.f,
+                     color=support.f),
+              draw_quantiles =c(0.5)) +
+  theme_classic()
+```
+
+
+
+```{r}
+png('binned_choice_rt.png', res=120, width=600, height=450)
+dg <- d_trim %>%
+  group_by(RTbin, Support_bin) %>% 
+  summarize(Choice.m = 
+              mean(ChoiceProb_sup, na.rm=TRUE),
+            Choice.sd = 
+              sd(ChoiceProb_sup, na.rm=TRUE),
+            n = n()) %>%
+  mutate(se = Choice.sd / sqrt(n),
+         lower = Choice.m - qt(1 - (0.05/2), n-1) * se,
+         upper = Choice.m + qt(1 - (0.05/2), n-1) * se)
+
+dg %>%
+  ggplot(aes(RTbin, Choice.m,
+             color=as.factor(Support_bin))) +
+  geom_point(position=position_dodge2(width=1)) +
+  geom_path(aes(group=as.factor(Support_bin)),
+            position=position_dodge2(width=1)) +
+  geom_errorbar(aes(ymax=upper, ymin=lower),
+                position=position_dodge2(width=1)) +
+  geom_hline(yintercept = 0.5, alpha=.5, linetype="dashed") +
+  theme_classic() +
+  labs(x="RT quantile", y="Pr(Choose Left)",
+       color="Relative Support quantile")
+dev.off()
+```
+```{r}
+mm <- glmer(ChooseLeft ~ logRT * LeftRDV +
+              (LeftRDV|SID) , data = d_trim,
+            family='binomial')
+```
+
+```{r}
+plot_model(mm, type="pred",
+           terms=c("logRT [all]", 
+                   "LeftRDV [2,1,0,-1,-2]"),
+           colors="RdYlBu") +
+  theme_classic() 
+```
+
+
+
+```{r}
+dg <- d_trim %>%
+  filter(! Subj %in% c(25, 31, 36, 37)) %>%
+  filter(Support_bin %in% c(-2, 2)) %>%
+  group_by(RTbin, Support_bin) %>%
+  summarize(ChoiceProb_rt = mean(ChoiceProb_rt, na.rm=TRUE))
+
+d_trim %>%
+  filter(! Subj %in% c(25, 31, 36, 37)) %>%
+  filter(Support_bin %in% c(-2, 2)) %>%
+  ggplot(aes(RTbin, ChoiceProb_rt,
+             color=as.factor(Support_bin))) +
+  geom_violin(draw_quantiles=c(.5)) +
+  geom_point(data=dg, position=position_dodge2(width=1)) +
+  geom_path(data=dg, aes(group=as.factor(Support_bin))) +
+  geom_hline(yintercept = 0.5, alpha=.5, linetype="dashed") +
+  theme_classic() 
+```
+
+```{r}
+dg <- d_trim %>%
+  filter(! Subj %in% c(25, 31, 36, 37)) %>%
+  group_by(Support_bin) %>%
+  summarize(ChoiceProb_sup = mean(ChooseLeft, na.rm=TRUE))
+
+d_trim %>%
+  filter(! Subj %in% c(25, 31, 36, 37)) %>%
+  ggplot(aes(Support_bin, ChoiceProb_sup,
+             color=as.factor(Support_bin))) +
+  geom_violin(draw_quantiles=c(.5)) +
+  geom_point(data=dg, position=position_dodge2(width=1)) +
+  geom_path(data=dg, aes(group=as.factor(Support_bin))) +
+  geom_hline(yintercept = 0.5, alpha=.5, linetype="dashed") +
+  theme_classic() +
+  labs(color = "Relative support (bin)",
+       x = "Relative support",
+       y = "Pr(Choose left)")
+ggsave('Support_bin_choice.png')
+```
+
+
+```{r}
+dg <- d_trim %>%
+  filter(! Subj %in% c(25, 31, 36, 37)) %>%
+  group_by(Support_bin) %>%
+  summarize(RTs = mean(RT_mean, na.rm=TRUE),
+            RTmed = median(RT_mean, na.rm=TRUE))
+
+d_trim %>%
+  filter(! Subj %in% c(25, 31, 36, 37)) %>%
+  ggplot(aes(Support_bin, log(RTs),
+             color=as.factor(Support_bin))) +
+  geom_violin(draw_quantiles=c(.5)) +
+  geom_point(data=dg, position=position_dodge2(width=1)) +
+  geom_path(data=dg, aes(group=as.factor(Support_bin))) +
+  geom_hline(yintercept = 0.5, alpha=.5, linetype="dashed") +
+  theme_classic() +
+  labs(color = "Relative support (bin)",
+       x = "Relative support",
+       y = "log(RT)")
+ggsave('Support_bin_logRT.png')
+```
+
+
+
 ```{r}
 
 ggplot(d_trim, aes(LeftAdjDiff, Choice)) +
   geom_boxplot(aes(color=Subject)) +
   geom_violin(aes(fill=Choice),
-              draw_quantiles=c(.25,.5,.75), alpha=.3) +
+              draw_quantiles=c(.25,.75), alpha=.3,
+              linetype = 'dashed') +
+  geom_violin(aes(fill=Choice), fill='transparent',
+              draw_quantiles=0.5)+
   theme_classic() +
   labs(x="Relative value of Left", y="Choices") +
   guides(fill = "none") 
 ggsave('Choice_by_Support.png', width=6, height=4.5)
 ```
-
-
-```{r}
-d_trim %>%
-  group_by(SID) %>%
-  mutate(ChoiceB)
-  ggplot(aes(RTbin, BinLeft, color=Choice)) + 
-  geom_boxplot()
-```
-
 
 ```{r}
 bin_choice <- d_trim %>%
@@ -381,7 +616,7 @@ lines(bin_choice_mcm$Moral_bin, bin_choice_mcm$ChooseLeft, lwd=2)
 bin_choice %>%
   filter(Support_bin == -2 & ChooseLeft > .6)
 ```
-Subj 24, 31, 36, 37
+Subj 7, 27, 33, 36, 37
 
 ```{r}
 N <- length(unique(d_trim$Subj))
@@ -398,6 +633,27 @@ for (i in 1:N) {
 plot(choice_betas, rt_betas)
 ```
 
+```{r}
+strange_sub <- c( 7, 27, 33, 36, 37)
+
+
+N <- length(unique(d_trim$Subj))
+choice_betas_clean <- vector('numeric', length=N)
+rt_betas_clean <- vector('numeric', length=N)
+for (i in 1:N) {
+  if (!i %in% strange_sub) {
+    d_sub <- d_trim %>% filter(Subj == i)
+    sub_mod <- glm(ChooseLeft ~ LeftAdjDiff, family='binomial',
+                   data = d_sub)
+    choice_betas_clean[i] <- exp(coefficients(sub_mod)[2])
+    sub_mod2 <- lm(log(RTs) ~ I(abs(LeftAdjDiff)), data=d_sub)
+    rt_betas_clean[i] <- coefficients(sub_mod2)[2]
+  }
+}
+plot(choice_betas_clean, rt_betas_clean)
+```
+
+
 ## MLMs for response
 ```{r}
 d_lmer <- d_trim %>%
@@ -410,20 +666,22 @@ resp_mod <- glmer(ChooseLeft ~ Support +
 resp_mod2 <- glmer(ChooseLeft ~ Moral +
                     (Moral|Subject), data = d_lmer,
                     family='binomial')
-# singular fit
+
 resp_mod3 <- glmer(ChooseLeft ~ Support + Moral +
                     (Support|Subject) + (Moral|Subject),
                    data = d_lmer,
                     family='binomial')
 
+# singular fit
 resp_mod4 <- glmer(ChooseLeft ~ Support + Moral +
                     (Support + Moral|Subject),
                    data = d_lmer,
                     family='binomial')
-
+# singular fit
 resp_mod5 <- glmer(ChooseLeft ~ Support * Moral +
                     (Support*Moral|Subject), data = d_lmer,
                     family='binomial')
+# singular fit
 resp_mod6 <- glmer(ChooseLeft ~ Support * Moral +
                     (Support|Subject) + (Moral|Subject) +
                      (Support:Moral|Subject), data = d_lmer,
@@ -431,6 +689,15 @@ resp_mod6 <- glmer(ChooseLeft ~ Support * Moral +
 anova(resp_mod, resp_mod2, resp_mod3, resp_mod4,
       resp_mod5, resp_mod6)
 ```
+```{r}
+bbmle::AICtab(resp_mod, resp_mod2, resp_mod3, resp_mod4,
+      resp_mod5, resp_mod6)
+```
+```{r}
+summary(resp_mod3)
+```
+
+
 
 ```{r}
 plot_model(resp_mod3, type="pred", terms=c('Support')) +
@@ -445,8 +712,8 @@ plot_model(resp_mod3, type="pred", terms=c('Moral')) +
 ```
 
 ```{r}
-mod_sup <- get_model_data(resp_mod3, type="pred", terms=c('Support'))
-mod_mc <- get_model_data(resp_mod3, type="pred", terms=c('Moral'))
+mod_sup <- get_model_data(resp_mod4, type="pred", terms=c('Support'))
+mod_mc <- get_model_data(resp_mod4, type="pred", terms=c('Moral'))
 
 m <- tibble(x = c(mod_sup$x, mod_mc$x),
             pred = c(mod_sup$predicted, mod_mc$predicted),
@@ -462,6 +729,10 @@ ggplot(m, aes(x, pred, color=Relative, fill=Relative)) +
   geom_vline(xintercept = 0, linetype="dashed", color='grey') +
   theme_classic()
 ggsave('MLM_choice.png')
+```
+
+```{r}
+effectsize::standardize_parameters(resp_mod3)
 ```
 
 
@@ -483,6 +754,14 @@ ggplot(d_trim %>% filter(RTs < 30), aes(LeftAdjDiff, RTs)) +
   theme_classic()
 ```
 
+
+```{r}
+ggplot(d_trim %>% filter(RTs < 30), aes(Support_bin, RTs)) +
+  geom_point(aes(color=Subject), alpha=.3) +
+  geom_smooth(aes(color=Subject), formula = y ~ x^2, se=FALSE) +
+  geom_smooth(formula=y ~ x^2) +
+  theme_classic()
+```
 
 ```{r}
 ggplot(d_trim %>% filter(RTs < 5), aes(LeftAdjDiff, RTs)) +
@@ -524,6 +803,20 @@ plot_model(rt.mod, type='int')
 ```
 
 ```{r}
+rt.mod2 <- lmer(log(RTs) ~ poly(LeftRDV, 2) + (1|SID),
+                data=d_trim)
+```
+
+```{r}
+summary(rt.mod2)
+```
+```{r}
+plot_model(rt.mod2, type='eff')
+```
+
+
+
+```{r}
 N <- length(unique(d_trim$Subj))
 K <- length(unique(d_trim$time_bin))
 RTBeta <- matrix(-1, nrow=N, ncol=K)
@@ -557,6 +850,16 @@ ggplot(d_trim %>% filter(PosLeft == 1 & PosRight == 1), aes(LeftAbs, RTs, color=
   theme_classic()
 ```
 
+```{r}
+d_trim %>%
+  filter(! Subj %in% strange_sub) %>%
+  filter(PosLeft == 1 & PosRight == 1) %>%
+  ggplot(aes(LeftAbs, RTs, color=Subject)) +
+  geom_smooth(se = FALSE, method="lm") +
+  theme_classic()
+
+```
+
 
 
 ```{r}
@@ -566,7 +869,7 @@ d_trim %>% count(Subj) %>% filter(n < 80)
 ```{r}
 plot(NULL, xlim=c(1,K), ylim=c(-.5, 1),
      xlab="Time bin", ylab="Beta (log RT ~ abs(Support) )")
-for (i in c(11, 31, 42)) {
+for (i in c(15, 33, 42)) {
   lines(1:K, RTBeta[i,], col=grau(.2))
 }
 abline(h=0, lty=2)
