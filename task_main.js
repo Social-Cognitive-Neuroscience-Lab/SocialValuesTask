@@ -772,6 +772,24 @@ var trial = {
     }
 };
 
+var faster_trial = {
+    type: 'html-keyboard-response',
+    stimulus: "<p>Please remember to respond within 6 seconds.<br><br>Press 'f' or 'j' to continue.</p>",
+    choices: ['f', 'j']
+}
+
+var faster_check = {
+    timeline: [faster_trial],
+    conditional_function: function() {
+        var resp = jsPsych.data.get().last(1).values()[0];
+        if (resp == null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 var halfway_break = {
     type: 'html-keyboard-response',
     stimulus: `<p>You are halfway done. <br><br>Keep up the good work!<br><br></p>`,
@@ -780,13 +798,13 @@ var halfway_break = {
 }
 
 var trials_with_variables1 = {
-    timeline: [fixation, trial],
+    timeline: [fixation, trial, faster_check],
     timeline_variables: stim_list.slice(0,STIM_N/2)
 };
 
 var trials_with_variables2 = {
     timeline: [fixation, trial],
-    timeline_variables: stim_list.slice(STIM_N/2)
+    timeline_variables: stim_list.slice(STIM_N/2, STIM_N)
 };
 
 /* Catch trial */
