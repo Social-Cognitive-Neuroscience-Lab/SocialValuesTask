@@ -782,7 +782,7 @@ var faster_check = {
     timeline: [faster_trial],
     conditional_function: function() {
         var resp = jsPsych.data.get().last(1).values()[0];
-        if (resp == null) {
+        if (resp.response == null) {
             return true;
         } else {
             return false;
