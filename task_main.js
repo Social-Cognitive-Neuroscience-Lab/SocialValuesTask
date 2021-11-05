@@ -4,8 +4,8 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 4;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 6; //36; // number of issues to show
-var STIM_N = 10; // 100; // number of trials in choice task
+var ISSUE_N = 40; // number of issues to show
+var STIM_N = 100; // number of trials in choice task
 
 var timeline = [];
 
@@ -272,12 +272,12 @@ function populate_pairs(unique_pairs, issue_array) {
         iss2_vals[1] = issue2.Issue;
 
         issue_pair = shuffle([iss1_vals, iss2_vals])
-        console.log('s1  m1')
-        console.log([s1, m1])
-        console.log('s2  m2')
-        console.log([s2, m2])
-        console.log('iss1   iss2')
-        console.log([iss1_vals, iss2_vals])
+        //console.log('s1  m1')
+        //console.log([s1, m1])
+        //console.log('s2  m2')
+        //console.log([s2, m2])
+        //console.log('iss1   iss2')
+        //console.log([iss1_vals, iss2_vals])
 
         // decode for/against
         
@@ -394,7 +394,7 @@ timeline.push(survey_inst4);
 
 var survey_inst5 = {
     type: 'html-keyboard-response', // on_start: set_html_light,
-    stimulus: `<p>There are a total of 36 issues.<br> 
+    stimulus: `<p>There are a total of 40 issues.<br> 
         You can take as much time as you need for this part of the study.<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>When you are ready to begin, press any key to continue</p>'
@@ -621,8 +621,8 @@ var process_resps = {
         trial_list = populate_pairs(unique_pairs, issue_array)
         
 
-        console.log("trial_list returned:")
-        console.log(trial_list)
+        //console.log("trial_list returned:")
+        //console.log(trial_list)
 
         //build_stim_list()
 
@@ -631,8 +631,8 @@ var process_resps = {
 
         // update stim_list
         for (i=0; i < Math.min(STIM_N, trial_list.length); i++) {
-            console.log('Setting trial:')
-            console.log(i)
+            //console.log('Setting trial:')
+            //console.log(i)
             stim_list[i].pos_l = trial_list[i][0];
             stim_list[i].iss_l = trial_list[i][1];
             stim_list[i].photo_l = trial_list[i][2];
@@ -810,20 +810,20 @@ var trials_with_variables2 = {
 /* Catch trial */
 
 var catch_options = [
-    'A giraffe with a briefcase',
-    'A cat with a ball',
-    'A dog with a bone',
-    'A monkey with a banana',
-    'A fish with a bubble'
+    'ball',
+    'book',
+    'bone',
+    'banana',
+    'bubble'
 ];
 
 var attention_options = [
-    'complete focus',
-    '',
-    '',
-    '',
-    'clicked through without reading',
-    'Prefer not to answer'
+    'Prefer not to answer',
+    '1 - answered without reading',
+    '2',
+    '3',
+    '4',
+    '5 - complete focus'
 ];
 
 var catch_trial = {
