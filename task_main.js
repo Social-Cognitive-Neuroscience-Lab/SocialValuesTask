@@ -788,7 +788,65 @@ var trials_with_variables2 = {
     timeline_variables: stim_list.slice(STIM_N/2)
 };
 
+/* Catch trial */
+
+var catch_options = [
+    'A giraffe with a briefcase',
+    'A cat with a ball',
+    'A dog with a bone',
+    'A monkey with a banana',
+    'A fish with a bubble'
+];
+
+var attention_options = [
+    'complete focus',
+    '',
+    '',
+    '',
+    'clicked through without reading',
+    'Prefer not to answer'
+];
+
+var catch_trial = {
+    type: 'survey-likert',
+    questions: [
+        {
+            prompt: 'For this question, please select the answer with a fruit.',
+            labels: catch_options,
+            name: 'catch',
+            required: true
+        }
+    ],
+    data: {
+        task: 'catch',
+    },
+    on_finish: function(data){
+        data.catch = data.response['catch'];
+    }
+}
+
+
+var attention_trial = {
+    type: 'survey-likert',
+    questions: [
+        {
+            prompt: 'Thank you for your participation. How much did you pay attention during this study?',
+            labels: attention_options,
+            name: 'attention',
+            required: true
+        }
+    ],
+    data: {
+        task: 'attention',
+    },
+    on_finish: function(data){
+        data.attention = data.response['attention'];
+    }
+}
+
 timeline.push(trials_with_variables1);
 timeline.push(halfway_break);
+timeline.push(catch_trial);
 timeline.push(trials_with_variables2);
+timeline.push(attention_trial);
 
