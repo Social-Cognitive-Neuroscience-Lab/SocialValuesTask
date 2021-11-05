@@ -4,8 +4,8 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 4;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 36; // number of issues to show
-var STIM_N = 100; // number of trials in choice task
+var ISSUE_N = 6; //36; // number of issues to show
+var STIM_N = 10; // 100; // number of trials in choice task
 
 var timeline = [];
 
@@ -711,7 +711,7 @@ timeline.push(choice_inst4);
 
 var choice_inst5 = {
     type: 'html-keyboard-response',
-    stimulus: `<p>Press the 'f' or 'j' key as soon as you make your decision.<br><br></p>`,
+    stimulus: `<p>Press the 'f' or 'j' key as soon as you make your decision.<br>You must respond within 6 seconds<br><br></p>`,
     choices: jsPsych.ALL_KEYS,
     prompt: '<p>When you are ready, press any key to begin.</p>'
 }
@@ -758,6 +758,7 @@ var trial = {
             );
     },
     choices: ['f', 'j', 'ArrowLeft', 'ArrowRight'],
+    trial_duration: 6000,
     data: {
         fixation_duration: FIXATION_DURATION, //jsPsych.timelineVariable('fixation_duration'),
         stimulus_duration: STIMULUS_DURATION, //jsPsych.timelineVariable('stimulus_duration'),
