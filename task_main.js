@@ -819,9 +819,15 @@ var catch_trial = {
     ],
     data: {
         task: 'catch',
+    }, 
+    on_start: function() {
+        document.getElementById("display_stage").style.color = "black";
+        document.getElementById("display_stage").style.backgroundColor = "white";
     },
     on_finish: function(data){
         data.catch = data.response['catch'];
+        document.getElementById("display_stage").style.color = "white";
+        document.getElementById("display_stage").style.backgroundColor = "black";
     }
 }
 
@@ -838,6 +844,10 @@ var attention_trial = {
     ],
     data: {
         task: 'attention',
+    },
+    on_start: function() {
+        document.getElementById("display_stage").style.color = "black";
+        document.getElementById("display_stage").style.backgroundColor = "white";
     },
     on_finish: function(data){
         data.attention = data.response['attention'];
