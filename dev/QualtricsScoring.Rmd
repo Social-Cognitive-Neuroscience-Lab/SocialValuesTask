@@ -15,7 +15,7 @@ require(sjPlot)
 
 # Import data
 ```{r}
-d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_5.xlsx',
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_6.xlsx',
                skip=1)
 d_raw <- d_raw %>%
   mutate(StartTime = lubridate::as_datetime(`Start Date`)) %>%
@@ -46,6 +46,7 @@ d_real %>% count(gender)
 
 
 ```{r}
+# convert items from numbers in javascript array to tibble
 extract_js2 <- function(df, col_name, col_label, trials=100) {
   clean_label = str_c(col_name, '_clean')
   df_out <- df %>%
@@ -58,7 +59,7 @@ extract_js2 <- function(df, col_name, col_label, trials=100) {
   
 }
 
-
+# convert items from text in javascript array to tibble
 extract_js_text <- function(df, col_name, col_label, trials=80, n_iss=36) {
   old_names <- str_c(col_label, c(1:trials))
   new_names <- str_c(col_label, c(1:n_iss))
@@ -73,32 +74,194 @@ extract_js_text <- function(df, col_name, col_label, trials=80, n_iss=36) {
   
 }
 
+extract_js_miss <- function(df, col_name, trials=100) {
+  clean_label = str_c(col_name, '_clean')
+  df_out <- df %>%
+    separate({{col_name}}, into=c('x1', 'x2', 'values'), sep="{") %>%
+    select(SID, values) %>%
+    separate(values, into=str_c('Trial', 1:trials), sep=",") %>%
+    pivot_longer(-SID) %>%
+    separate(value, into=c('Trial', 'Value'), sep=":") %>%
+    select(SID, Trial, Value) %>%
+    mutate(Value = str_remove_all(Value,'[\\[\\]values\\}\\{\\:\"]')) %>%
+    mutate(Trial = str_remove_all(Trial,'[\\[\\]values\\}\\{\\:\"]'))  %>%
+    mutate(Trial = as.numeric(Trial) + 1) %>% # JS is 0-indexed
+    mutate(Trial = as.character(Trial))
+  return(df_out)
+}
+
+extract_choices <- function(df) {
+  d_choice <- df %>%
+    select(SID, choice_resp) %>%
+    extract_js2('choice_resp', "Resp", trials=100) %>%
+    pivot_longer(Resp1:Resp100, values_to = "Resp") %>%
+    separate(name, into=c("Type", "Trial"), sep=4, remove=FALSE) %>%
+    select(SID, Trial, Resp) %>%
+    mutate(Response = case_when(
+      Resp == "f" ~ 1,
+      Resp == "j" ~ 2
+    )) %>%
+    mutate(ChooseLeft = case_when(
+      Response == 1 ~ 1,
+      Response == 2 ~ 0
+    ))
+  
+  d_rt <- df %>%
+    select(SID, choice_rt) %>%
+    extract_js2('choice_rt', "RT", trials=100) %>%
+    pivot_longer(RT1:RT100, values_to = "RT") %>%
+    separate(name, into=c("Type", "Trial"), sep=2, remove=FALSE) %>%
+    select(SID, Trial, RT) %>%
+    mutate(RT = as.double(RT))
+  
+  d_issue_l <- df %>%
+    select(SID, issue_left) %>%
+    extract_js_text('issue_left', 'IssueLeft', trials=260, n_iss = 100) %>%
+    pivot_longer(IssueLeft1:IssueLeft100, values_to = "IssueLeft") %>%
+    separate(name, into=c("Type", "Trial"), sep=9, remove=FALSE) %>%
+    select(SID, Trial, IssueLeft) %>%
+    mutate(IssueLeft = as.factor(IssueLeft))
+  
+  d_issue_r <- df %>%
+    select(SID, issue_right) %>%
+    extract_js_text('issue_right', 'IssueRight', trials=260, n_iss = 100) %>%
+    pivot_longer(IssueRight1:IssueRight100, values_to = "IssueRight") %>%
+    separate(name, into=c("Type", "Trial"), sep=10, remove=FALSE) %>%
+    select(SID, Trial, IssueRight) %>%
+    mutate(IssueRight = as.factor(IssueRight))
+  
+  d_pos_l <- df %>%
+    select(SID, position_left) %>%
+    extract_js_text('position_left', 'PosLeft', trials=260, n_iss = 100) %>%
+    pivot_longer(PosLeft1:PosLeft100, values_to = "PosLeft") %>%
+    separate(name, into=c("Type", "Trial"), sep=7, remove=FALSE) %>%
+    select(SID, Trial, PosLeft) %>%
+    mutate(PosLeft = case_when(
+      PosLeft == "ThumbsUp.jpg" ~ 1,
+      PosLeft == "ThumbsDown.jpg" ~ -1))
+  
+  d_pos_r <- df %>%
+    select(SID, position_right) %>%
+    extract_js_text('position_right', 'PosRight', trials=260, n_iss = 100) %>%
+    pivot_longer(PosRight1:PosRight100, values_to = "PosRight") %>%
+    separate(name, into=c("Type", "Trial"), sep=8, remove=FALSE) %>%
+    select(SID, Trial, PosRight) %>%
+    mutate(PosRight = case_when(
+      PosRight == "ThumbsUp.jpg" ~ 1,
+      PosRight == "ThumbsDown.jpg" ~ -1))
+  
+  d_choices <- d_choice %>%
+    left_join(d_rt, by=c("SID", "Trial")) %>%
+    left_join(d_issue_l, by=c("SID", "Trial")) %>%
+    left_join(d_issue_r, by=c('SID', 'Trial')) %>%
+    left_join(d_pos_l, by=c('SID', 'Trial')) %>%
+    left_join(d_pos_r, by=c('SID', 'Trial')) %>%
+    mutate(Trial = as.numeric(Trial)) 
+  return(d_choices)
+}
+
+extract_choices_miss <- function(df) {
+  d_choice <- df %>%
+    select(SID, choice_resp) %>%
+    extract_js_miss('choice_resp', trials=100) %>%
+    rename(Resp = Value) %>% 
+    select(SID, Trial, Resp) %>%
+    mutate(Response = case_when(
+      Resp == "f" ~ 1,
+      Resp == "j" ~ 2
+    )) %>%
+    mutate(ChooseLeft = case_when(
+      Response == 1 ~ 1,
+      Response == 2 ~ 0
+    ))
+  
+  d_rt <- df %>%
+    select(SID, choice_rt) %>%
+    extract_js_miss('choice_rt', trials=100) %>%
+    rename(RT = Value) %>%
+    select(SID, Trial, RT) %>%
+    mutate(RT = as.double(RT))
+  
+  d_issue_l <- df %>%
+    select(SID, issue_left) %>%
+    extract_js_text('issue_left', 'IssueLeft', 
+                    trials=260, n_iss = 100) %>%
+    pivot_longer(IssueLeft1:IssueLeft100, values_to = "IssueLeft") %>%
+    separate(name, into=c("Type", "Trial"), sep=9, remove=FALSE) %>%
+    select(SID, Trial, IssueLeft) %>%
+    mutate(IssueLeft = as.factor(IssueLeft))
+  
+  d_issue_r <- df %>%
+    select(SID, issue_right) %>%
+    extract_js_text('issue_right', 'IssueRight',
+                    trials=260, n_iss = 100) %>%
+    pivot_longer(IssueRight1:IssueRight100, values_to = "IssueRight") %>%
+    separate(name, into=c("Type", "Trial"), sep=10, remove=FALSE) %>%
+    select(SID, Trial, IssueRight) %>%
+    mutate(IssueRight = as.factor(IssueRight))
+  
+  d_pos_l <- df %>%
+    select(SID, position_left) %>%
+    extract_js_text('position_left', 'PosLeft',
+                    trials=260, n_iss = 100) %>%
+    pivot_longer(PosLeft1:PosLeft100, values_to = "PosLeft") %>%
+    separate(name, into=c("Type", "Trial"), sep=7, remove=FALSE) %>%
+    select(SID, Trial, PosLeft) %>%
+    mutate(PosLeft = case_when(
+      PosLeft == "ThumbsUp.jpg" ~ 1,
+      PosLeft == "ThumbsDown.jpg" ~ -1))
+  
+  d_pos_r <- df %>%
+    select(SID, position_right) %>%
+    extract_js_text('position_right', 'PosRight',
+                    trials=260, n_iss = 100) %>%
+    pivot_longer(PosRight1:PosRight100, values_to = "PosRight") %>%
+    separate(name, into=c("Type", "Trial"), sep=8, remove=FALSE) %>%
+    select(SID, Trial, PosRight) %>%
+    mutate(PosRight = case_when(
+      PosRight == "ThumbsUp.jpg" ~ 1,
+      PosRight == "ThumbsDown.jpg" ~ -1))
+  
+  d_choices <- d_issue_l %>%
+    left_join(d_issue_r, by=c('SID', 'Trial')) %>%
+    left_join(d_pos_l, by=c('SID', 'Trial')) %>%
+    left_join(d_pos_r, by=c('SID', 'Trial')) %>%
+    left_join(d_choice, by=c('SID', 'Trial')) %>%
+    left_join(d_rt, by=c('SID', 'Trial')) %>%
+    mutate(Trial = as.numeric(Trial)) %>%
+    select(SID, Trial, Resp, Response, ChooseLeft, RT,
+           IssueLeft, IssueRight, PosLeft, PosRight)
+  return(d_choices)
+}
 ```
 
-  
+## Tidy issue ratings
 ```{r}
+n_trials <- 40
 d_support <- d_real %>%
   select(SID, support) %>%
-  extract_js2('support', 'Support', trials=36) %>%
-  pivot_longer(Support1:Support36, values_to = "Support") %>%
+  extract_js2('support', 'Support', trials=n_trials) %>%
+  pivot_longer(Support1:Support40, values_to = "Support") %>%
   separate(name, into=c("Type", "Trial"), sep=7, remove=FALSE) %>%
   select(SID, Trial, Support)
 d_moral <- d_real %>%
   select(SID, moral) %>%
-  extract_js2('moral', 'Moral', trials=36) %>%
-  pivot_longer(Moral1:Moral36, values_to = "Moral") %>%
+  extract_js2('moral', 'Moral', trials=n_trials) %>%
+  pivot_longer(Moral1:Moral40, values_to = "Moral") %>%
   separate(name, into=c("Type", "Trial"), sep=5, remove=FALSE) %>%
   select(SID, Trial, Moral)
 d_familiar <- d_real %>%
   select(SID, familiar) %>%
-  extract_js2('familiar', 'Familiar', trials=36) %>%
-  pivot_longer(Familiar1:Familiar36, values_to = "Familiar") %>%
+  extract_js2('familiar', 'Familiar', trials=n_trials) %>%
+  pivot_longer(Familiar1:Familiar40, values_to = "Familiar") %>%
   separate(name, into=c("Type", "Trial"), sep=8, remove=FALSE) %>%
   select(SID, Trial, Familiar)
 d_issue <- d_real %>%
   select(SID, issues) %>%
-  extract_js_text('issues', 'Issue') %>%
-  pivot_longer(Issue1:Issue36, values_to = "Issue") %>%
+  extract_js_text('issues', 'Issue', 
+                  trials = 4+(2*n_trials),
+                  n_iss = n_trials) %>%
+  pivot_longer(Issue1:Issue40, values_to = "Issue") %>%
   separate(name, into=c("Type", "Trial"), sep=5, remove=FALSE) %>%
   select(SID, Trial, Issue) %>%
   mutate(Issue = as.factor(Issue))
@@ -142,75 +305,32 @@ enough <- unique_ratings %>%
   filter(n >= 15)
 
 ```
-  
+## Tidy responses
+
+Identify subjects that had any late responses
 ```{r}
-d_choice <- d_real %>%
-  select(SID, choice_resp) %>%
-  extract_js2('choice_resp', "Resp", trials=100) %>%
-  pivot_longer(Resp1:Resp100, values_to = "Resp") %>%
-  separate(name, into=c("Type", "Trial"), sep=4, remove=FALSE) %>%
-  select(SID, Trial, Resp) %>%
-  mutate(Response = case_when(
-    Resp == "f" ~ 1,
-    Resp == "j" ~ 2
-  )) %>%
-  mutate(ChooseLeft = case_when(
-    Response == 1 ~ 1,
-    Response == 2 ~ 0
-  ))
+late_subs <- d_real %>%
+  filter(`Start Date` > '2021-11-01') %>%
+  select(SID, choice_resp) %>% 
+  mutate(late = case_when(
+    str_detect(choice_resp, '0') ~ 1,
+    TRUE ~ 0)) %>%
+  filter(late == 1) %>%
+  select(SID) %>%
+  pull()
 
+d_late <- d_real %>%
+  filter(SID %in% late_subs)
 
-d_rt <- d_real %>%
-  select(SID, choice_rt) %>%
-  extract_js2('choice_rt', "RT", trials=100) %>%
-  pivot_longer(RT1:RT100, values_to = "RT") %>%
-  separate(name, into=c("Type", "Trial"), sep=2, remove=FALSE) %>%
-  select(SID, Trial, RT) %>%
-  mutate(RT = as.double(RT))
+d_ontime <- d_real %>%
+  filter(!SID %in% late_subs)
+```
 
-d_issue_l <- d_real %>%
-  select(SID, issue_left) %>%
-  extract_js_text('issue_left', 'IssueLeft', trials=260, n_iss = 100) %>%
-  pivot_longer(IssueLeft1:IssueLeft100, values_to = "IssueLeft") %>%
-  separate(name, into=c("Type", "Trial"), sep=9, remove=FALSE) %>%
-  select(SID, Trial, IssueLeft) %>%
-  mutate(IssueLeft = as.factor(IssueLeft))
-
-d_issue_r <- d_real %>%
-  select(SID, issue_right) %>%
-  extract_js_text('issue_right', 'IssueRight', trials=260, n_iss = 100) %>%
-  pivot_longer(IssueRight1:IssueRight100, values_to = "IssueRight") %>%
-  separate(name, into=c("Type", "Trial"), sep=10, remove=FALSE) %>%
-  select(SID, Trial, IssueRight) %>%
-  mutate(IssueRight = as.factor(IssueRight))
-
-d_pos_l <- d_real %>%
-  select(SID, position_left) %>%
-  extract_js_text('position_left', 'PosLeft', trials=260, n_iss = 100) %>%
-  pivot_longer(PosLeft1:PosLeft100, values_to = "PosLeft") %>%
-  separate(name, into=c("Type", "Trial"), sep=7, remove=FALSE) %>%
-  select(SID, Trial, PosLeft) %>%
-  mutate(PosLeft = case_when(
-    PosLeft == "ThumbsUp.jpg" ~ 1,
-    PosLeft == "ThumbsDown.jpg" ~ -1))
-
-d_pos_r <- d_real %>%
-  select(SID, position_right) %>%
-  extract_js_text('position_right', 'PosRight', trials=260, n_iss = 100) %>%
-  pivot_longer(PosRight1:PosRight100, values_to = "PosRight") %>%
-  separate(name, into=c("Type", "Trial"), sep=8, remove=FALSE) %>%
-  select(SID, Trial, PosRight) %>%
-  mutate(PosRight = case_when(
-    PosRight == "ThumbsUp.jpg" ~ 1,
-    PosRight == "ThumbsDown.jpg" ~ -1))
-
-d_choices <- d_choice %>%
-  left_join(d_rt, by=c("SID", "Trial")) %>%
-  left_join(d_issue_l, by=c("SID", "Trial")) %>%
-  left_join(d_issue_r, by=c('SID', 'Trial')) %>%
-  left_join(d_pos_l, by=c('SID', 'Trial')) %>%
-  left_join(d_pos_r, by=c('SID', 'Trial')) %>%
-  mutate(Trial = as.numeric(Trial)) 
+Extract responses
+```{r}
+d_choices_late <- extract_choices_miss(d_late)
+d_choices_ontime <- extract_choices(d_ontime)
+d_choices <- bind_rows(d_choices_late, d_choices_ontime)
 ```
 
 ```{r}
@@ -317,10 +437,26 @@ d_trim <- d %>%
   ungroup() %>%
   group_by(SID, RT_supbin) %>%
   mutate(ChoiceProb_rt = mean(ChooseLeft, na.rm=TRUE)) %>%
-  ungroup()
+  ungroup() %>%
+  mutate(time_bin = case_when(
+    Trial < 21 ~ 1,
+    Trial < 41 ~ 2,
+    Trial < 61 ~ 3,
+    Trial < 81 ~ 4,
+    Trial > 80 ~ 5
+  ))
+
 d_trim$Subject <- as.factor(d_trim$Subj)
 d_trim$RTbin <- as.factor(d_trim$RTqtile)
 d_trim$logRT <- log(d_trim$RTs)
+
+# separate subjects that had a max of 6 sec to respond
+max6 <- c('R_1OZVPFRnGQxizSv', 'R_1DpwZxI6BU4iyGI',
+          'R_xaRGVIbndeE1mvv', 'R_3J1WL0WYYnCtVlc',
+          'R_33v7gy7zKIvPXIh', 'R_9AKbFimIDdip6bT',
+          'R_29ghQZYkgf8XKxV', 'R_UfnHkxcPfu0CGit')
+d_short <- d_trim %>%
+  filter(SID %in% max6)
 ```
 
 ```{r}
@@ -365,7 +501,11 @@ d_trim %>%
             RTmed = median(RTs, na.rm=TRUE),
             RThigh = quantile(RTs, probs=.75, na.rm=TRUE)) %>%
   ungroup() %>%
-  ggplot(aes(SID, RTmed)) +
+  mutate(plot_col = case_when(
+    SID %in% max6 ~ 'blue',
+    TRUE ~ 'black'
+  )) %>%
+  ggplot(aes(SID, RTmed, color=plot_col)) +
   geom_point() + geom_errorbar(aes(ymin=RTlow, ymax=RThigh)) +
   theme_classic() +
   labs(y='RT (sec)') +
@@ -555,6 +695,30 @@ ggsave('Support_bin_logRT.png')
 ```
 
 
+```{r}
+dg <- d_trim %>%
+  filter(! Subj %in% c(25, 31, 36, 37)) %>%
+  filter(SID %in% max6) %>%
+  group_by(Support_bin) %>%
+  summarize(RTs = mean(RT_mean, na.rm=TRUE),
+            RTmed = median(RT_mean, na.rm=TRUE))
+
+d_trim %>%
+  filter(! Subj %in% c(25, 31, 36, 37)) %>%
+  filter(SID %in% max6) %>%
+  ggplot(aes(Support_bin, log(RTs),
+             color=as.factor(Support_bin))) +
+  geom_violin(draw_quantiles=c(.5)) +
+  geom_point(data=dg, position=position_dodge2(width=1)) +
+  geom_path(data=dg, aes(group=as.factor(Support_bin))) +
+  geom_hline(yintercept = 0.5, alpha=.5, linetype="dashed") +
+  theme_classic() +
+  labs(color = "Relative support (bin)",
+       x = "Relative support",
+       y = "log(RT)")
+ggsave('Support_bin_logRT_max6s.png')
+```
+
 
 ```{r}
 
@@ -616,7 +780,7 @@ lines(bin_choice_mcm$Moral_bin, bin_choice_mcm$ChooseLeft, lwd=2)
 bin_choice %>%
   filter(Support_bin == -2 & ChooseLeft > .6)
 ```
-Subj 7, 27, 33, 36, 37
+Subj 1, 9, 30, 38, 42, 43
 
 ```{r}
 N <- length(unique(d_trim$Subj))
@@ -634,7 +798,7 @@ plot(choice_betas, rt_betas)
 ```
 
 ```{r}
-strange_sub <- c( 7, 27, 33, 36, 37)
+strange_sub <- c( 1, 9, 30, 38, 42, 43)
 
 
 N <- length(unique(d_trim$Subj))
@@ -668,30 +832,41 @@ resp_mod2 <- glmer(ChooseLeft ~ Moral +
                     family='binomial')
 
 resp_mod3 <- glmer(ChooseLeft ~ Support + Moral +
-                    (Support|Subject) + (Moral|Subject),
+                    (Support|Subject) ,
+                   data = d_lmer,
+                    family='binomial')
+
+resp_mod3b <- glmer(ChooseLeft ~ Support * Moral +
+                    (Support|Subject) ,
                    data = d_lmer,
                     family='binomial')
 
 # singular fit
 resp_mod4 <- glmer(ChooseLeft ~ Support + Moral +
+                    (Support|Subject) + (Moral|Subject),
+                   data = d_lmer,
+                    family='binomial')
+
+# singular fit
+resp_mod5 <- glmer(ChooseLeft ~ Support + Moral +
                     (Support + Moral|Subject),
                    data = d_lmer,
                     family='binomial')
 # singular fit
-resp_mod5 <- glmer(ChooseLeft ~ Support * Moral +
+resp_mod6 <- glmer(ChooseLeft ~ Support * Moral +
                     (Support*Moral|Subject), data = d_lmer,
                     family='binomial')
-# singular fit
-resp_mod6 <- glmer(ChooseLeft ~ Support * Moral +
+# fail to converge
+resp_mod7 <- glmer(ChooseLeft ~ Support * Moral +
                     (Support|Subject) + (Moral|Subject) +
                      (Support:Moral|Subject), data = d_lmer,
                     family='binomial')
-anova(resp_mod, resp_mod2, resp_mod3, resp_mod4,
-      resp_mod5, resp_mod6)
+anova(resp_mod, resp_mod2, resp_mod3, resp_mod3b,
+      resp_mod4,resp_mod5, resp_mod6, resp_mod7)
 ```
 ```{r}
-bbmle::AICtab(resp_mod, resp_mod2, resp_mod3, resp_mod4,
-      resp_mod5, resp_mod6)
+bbmle::AICtab(resp_mod, resp_mod2, resp_mod3, resp_mod3b,
+              resp_mod4,resp_mod5, resp_mod6)
 ```
 ```{r}
 summary(resp_mod3)
@@ -733,6 +908,12 @@ ggsave('MLM_choice.png')
 
 ```{r}
 effectsize::standardize_parameters(resp_mod3)
+```
+
+```{r}
+plot_model(resp_mod3b, type="int") +
+  theme_classic() +
+  geom_hline(yintercept = 0.5, linetype="dashed", alpha=.5)
 ```
 
 
@@ -783,14 +964,6 @@ ggplot(d_trim, aes(ChoiceSupportNaive, Choice)) +
 ## MLMs for RTs
 ```{r}
 d_trim$LeftAbs <- abs(d_trim$LeftAdjDiff) - mean(d_trim$LeftAdjDiff, na.rm=TRUE)
-d_trim <- d_trim %>%
-  mutate(time_bin = case_when(
-    Trial < 21 ~ 1,
-    Trial < 41 ~ 2,
-    Trial < 61 ~ 3,
-    Trial < 81 ~ 4,
-    Trial > 80 ~ 5
-  ))
 rt.mod <- lmerTest::lmer(log(RTs) ~ LeftAbs * time_bin +
                  (time_bin|Subject),
                data = d_trim,
@@ -799,11 +972,11 @@ anova(rt.mod, ddf='Kenward-Roger')
 ```
 
 ```{r}
-plot_model(rt.mod, type='int')
+plot_model(rt.mod, type='int', terms=c("time_bin", "LeftAbs"))
 ```
 
 ```{r}
-rt.mod2 <- lmer(log(RTs) ~ poly(LeftRDV, 2) + (1|SID),
+rt.mod2 <- lmerTest::lmer(log(RTs) ~ poly(LeftRDV, 2) + (1|SID),
                 data=d_trim)
 ```
 
@@ -832,9 +1005,7 @@ for (i in 1:N) {
     }
   }
 }
-```
 
-```{r}
 plot(NULL, xlim=c(1,K), ylim=c(-.5, .5),
      xlab="Time bin", ylab="Beta (log RT ~ abs(Support) )")
 for (i in 1:N) {
@@ -843,7 +1014,7 @@ for (i in 1:N) {
 abline(h=0, lty=2)
 ```
 
-Check choice probability and reaction time
+### Check choice probability and reaction time
 ```{r}
 ggplot(d_trim %>% filter(PosLeft == 1 & PosRight == 1), aes(LeftAbs, RTs, color=Subject)) +
   geom_smooth(se = FALSE, method="lm") +
@@ -869,7 +1040,7 @@ d_trim %>% count(Subj) %>% filter(n < 80)
 ```{r}
 plot(NULL, xlim=c(1,K), ylim=c(-.5, 1),
      xlab="Time bin", ylab="Beta (log RT ~ abs(Support) )")
-for (i in c(15, 33, 42)) {
+for (i in c(1, 18, 38, 49)) {
   lines(1:K, RTBeta[i,], col=grau(.2))
 }
 abline(h=0, lty=2)
@@ -940,6 +1111,32 @@ ggplot(art, aes(Support_bin, RTs)) +
   theme_classic()
 ```
 
+
+
+
+```{r}
+dat_tib <- as_tibble(dat_listr)
+dat_tib
+```
+
+```{r}
+acp <- dat_tib %>%
+  group_by(sid, RDV) %>%
+  summarize(L = mean(L, na.rm=TRUE))
+
+acpm <- acp %>%
+  group_by(RDV) %>%
+  summarize(L = mean(L, na.rm=TRUE))
+
+acp_mc <- dat_tib %>%
+  group_by(sid, RMC) %>%
+  summarize(L = mean(L, na.rm=TRUE))
+
+acp_mcm <- acp_mc %>%
+  group_by(RMC) %>%
+  summarize(L = mean(L, na.rm=TRUE))
+```
+
 ```{r}
 plot(NULL, xlim=c(-6, 6), ylim=c(0, 1),
      xlab="Relative value of Left",
@@ -982,28 +1179,6 @@ rt.ulam <- ulam(
 
 
 
-```{r}
-dat_tib <- as_tibble(dat_listr)
-dat_tib
-```
-
-```{r}
-acp <- dat_tib %>%
-  group_by(sid, RDV) %>%
-  summarize(L = mean(L, na.rm=TRUE))
-
-acpm <- acp %>%
-  group_by(RDV) %>%
-  summarize(L = mean(L, na.rm=TRUE))
-
-acp_mc <- dat_tib %>%
-  group_by(sid, RMC) %>%
-  summarize(L = mean(L, na.rm=TRUE))
-
-acp_mcm <- acp_mc %>%
-  group_by(RMC) %>%
-  summarize(L = mean(L, na.rm=TRUE))
-```
 
 
 
