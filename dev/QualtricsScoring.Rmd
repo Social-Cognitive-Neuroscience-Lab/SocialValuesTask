@@ -1580,7 +1580,7 @@ rtu <- ulam(
   ), data = dat_listrt, chains=4, cores=4, 
   iter=2000, log_lik=TRUE
 )
-write_rds(rtu, 'RT_poly_mcmc.rds')
+#write_rds(rtu, 'RT_poly_mcmc.rds')
 ```
 
 ```{r}
@@ -1647,7 +1647,7 @@ rt.ulam1 <- ulam(
   ), data = dat_listrt, chains=4, cores=4, 
   iter=2000, log_lik=TRUE
 )
-write_rds(rt.ulam1, 'rt_mcmc1.rds')
+#write_rds(rt.ulam1, 'rt_mcmc1.rds')
 ```
 
 
@@ -1668,7 +1668,7 @@ rt.ulam2 <- ulam(
   ), data = dat_listrt, chains=4, cores=4, 
   iter=2000, log_lik=TRUE
 )
-write_rds(rt.ulam2, 'rt_mcmc2.rds')
+#write_rds(rt.ulam2, 'rt_mcmc2.rds')
 ```
 
 ```{r}
@@ -1931,7 +1931,7 @@ fit.multi <- rstan::stan(file = '../../scratch-foo/choice_linearvalue_ddm.stan',
 ```
 
 ```{r}
-write_rds(fit.multi, 'linearvalue_ddm_4chain_batch42.RDS')
+#write_rds(fit.multi, 'linearvalue_ddm_4chain_batch42.RDS')
 ```
 
 ```{r}
