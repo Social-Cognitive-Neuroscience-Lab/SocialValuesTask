@@ -1,0 +1,704 @@
+---
+title: "hddm predictive intervals"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+require(rethinking)
+require(tidyverse)
+require(patchwork)
+```
+
+# Import data
+Read in Observed response data
+```{r}
+obs <- read_csv('choice_hddm.csv')
+obs <- obs %>%
+  mutate(rts = case_when(
+    response == 0 ~ rt * -1,
+    TRUE ~ rt
+  ))
+osubs <- sort(unique(obs$subj_idx))
+orig <- vector(mode='list', length=length(osubs))
+for (i in 1:length(osubs)) {
+  orig[[i]] <- obs %>% 
+    filter(subj_idx == osubs[i]) %>%
+    select(rts) %>%
+    pull()
+}
+
+obs_late <- read_csv('choice_hddm_late.csv')
+obs_late <- obs_late %>%
+  mutate(rts = case_when(
+    response == 0 ~ rt * -1,
+    TRUE ~ rt
+  ))
+osubs_late <- sort(unique(obs_late$subj_idx))
+orig_late <- vector(mode='list', length=length(osubs_late))
+for (i in 1:length(osubs_late)) {
+  orig_late[[i]] <- obs_late %>% 
+    filter(subj_idx == osubs_late[i]) %>%
+    select(rts) %>%
+    pull()
+}
+```
+
+## Read in Posteriors
+```{r}
+params5 <- read_csv('c:/chddm/model5_params.csv',
+               col_names=c('Param','mean','std',
+                           'q2.5','q25','q50','q75','q97.5',
+                           'mc_error'),
+               skip = 1)
+params5 %>% head()
+```
+
+```{r}
+params5_late <- read_csv('c:/chddm/model5_late_params.csv',
+               col_names=c('Param','mean','std',
+                           'q2.5','q25','q50','q75','q97.5',
+                           'mc_error'),
+               skip = 1)
+params5_late %>% head()
+```
+
+## Plot posteriors all trials
+```{r}
+v_sup <- params5 %>% filter(Param == 'v_support') %>%
+  select(mean, q2.5, q97.5)
+v_subs <- params5 %>% filter(str_detect(Param, 'v_support_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat1 <- tibble(
+  Subject = 1:nrow(v_subs), Support = v_subs$mean,
+  l = v_subs$q2.5, u = v_subs$q97.5,
+  measure = rep('Drift Rate', nrow(v_subs)),
+  avg = rep(v_sup$mean, nrow(v_subs)),
+  avg_l = rep(v_sup$q2.5, nrow(v_subs)),
+  avg_u = rep(v_sup$q97.5, nrow(v_subs))
+)
+
+p1 <- pdat1 %>% ggplot(aes(Subject, Support)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Drift Rate', title='Support') +
+  ylim(-.2, .35) +
+  theme_classic() 
+
+
+v_mor <- params5 %>% filter(Param == 'v_moral') %>%
+  select(mean, q2.5, q97.5)
+v_subs <- params5 %>% filter(str_detect(Param, 'v_moral_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat2 <- tibble(
+  Subject = 1:nrow(v_subs), Moral = v_subs$mean,
+  l = v_subs$q2.5, u = v_subs$q97.5,
+  measure = rep('Drift Rate', nrow(v_subs)),
+  avg = rep(v_mor$mean, nrow(v_subs)),
+  avg_l = rep(v_mor$q2.5, nrow(v_subs)),
+  avg_u = rep(v_mor$q97.5, nrow(v_subs))
+)
+
+p2 <- pdat2 %>% ggplot(aes(Subject, Moral)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Drift Rate', title='Moral Conviction') +
+  ylim(-.2, .35) +
+  theme_classic() 
+
+
+z_sup <- params5 %>% filter(Param == 'z_support') %>%
+  select(mean, q2.5, q97.5)
+z_subs <- params5 %>% filter(str_detect(Param, 'z_support_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat3 <- tibble(
+  Subject = 1:nrow(z_subs), Support = z_subs$mean,
+  l = z_subs$q2.5, u = z_subs$q97.5,
+  measure = rep('Starting Bias', nrow(z_subs)),
+  avg = rep(z_sup$mean, nrow(z_subs)),
+  avg_l = rep(z_sup$q2.5, nrow(z_subs)),
+  avg_u = rep(z_sup$q97.5, nrow(z_subs))
+)
+
+p3 <- pdat3 %>% ggplot(aes(Subject, Support)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Starting Bias') +
+  ylim(-.05, .05) +
+  theme_classic()
+
+
+z_mor <- params5 %>% filter(Param == 'z_moral')  %>%
+  select(mean, q2.5, q97.5)
+z_subs <- params5 %>% filter(str_detect(Param, 'z_moral_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat4 <- tibble(
+  Subject = 1:nrow(z_subs), Moral = z_subs$mean,
+  l = z_subs$q2.5, u = z_subs$q97.5,
+  measure = rep('Starting Bias', nrow(z_subs)),
+  avg = rep(z_mor$mean, nrow(z_subs)),
+  avg_l = rep(z_mor$q2.5, nrow(z_subs)),
+  avg_u = rep(z_mor$q97.5, nrow(z_subs))
+)
+
+p4 <- pdat4 %>% ggplot(aes(Subject, Moral)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Starting Bias') +
+  ylim(-.05, .05) +
+  theme_classic()
+
+
+a_sup <- params5 %>% filter(Param == 'a_support') %>%
+  select(mean, q2.5, q97.5)
+a_subs <- params5 %>% filter(str_detect(Param, 'a_support_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat5 <- tibble(
+  Subject = 1:nrow(a_subs), Support = a_subs$mean,
+  l = a_subs$q2.5, u = a_subs$q97.5,
+  measure = rep('Boundary', nrow(a_subs)),
+  avg = rep(a_sup$mean, nrow(a_subs)),
+  avg_l = rep(a_sup$q2.5, nrow(a_subs)),
+  avg_u = rep(a_sup$q97.5, nrow(a_subs))
+)
+
+p5 <- pdat5 %>% ggplot(aes(Subject, Support)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Boundary') +
+  ylim(-.15, .15) +
+  theme_classic()
+
+
+a_mor <- params5_late %>% filter(Param == 'a_moral') %>%
+  select(mean, q2.5, q97.5)
+a_subs <- params5_late %>% filter(str_detect(Param, 'a_moral_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat6 <- tibble(
+  Subject = 1:nrow(a_subs), Moral = a_subs$mean,
+  l = a_subs$q2.5, u = a_subs$q97.5,
+  measure = rep('Boundary', nrow(a_subs)),
+  avg = rep(a_mor$mean, nrow(a_subs)),
+  avg_l = rep(a_mor$q2.5, nrow(a_subs)),
+  avg_u = rep(a_mor$q97.5, nrow(a_subs))
+)
+
+p6 <- pdat6 %>% ggplot(aes(Subject, Moral)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3)  +
+  labs(y = 'Boundary') +
+  ylim(-.15, .15) +
+  theme_classic()
+```
+
+```{r}
+patch <- (p1 | p2) /
+  (p3 | p4) /
+  (p5 | p6)
+
+patch + plot_annotation(title='Model Posteriors')
+ggsave('posteriors_model5.png', width=6, height=8)
+```
+
+
+## Plot posteriors later trials
+```{r}
+v_sup <- params5_late %>% filter(Param == 'v_support') %>%
+  select(mean, q2.5, q97.5)
+v_subs <- params5_late %>% filter(str_detect(Param, 'v_support_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat1_late <- tibble(
+  Subject = 1:nrow(v_subs), Support = v_subs$mean,
+  l = v_subs$q2.5, u = v_subs$q97.5,
+  measure = rep('Drift Rate', nrow(v_subs)),
+  avg = rep(v_sup$mean, nrow(v_subs)),
+  avg_l = rep(v_sup$q2.5, nrow(v_subs)),
+  avg_u = rep(v_sup$q97.5, nrow(v_subs))
+)
+
+p1_late <- pdat1_late %>% ggplot(aes(Subject, Support)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Drift Rate', title='Support') +
+  ylim(-.2, .35) +
+  theme_classic() 
+
+
+v_mor <- params5_late %>% filter(Param == 'v_moral') %>%
+  select(mean, q2.5, q97.5)
+v_subs <- params5_late %>% filter(str_detect(Param, 'v_moral_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat2_late <- tibble(
+  Subject = 1:nrow(v_subs), Moral = v_subs$mean,
+  l = v_subs$q2.5, u = v_subs$q97.5,
+  measure = rep('Drift Rate', nrow(v_subs)),
+  avg = rep(v_mor$mean, nrow(v_subs)),
+  avg_l = rep(v_mor$q2.5, nrow(v_subs)),
+  avg_u = rep(v_mor$q97.5, nrow(v_subs))
+)
+
+p2_late <- pdat2_late %>% ggplot(aes(Subject, Moral)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Drift Rate', title='Moral Conviction') +
+  ylim(-.2, .35) +
+  theme_classic() 
+
+
+z_sup <- params5_late %>% filter(Param == 'z_support') %>%
+  select(mean, q2.5, q97.5)
+z_subs <- params5_late %>% filter(str_detect(Param, 'z_support_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat3_late <- tibble(
+  Subject = 1:nrow(z_subs), Support = z_subs$mean,
+  l = z_subs$q2.5, u = z_subs$q97.5,
+  measure = rep('Starting Bias', nrow(z_subs)),
+  avg = rep(z_sup$mean, nrow(z_subs)),
+  avg_l = rep(z_sup$q2.5, nrow(z_subs)),
+  avg_u = rep(z_sup$q97.5, nrow(z_subs))
+)
+
+p3_late <- pdat3_late %>% ggplot(aes(Subject, Support)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Starting Bias') +
+  ylim(-.05, .05) +
+  theme_classic()
+
+
+z_mor <- params5_late %>% filter(Param == 'z_moral')  %>%
+  select(mean, q2.5, q97.5)
+z_subs <- params5_late %>% filter(str_detect(Param, 'z_moral_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat4_late <- tibble(
+  Subject = 1:nrow(z_subs), Moral = z_subs$mean,
+  l = z_subs$q2.5, u = z_subs$q97.5,
+  measure = rep('Starting Bias', nrow(z_subs)),
+  avg = rep(z_mor$mean, nrow(z_subs)),
+  avg_l = rep(z_mor$q2.5, nrow(z_subs)),
+  avg_u = rep(z_mor$q97.5, nrow(z_subs))
+)
+
+p4_late <- pdat4_late %>% ggplot(aes(Subject, Moral)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Starting Bias') +
+  ylim(-.05, .05) +
+  theme_classic()
+
+
+a_sup <- params5_late %>% filter(Param == 'a_support') %>%
+  select(mean, q2.5, q97.5)
+a_subs <- params5_late %>% filter(str_detect(Param, 'a_support_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat5_late <- tibble(
+  Subject = 1:nrow(a_subs), Support = a_subs$mean,
+  l = a_subs$q2.5, u = a_subs$q97.5,
+  measure = rep('Boundary', nrow(a_subs)),
+  avg = rep(a_sup$mean, nrow(a_subs)),
+  avg_l = rep(a_sup$q2.5, nrow(a_subs)),
+  avg_u = rep(a_sup$q97.5, nrow(a_subs))
+)
+
+p5_late <- pdat5_late %>% ggplot(aes(Subject, Support)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3) +
+  labs(y = 'Boundary') +
+  ylim(-.15, .15) +
+  theme_classic()
+
+
+a_mor <- params5_late %>% filter(Param == 'a_moral') %>%
+  select(mean, q2.5, q97.5)
+a_subs <- params5_late %>% filter(str_detect(Param, 'a_moral_subj')) %>%
+  select(mean, q2.5, q97.5)
+pdat6_late <- tibble(
+  Subject = 1:nrow(a_subs), Moral = a_subs$mean,
+  l = a_subs$q2.5, u = a_subs$q97.5,
+  measure = rep('Boundary', nrow(a_subs)),
+  avg = rep(a_mor$mean, nrow(a_subs)),
+  avg_l = rep(a_mor$q2.5, nrow(a_subs)),
+  avg_u = rep(a_mor$q97.5, nrow(a_subs))
+)
+
+p6_late <- pdat6_late %>% ggplot(aes(Subject, Moral)) +
+  geom_point(size=2, color=rangi2) +
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.3)  +
+  labs(y = 'Boundary') +
+  ylim(-.15, .15) +
+  theme_classic()
+```
+
+```{r}
+patch_late <- (p1_late | p2_late) /
+  (p3_late | p4_late) /
+  (p5_late | p6_late)
+
+patch_late + plot_annotation(title='Model Posteriors')
+ggsave('posteriors_model5_late.png', width=6, height=8)
+```
+
+
+
+```{r}
+plot_dat <- bind_rows(pdat1, pdat2, pdat3,
+                      pdat4, pdat5, pdat6) %>%
+  mutate(Estimate = case_when(
+    is.na(Support) ~ Moral,
+    TRUE ~ Support)
+  ) %>% 
+  mutate(IV = case_when(
+    is.na(Support) ~ 'Moral',
+    TRUE ~ 'Support'
+  ))
+
+plot_dat$measure <- 
+  factor(plot_dat$measure,
+         levels=c('Boundary', 'Starting Bias', 'Drift Rate'))
+plot_dat$IV <-
+  factor(plot_dat$IV,
+         levels=c('Support', 'Moral'))
+
+plot_dat %>% ggplot(aes(Subject, Estimate)) +
+  geom_point(size=2, color=rangi2) + 
+  geom_errorbar(aes(ymin=l, ymax=u)) +
+  geom_line(aes(y=avg), alpha=.8, linetype='dashed') +
+  geom_hline(yintercept=0, alpha=.5) +
+  theme_classic() + 
+  facet_wrap(measure ~ IV, ncol=2, scales='free_y')
+```
+## Read in posterior predictive data
+
+### For all trials
+Read in predictions from hddm models
+```{r}
+s1 <- read_csv('c:/chddm/model1_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+# Sample the id of the simulated data set (1 per simulation, 0..499)
+# SimID is id of the resp within a simulated set (1 per resp)
+s1 %>% head()
+s2 <- read_csv('c:/chddm/model2_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+s3 <- read_csv('c:/chddm/model3_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+s4 <- read_csv('c:/chddm/model4_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+s5 <- read_csv('c:/chddm/model5_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+```
+
+Helper functions for extracting samples and plotting observed vs predicted
+```{r}
+sample_subject <- function(d, n_sim=20) {
+  samps <- unique(d$Sample)
+  resps <- unique(d$SimID)
+  
+  out <- matrix(0, nrow=length(resps), ncol=n_sim)
+  ids <- sample(samps, n_sim)
+  for (i in 1:n_sim) {
+    out[,i] <- d %>% filter(Sample == ids[i]) %>% select(RT) %>% pull()
+  }
+  return(out)
+}
+
+plot_preds <- function(orig, sims, n_sim=20) {
+  subs <- unique(sims$Subject)
+  pulls <- vector(mode='list', length=length(subs))
+  
+  for (i in 1:length(subs)) {
+    d <- sims %>%
+      filter(Subject == subs[i])
+    pulls[[i]] <- sample_subject(d, n_sim)
+  }
+  
+  n_subs <- length(subs)
+  
+  par(mfrow=c(3,3))
+  for (i in 1:n_subs) {
+    #rtm <- max(abs(range(orig[[i]])))
+    if (i == 1) 
+      ymax = 2.0
+    else
+      ymax = 0.35
+    dens(orig[[i]], col=rangi2, xlim=c(-6,6), ylim=c(0,ymax),
+         lwd=2, main = paste0('Subject ',i))
+    for (j in 1:n_sim) 
+      dens(pulls[[i]][,j], add=TRUE, col=grau(alpha=.2))
+  }
+}
+
+rts2mat <- function(d, subject) {
+  m <- s1 %>%
+    filter(Subject == subject)%>% 
+    pivot_wider(names_from=Sample, values_from = 'RT') %>% 
+    select(-Subject) %>% select(-SimID) %>% 
+    as.matrix(nrow=100)
+  return(m)
+}
+
+```
+
+#### Model 1
+`v ~ 1 + support`
+`z ~ 1 + moral`
+```{r}
+png('model1_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s1, n_sim=30)
+dev.off()
+```
+
+#### Model 2
+`v ~ 1 + support`
+`a ~ 1 + moral`
+```{r}
+png('model2_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s2, n_sim=30)
+dev.off()
+```
+
+#### Model 3
+`v ~ 1 + support + moral`
+```{r}
+png('model3_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s3, n_sim=30)
+dev.off()
+```
+
+#### Model 4
+`v ~ 1 + support`
+```{r}
+png('model4_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s4, n_sim=30)
+dev.off()
+```
+
+#### Model 5
+`v ~ 1 + support + moral`
+`a ~ 1 + support + moral`
+`z ~ 1 + support + moral`
+```{r}
+png('model5_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s5, n_sim=30)
+dev.off()
+```
+
+
+### For late trials
+
+```{r}
+s2late <- read_csv('c:/chddm/model2_late_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+
+s5late <- read_csv('c:/chddm/model5_late_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+```
+
+
+#### Model 2
+`v ~ 1 + support`
+`a ~ 1 + moral`
+```{r}
+png('model2_late_preds.png', width=800, height=800, res = 120)
+plot_preds(orig_late, s2late, n_sim=30)
+dev.off()
+```
+
+#### Model 5
+`v ~ 1 + support + moral`
+`a ~ 1 + support + moral`
+`z ~ 1 + support + moral`
+```{r}
+png('model5_late_preds.png', width=800, height=800, res = 120)
+plot_preds(orig_late, s5late, n_sim=30)
+dev.off()
+```
+
+
+# Repeat with only unambiguous preferences
+(i.e. where $Support_{Left} \neq Support_{Right}$)
+
+
+# Import data
+Read in Observed response data
+```{r}
+obs <- read_csv('choice_hddm_unambig.csv')
+obs <- obs %>%
+  mutate(rts = case_when(
+    response == 0 ~ rt * -1,
+    TRUE ~ rt
+  ))
+osubs <- sort(unique(obs$subj_idx))
+orig <- vector(mode='list', length=length(osubs))
+for (i in 1:length(osubs)) {
+  orig[[i]] <- obs %>% 
+    filter(subj_idx == osubs[i]) %>%
+    select(rts) %>%
+    pull()
+}
+```
+
+Read in predictions from hddm models
+```{r}
+s1 <- read_csv('c:/chddm/ua_model1_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+# Sample the id of the simulated data set (1 per simulation, 0..499)
+# SimID is id of the resp within a simulated set (1 per resp)
+s1 %>% head()
+s2 <- read_csv('c:/chddm/ua_model2_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+s3 <- read_csv('c:/chddm/ua_model3_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+s4 <- read_csv('c:/chddm/ua_model4_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+```
+
+## Model 1
+`v ~ 1 + support`
+`z ~ 1 + moral`
+```{r}
+png('ua_model1_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s1, n_sim=30)
+dev.off()
+```
+
+## Model 2
+`v ~ 1 + support`
+`a ~ 1 + moral`
+```{r}
+png('ua_model2_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s2, n_sim=30)
+dev.off()
+```
+
+## Model 3
+`v ~ 1 + support + moral`
+```{r}
+png('ua_model3_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s3, n_sim=30)
+dev.off()
+```
+
+## Model 4
+`v ~ 1 + support`
+```{r}
+png('ua_model4_preds.png', width=800, height=800, res = 120)
+plot_preds(orig, s4, n_sim=30)
+dev.off()
+```
+
+
+
+
+
+```{r}
+n_sim <- 20
+
+subs <- unique(s1$Subject)
+
+pulls <- vector(mode='list', length=length(subs))
+for (i in 1:length(subs)) {
+  d <- s1 %>% filter(Subject == subs[i])
+  pulls[[i]] <- sample_subject(d, n_sim)
+}
+```
+
+
+```{r}
+n_subs <- length(subs)
+
+par(mfrow=c(3,3))
+for (i in 1:n_subs) {
+  rtm <- max(abs(range(orig[[i]])))
+  dens(orig[[i]], col=rangi2, xlim=c(-rtm,rtm), ylim=c(0,3/rtm),
+       lwd=3, main = paste0('Subject ',i))
+  for (j in 1:n_sim) 
+    dens(pulls[[i]][,j], add=TRUE, col=grau(alpha=.25))
+}
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+sub1 <- s1 %>% 
+  filter(Subject == 'wfpt.0')
+sub1rts <- sample_subject(sub1, n_sim)
+
+plot(NULL, xlim=c(-2,2), ylim=c(0,2), xlab="RT", ylab="Density")
+for (i in 1:n_sim)
+  dens(sub1rts[,i], add=TRUE, col=grau(alpha=.3))
+```
+
