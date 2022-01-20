@@ -66,7 +66,7 @@ poly_ortho <- function(x, ord=2) {
 
 # Import data
 ```{r}
-d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/inperson_1.xlsx',
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/inperson_2.xlsx',
                skip=1, na = c(NA, 'NA'))
 d_raw <- d_raw %>%
   mutate(StartTime = lubridate::as_datetime(`Start Date`)) %>%
