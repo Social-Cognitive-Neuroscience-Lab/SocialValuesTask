@@ -153,7 +153,7 @@ function find_unique(support, moral) {
     //console.log(moral)
     for (var i = 0; i < support.length; i++) {
         ind_resps.push(support[i] + "_" + moral[i]);
-        ind_resps.push(flip(support[i]) + "_" + moral[i])
+        //ind_resps.push(flip(support[i]) + "_" + moral[i])
     }
     console.log(ind_resps);
     unique_ratings = removeDup(ind_resps);
