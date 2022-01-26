@@ -254,6 +254,7 @@ function populate_pairs(unique_pairs, issue_array) {
         }
         // find the match needed
         pair_to_find = unique_pairs[j]
+        console.log('Searching for ' + pair_to_find)
 
         //console.log("pair_to_find:")
         //console.log(pair_to_find)
@@ -272,6 +273,8 @@ function populate_pairs(unique_pairs, issue_array) {
         if (iss2.length > 1) {
             iss2 = shuffle(iss2);
         }
+        console.log(iss1)
+        console.log(iss2)
         // Use the first issue in the list to prepare the stimuli
         iss1_vals = [iss1[0].slice(0,1), iss1[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
         iss2_vals = [iss2[0].slice(0,1), iss2[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
