@@ -23,8 +23,8 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 4;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 40; // number of issues to show
-var STIM_N = 100; // number of trials in choice task
+var ISSUE_N = 4; //0; // number of issues to show
+var STIM_N = 10; //0; // number of trials in choice task
 
 var timeline = [];
 
