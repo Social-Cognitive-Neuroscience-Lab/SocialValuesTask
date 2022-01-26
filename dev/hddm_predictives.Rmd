@@ -235,7 +235,7 @@ p1_late <- pdat1_late %>% ggplot(aes(Subject, Support)) +
   geom_line(aes(y=avg), linetype='dashed') +
   geom_hline(yintercept=0, alpha=.3) +
   labs(y = 'Drift Rate', title='Support') +
-  ylim(-.2, .35) +
+  ylim(-.2, .4) +
   theme_classic() 
 
 
@@ -258,7 +258,7 @@ p2_late <- pdat2_late %>% ggplot(aes(Subject, Moral)) +
   geom_line(aes(y=avg), linetype='dashed') +
   geom_hline(yintercept=0, alpha=.3) +
   labs(y = 'Drift Rate', title='Moral Conviction') +
-  ylim(-.2, .35) +
+  ylim(-.2, .4) +
   theme_classic() 
 
 
@@ -458,10 +458,10 @@ plot_preds <- function(orig, sims, n_sim=20) {
   
   n_subs <- length(subs)
   
-  par(mfrow=c(3,3))
+  par(mfrow=c(4,7))
   for (i in 1:n_subs) {
     #rtm <- max(abs(range(orig[[i]])))
-    if (i == 1) 
+    if (i %in% c(2, 18)) 
       ymax = 2.0
     else
       ymax = 0.35
@@ -487,7 +487,7 @@ rts2mat <- function(d, subject) {
 `v ~ 1 + support`
 `z ~ 1 + moral`
 ```{r}
-png('model1_preds.png', width=800, height=800, res = 120)
+png('model1_preds.png', width=1600, height=1000, res = 120)
 plot_preds(orig, s1, n_sim=30)
 dev.off()
 ```
@@ -496,7 +496,7 @@ dev.off()
 `v ~ 1 + support`
 `a ~ 1 + moral`
 ```{r}
-png('model2_preds.png', width=800, height=800, res = 120)
+png('model2_preds.png', width=1600, height=1000, res = 120)
 plot_preds(orig, s2, n_sim=30)
 dev.off()
 ```
@@ -504,7 +504,7 @@ dev.off()
 #### Model 3
 `v ~ 1 + support + moral`
 ```{r}
-png('model3_preds.png', width=800, height=800, res = 120)
+png('model3_preds.png', width=1600, height=1000, res = 120)
 plot_preds(orig, s3, n_sim=30)
 dev.off()
 ```
@@ -512,7 +512,7 @@ dev.off()
 #### Model 4
 `v ~ 1 + support`
 ```{r}
-png('model4_preds.png', width=800, height=800, res = 120)
+png('model4_preds.png', width=1600, height=1000, res = 120)
 plot_preds(orig, s4, n_sim=30)
 dev.off()
 ```
@@ -522,7 +522,7 @@ dev.off()
 `a ~ 1 + support + moral`
 `z ~ 1 + support + moral`
 ```{r}
-png('model5_preds.png', width=800, height=800, res = 120)
+png('model5_preds.png', width=1600, height=1000, res = 120)
 plot_preds(orig, s5, n_sim=30)
 dev.off()
 ```
