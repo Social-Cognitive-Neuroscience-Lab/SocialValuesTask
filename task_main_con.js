@@ -256,8 +256,6 @@ function populate_pairs(unique_pairs, issue_array) {
         pair_to_find = unique_pairs[j]
         console.log('Searching for ' + pair_to_find)
 
-        //console.log("pair_to_find:")
-        //console.log(pair_to_find)
         s1 = pair_to_find[0];
         m1 = pair_to_find[2];
         s2 = pair_to_find[4];
@@ -304,6 +302,8 @@ function populate_pairs(unique_pairs, issue_array) {
         }
         
         // Now add negative issue
+        iss1_vals = [iss1[0].slice(0,1), iss1[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
+        iss2_vals = [iss2[0].slice(0,1), iss2[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
         issue1 = issue_list.find(x => x.IssueID == iss1_vals[1]);
         issue2 = issue_list.find(x => x.IssueID == iss2_vals[1]);
         iss1_vals[0] = "ThumbsDown.jpg";
