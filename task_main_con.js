@@ -147,17 +147,24 @@ function flip(support) {
 
 /* generate all support-moral mappings */
 function find_unique(support, moral) {
-    var ind_resps = [];
+    // var ind_resps = [];
     var unique_ratings = [];
     //console.log(support)
     //console.log(moral)
     for (var i = 0; i < support.length; i++) {
-        ind_resps.push(support[i] + "_" + moral[i]);
+        var label = support[i] + '_' + moral[i];
+        if (!unique_ratings.includes(label)) {
+            unique_ratings.push(label)
+        }
+        //ind_resps.push(support[i] + "_" + moral[i]);
         //ind_resps.push(flip(support[i]) + "_" + moral[i])
     }
+    /*
     console.log(ind_resps);
     unique_ratings = removeDup(ind_resps);
     console.log('After removing duplicates, unique_ratings is:');
+    */
+    console.log('unique ratings are:')
     console.log(unique_ratings);
     return unique_ratings;
 }
