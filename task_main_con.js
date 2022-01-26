@@ -11,11 +11,10 @@
     about those same issues. Participants are asked to indicate which protestors
     they support more. Each pair differs in moral conviction, support, or both.
 
-    This version of the tasks allows for all possible support/oppose combinations.
-    For example, a PRO protest paired with a CON protest.
+    This version of the task only uses congruent protestor positions.
+    i.e. whatever position the first protestors take is the position of the second
 
-    This version is reasonable for examining choice behavior, but inappropriate
-    for use with drift diffusion models.
+    This version is more appropriate for modeling with drift diffusion models.
 */
 
 
@@ -270,43 +269,47 @@ function populate_pairs(unique_pairs, issue_array) {
         iss1_vals = [iss1[0].slice(0,1), iss1[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
         iss2_vals = [iss2[0].slice(0,1), iss2[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
 
+        // First add positive issue
         issue1 = issue_list.find(x => x.IssueID == iss1_vals[1]);
         issue2 = issue_list.find(x => x.IssueID == iss2_vals[1]);
-
-        if (iss1_vals[0] == "+") {
-            iss1_vals[0] = "ThumbsUp.jpg";
-            iss1_vals[2] = issue1.For;
-        } else {
-            iss1_vals[0] = "ThumbsDown.jpg";
-            iss1_vals[2] = issue1.Against;
-        }
-        if (iss2_vals[0] == "+") {
-            iss2_vals[0] = "ThumbsUp.jpg";
-            iss2_vals[2] = issue2.For;
-        } else {
-            iss2_vals[0] = "ThumbsDown.jpg";
-            iss2_vals[2] = issue2.Against;
-        }
-        // update issue ID with issue text
+        iss1_vals[0] = "ThumpsUp.jpg";
+        iss1_vals[2] = issue1.For
+        iss2_vals[0] = "ThumbsUp.jpg";
+        iss2_vals[2] = issue2.For;
         iss1_vals[1] = issue1.Issue;
         iss2_vals[1] = issue2.Issue;
-
+        // Randomize side of issues
         issue_pair = shuffle([iss1_vals, iss2_vals])
-        //console.log('s1  m1')
-        //console.log([s1, m1])
-        //console.log('s2  m2')
-        //console.log([s2, m2])
-        //console.log('iss1   iss2')
-        //console.log([iss1_vals, iss2_vals])
+        trial_list_unshuf.push(issue_pair[0].concat(issue_pair[1]));
 
-        // decode for/against
+        i = i+1;
+        j = j+1;
+
+        // Make sure we didn't run out of stimuli to create
+        if (i == STIM_N) {
+            break;
+        }
+        if (j == unique_pairs.length ) {
+            j = 0;
+        }
         
-
+        // Now add negative issue
+        issue1 = issue_list.find(x => x.IssueID == iss1_vals[1]);
+        issue2 = issue_list.find(x => x.IssueID == iss2_vals[1]);
+        iss1_vals[0] = "ThumbsDown.jpg";
+        iss1_vals[2] = issue1.Against
+        iss2_vals[0] = "ThumbsDown.jpg";
+        iss2_vals[2] = issue2.Against;
+        iss1_vals[1] = issue1.Issue;
+        iss2_vals[1] = issue2.Issue;
+        // Randomize side of issues
+        issue_pair = shuffle([iss1_vals, iss2_vals])
         trial_list_unshuf.push(issue_pair[0].concat(issue_pair[1]));
 
         i = i+1;
         j = j+1;
     }
+    // Randomize trial order
     trial_list = shuffle(trial_list_unshuf);
     console.log("trial_list inside population_pairs()")
     console.log(trial_list)
@@ -530,28 +533,24 @@ var process_resps = {
         console.log("Support ratings:")
         console.log(support)
 
-
-        // Double the length of each list, and add protest support coding
+        
+        // Add protest coding - all initial events are positive
         // + at first char means support
         // - at first char means oppose
-        familiar = familiar.concat(familiar); // familiarity does not change
-        moral = moral.concat(moral); // moral conviction does not change
-        trial_idx = trial_idx.concat(trial_idx); // trial order does not change
         
-        var support_pos = support; // all original support ratings are positive
-        var issue_pos = [];
-        var support_neg = [];
-        var issue_neg = [];
+        //var support_pos = support; // all original support ratings are positive
+        var issues = [];
+        // var support_neg = [];
+        // var issue_neg = [];
 
         // Add protest code and flipped support values
         for (var idx=0; idx < support.length; idx++) {
-            issue_pos.push( '+' + issue_ids_orig[idx])
-            issue_neg.push( '-' + issue_ids_orig[idx])
-            support_neg.push(flip(support[idx]))
+            issues.push( '+' + issue_ids_orig[idx])
+            //support_neg.push(flip(support[idx]))
         }
         
-        var issues = issue_pos.concat(issue_neg);
-        var support = support_pos.concat(support_neg);
+        //var issues = issue_pos.concat(issue_neg);
+        //var support = support_pos.concat(support_neg);
 
         // Sort by support rating
 
