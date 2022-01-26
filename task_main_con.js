@@ -23,8 +23,8 @@ var FIXATION_DURATION = 3; // in seconds
 var FIXATION_MIN = 1;
 var FIXATION_MAX = 4;
 var STIMULUS_DURATION = 3000;
-var ISSUE_N = 4; //0; // number of issues to show
-var STIM_N = 10; //0; // number of trials in choice task
+var ISSUE_N = 40; // number of issues to show
+var STIM_N = 100; // number of trials in choice task
 
 var timeline = [];
 
@@ -280,7 +280,7 @@ function populate_pairs(unique_pairs, issue_array) {
         // First add positive issue
         issue1 = issue_list.find(x => x.IssueID == iss1_vals[1]);
         issue2 = issue_list.find(x => x.IssueID == iss2_vals[1]);
-        iss1_vals[0] = "ThumpsUp.jpg";
+        iss1_vals[0] = "ThumbsUp.jpg";
         iss1_vals[2] = issue1.For
         iss2_vals[0] = "ThumbsUp.jpg";
         iss2_vals[2] = issue2.For;
