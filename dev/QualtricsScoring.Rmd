@@ -66,7 +66,7 @@ poly_ortho <- function(x, ord=2) {
 
 # Import data
 ```{r}
-d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/inperson_2.xlsx',
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/inperson_3_con.xlsx',
                skip=1, na = c(NA, 'NA'))
 d_raw <- d_raw %>%
   mutate(StartTime = lubridate::as_datetime(`Start Date`)) %>%
@@ -444,10 +444,10 @@ d <- d %>%
   mutate(RT_mean = mean(RTs, na.rm=TRUE)) %>%
   ungroup()
 
-d %>% select(Subj, everything()) %>% write_csv('ChoiceData.csv')
+d %>% select(Subj, everything()) %>% write_csv('ChoiceData_con.csv')
 d %>% select(Subj, everything()) %>% 
   filter(RT < 60000 & RT > 150) %>% 
-  write_csv('ChoiceData_trim.csv')
+  write_csv('ChoiceData_trim_con.csv')
 # d %>% 
 #   rename(subj_idx = Subj) %>%
 #   rename()
@@ -459,7 +459,7 @@ d %>%
          support = LeftAdjDiff,
          moral = LeftMoral_diff) %>%
   select(subj_idx, rt, response, support, moral) %>%
-  write_csv('choice_hddm.csv')
+  write_csv('choice_hddm_con.csv')
 
 
 d %>% 
@@ -470,7 +470,7 @@ d %>%
          moral = LeftMoral_diff) %>%
   filter(Trial > 30) %>% 
   select(subj_idx, rt, response, support, moral) %>%
-  write_csv('choice_hddm_late.csv')
+  write_csv('choice_hddm_late_con.csv')
 
 
 d %>% 
@@ -481,7 +481,7 @@ d %>%
          moral = LeftMoral_diff) %>%
   select(subj_idx, rt, response, support, moral) %>%
   filter(support != 0) %>%
-  write_csv('choice_hddm_unambig.csv')
+  write_csv('choice_hddm_unambig_con.csv')
 
 
 # generate RT quantile plots for different 

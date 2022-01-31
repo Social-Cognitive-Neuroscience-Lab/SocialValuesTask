@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Qualtrics Scoring (in person testing)"
 output:
   html_document:
     df_print: paged
@@ -11,88 +11,11 @@ require(readxl)
 require(rethinking)
 require(lme4)
 require(sjPlot)
-require(patchwork)
+require(kyutil)
 ```
 
 # Helper functions
 ```{r}
-poly2 <- function(x) {
-  z <- poly(x, 2)
-  a <- attributes(z)$coefs$alpha
-  n <- attributes(z)$coefs$norm2
-  
-  ortho_0 <- function(x) {
-    return (1 / sqrt(n[2]))
-  }
-  ortho_1 <- function(x) {
-    (x-a[1]) / sqrt(n[3])
-  }
-  ortho_2 <- function(x) {
-    ( (x-a[2]) * sqrt(n[3]) * ortho_1(x) - n[3] / sqrt(n[2]) * ortho_0(x) ) /
-      sqrt(n[4])
-  }
-  out <- list(
-    x1 = ortho_1(x),
-    x2 = ortho_2(x)
-  )
-  
-  return(out)
-}
-
-
-poly_ortho <- function(x, ord=2) {
-  if (ord < 1)
-    stop('Order must be at least 1')
-  if (ord > 4)
-    stop('Current implementation only goes to 4th order')
-  z <- poly(x, ord)
-  a <- attributes(z)$coefs$alpha
-  n <- attributes(z)$coefs$norm2
-  
-  
-  f0 <- 1 / sqrt(n[2])
-  f1 <- (x-a[1]) / sqrt(n[3])
-  if (ord == 1) return(f1)
-  f2 <- ( (x-a[2]) * sqrt(n[3]) * f1 - n[3]/sqrt(n[2]) * f0) / 
-    sqrt(n[4])
-  if (ord == 2) return(f2)
-  f3 <- ( (x-a[3]) * sqrt(n[4]) * f2 - n[4]/sqrt(n[3]) * f1) /
-    sqrt(n[5])
-  if (ord == 3) return(f3)
-  f4 <- ( (x-a[4]) * sqrt(n[5]) * f3 - n[5]/sqrt(n[4]) * f2) /
-    sqrt(n[6])
-  if (ord == 4) return(f4)
-}
-```
-
-# Import data
-```{r}
-d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/batch_6.xlsx',
-               skip=1)
-d_raw <- d_raw %>%
-  mutate(StartTime = lubridate::as_datetime(`Start Date`)) %>%
-  mutate(EndTime = lubridate::as_datetime(`End Date`)) %>%
-  mutate(Duration = EndTime - StartTime)
-
-d_real <- d_raw %>% filter(!is.na(`Please enter your gender`))
-d_real$SID <- factor(d_real$`Response ID`)
-print(str_c(nrow(d_raw)," subjects"))
-
-d_real$age <- as.numeric(d_real$`Please enter your age in years`) 
-d_real <- d_real %>%
-  mutate(age = case_when(
-    age > 100 ~ 2021 - age,
-    TRUE ~ age
-  )) %>%
-  rename(gender = `Please enter your gender`) %>%
-  mutate(gender = str_to_lower(gender)) %>%
-  mutate(gender = case_when(
-    str_detect(gender, 'female') ~ 'F',
-    str_detect(gender, 'woman') ~ 'F',
-    str_detect(gender, 'male') ~ 'M',
-    TRUE ~ 'Other'
-  ))
-
 # convert items from numbers in javascript array to tibble
 extract_js2 <- function(df, col_name, col_label, trials=100) {
   clean_label = str_c(col_name, '_clean')
@@ -280,7 +203,36 @@ extract_choices_miss <- function(df) {
            IssueLeft, IssueRight, PosLeft, PosRight)
   return(d_choices)
 }
+```
 
+
+# Import data
+```{r}
+d_raw <- read_xlsx('../../scratch-foo/data/moral_choice/inperson_3_con.xlsx',
+               skip=1, na = c(NA, 'NA'))
+d_raw <- d_raw %>%
+  mutate(StartTime = lubridate::as_datetime(`Start Date`)) %>%
+  mutate(EndTime = lubridate::as_datetime(`End Date`)) %>%
+  mutate(Duration = EndTime - StartTime)
+
+d_real <- d_raw %>% filter(!is.na(`Please enter your gender`))
+d_real$SID <- factor(d_real$`Response ID`)
+print(str_c(nrow(d_real)," subjects"))
+
+d_real$age <- as.numeric(d_real$`Please enter your age in years`) 
+d_real <- d_real %>%
+  mutate(age = case_when(
+    age > 100 ~ 2021 - age,
+    TRUE ~ age
+  )) %>%
+  rename(gender = `Please enter your gender`) %>%
+  mutate(gender = str_to_lower(gender)) %>%
+  mutate(gender = case_when(
+    str_detect(gender, 'female') ~ 'F',
+    str_detect(gender, 'woman') ~ 'F',
+    str_detect(gender, 'male') ~ 'M',
+    TRUE ~ 'Other'
+  ))
 
 summary(d_real$age)
 d_real %>% count(gender)
@@ -316,25 +268,14 @@ d_issue <- d_real %>%
   separate(name, into=c("Type", "Trial"), sep=5, remove=FALSE) %>%
   select(SID, Trial, Issue) %>%
   mutate(Issue = as.factor(Issue))
-  
+
 d_view <- d_support %>%
   left_join(d_moral, by=c("SID", "Trial")) %>%
   left_join(d_familiar, by=c("SID", "Trial")) %>%
   left_join(d_issue, by=c('SID', 'Trial')) %>%
   mutate_if(is.character, as.numeric) %>%
-  group_by(SID) %>%
-  mutate(Support_z = 
-           (Support - mean(Support, na.rm=TRUE)) / 
-           sd(Support, na.rm=TRUE)) %>%
-  mutate(Moral_z = 
-           (Moral - mean(Moral, na.rm=TRUE)) /
-           sd(Moral, na.rm=TRUE)) %>%
-  mutate(Support_zm = mean(Support, na.rm=TRUE)) %>%
-  mutate(Moral_z = 
-           (Moral - mean(Moral, na.rm=TRUE)) /
-           sd(Moral, na.rm=TRUE)) %>%
-  mutate(Moral_zm = mean(Moral, na.rm=TRUE)) %>%
-  ungroup()
+  cluster_scale(Support, SID) %>% 
+  cluster_scale(Moral, SID)
 
 # count number of unique support ratings
 s_uniq <- d_view %>%
@@ -387,7 +328,7 @@ d_choices <- bind_rows(d_choices_late, d_choices_ontime)
 ```{r}
 prior_col <- c('Support', 'Moral', 'Familiar', 
                'Support_z', 'Moral_z',
-               'Support_zm', 'Moral_zm')
+               'Support_m', 'Moral_m')
 d <- d_choices %>%
   filter(!is.na(Resp)) %>%
   left_join(d_view %>% select(-Trial), 
@@ -445,14 +386,13 @@ d <- d %>%
   mutate(RT_mean = mean(RTs, na.rm=TRUE)) %>%
   ungroup()
 
-d %>% select(Subj, everything()) %>% write_csv('ChoiceData.csv')
+d %>% select(Subj, everything()) %>% write_csv('ChoiceData_con.csv')
 d %>% select(Subj, everything()) %>% 
   filter(RT < 60000 & RT > 150) %>% 
-  write_csv('ChoiceData_trim.csv')
+  write_csv('ChoiceData_trim_con.csv')
 # d %>% 
 #   rename(subj_idx = Subj) %>%
 #   rename()
-
 
 d %>% 
   mutate(subj_idx = Subj - 1,
@@ -461,7 +401,18 @@ d %>%
          support = LeftAdjDiff,
          moral = LeftMoral_diff) %>%
   select(subj_idx, rt, response, support, moral) %>%
-  write_csv('online_choice_hddm.csv')
+  write_csv('choice_hddm_con.csv')
+
+
+d %>% 
+  mutate(subj_idx = Subj - 1,
+         rt = RTs,
+         response = ChooseLeft,
+         support = LeftAdjDiff,
+         moral = LeftMoral_diff) %>%
+  filter(Trial > 30) %>% 
+  select(subj_idx, rt, response, support, moral) %>%
+  write_csv('choice_hddm_late_con.csv')
 
 
 d %>% 
@@ -472,7 +423,7 @@ d %>%
          moral = LeftMoral_diff) %>%
   select(subj_idx, rt, response, support, moral) %>%
   filter(support != 0) %>%
-  write_csv('online_choice_hddm_unambig.csv')
+  write_csv('choice_hddm_unambig_con.csv')
 
 
 # generate RT quantile plots for different 
@@ -526,7 +477,7 @@ d_trim$Subject <- as.factor(d_trim$Subj)
 d_trim$RTbin <- as.factor(d_trim$RTqtile)
 d_trim$logRT <- log(d_trim$RTs)
 
-# separate subjects that had a max of 6 sec to respond
+#separate subjects that had a max of 6 sec to respond
 max6 <- c('R_1OZVPFRnGQxizSv', 'R_1DpwZxI6BU4iyGI',
           'R_xaRGVIbndeE1mvv', 'R_3J1WL0WYYnCtVlc',
           'R_33v7gy7zKIvPXIh', 'R_9AKbFimIDdip6bT',
@@ -535,10 +486,29 @@ d_short <- d_trim %>%
   filter(SID %in% max6)
 ```
 
+## Visualize RTs
+```{r}
+d_trim %>% 
+  ggplot(aes(Support_bin, RTs, color=Subject)) + 
+  geom_point(alpha=.2) + 
+  geom_smooth(se=FALSE)
+```
 
 ```{r}
-d_trim_ua <- d_trim %>%
-  filter(LeftAdjDiff != 0)
+d_trim %>% 
+  ggplot(aes(Support_bin, RTs, color=Subject)) + 
+  geom_point(alpha=.2) + 
+  geom_smooth(se=FALSE) +
+  facet_wrap(~Moral_bin) +
+  theme_classic()
+```
+
+
+```{r}
+d_trim %>% 
+  ggplot(aes(LeftMoral_diff, RTs, color=Subject)) + 
+  geom_point(alpha=.2) + 
+  geom_smooth(se=FALSE)
 ```
 
 
@@ -553,17 +523,6 @@ RTsd <- coefs[2]
 ```
 
 ```{r}
-rt_ua.mod <- lmer(logRT ~ 1 + (1|Subject), data=d_trim_ua)
-
-coefs_ua <- summary(rt_ua.mod)$coef
-meanRT_ua <- coefs_ua[1]
-RTsd_ua <- coefs_ua[2]
-(exp(meanRT_ua))
-(exp(meanRT_ua + RTsd_ua))
-```
-
-
-```{r}
 ggplot(d_trim, aes(SID, RTs)) +
   geom_violin(draw_quantiles = c(0.25, 0.5, 0.75),
               width=3) +
@@ -571,7 +530,6 @@ ggplot(d_trim, aes(SID, RTs)) +
   theme_classic() +
   coord_flip()
 ```
-
 
 ```{r}
 d_trim %>%
@@ -615,13 +573,13 @@ d_trim %>%
   mutate(MoralBoth = LeftMoral_z + RightMoral_z) %>%
   ggplot(aes(MoralBoth, logRT, color=SID)) +
   geom_jitter(alpha=.2) +
+  geom_smooth(se=FALSE) +
   theme_classic() +
   theme(legend.position = 'none') 
 
 ```
 
 
-## Visualize data
 ```{r}
 dg <- d_trim %>%
   group_by(RTbin, Support_bin) %>%
@@ -662,30 +620,6 @@ d_trim %>%
 ```
 
 ```{r}
-dg2 <- d_trim_ua %>%
-  group_by(RTbin, Support_bin) %>%
-  mutate(SD = case_when(
-    is.na(ChoiceProb_sup) ~ NA_real_,
-    TRUE ~ sd(ChoiceProb_sup, na.rm=TRUE))) %>% 
-  summarize(ChoiceProb_sup = mean(ChoiceProb_sup, na.rm=TRUE),
-            Choice.sd = sd(ChoiceProb_sup, na.rm=TRUE),
-            n = n()) %>%
-  mutate(se = Choice.sd / sqrt(n),
-         lower = ChoiceProb_sup - qt(1 - (0.05/2), n-1) * se,
-         upper = ChoiceProb_sup + qt(1 - (0.05/2), n-1) * se)
-
-d_trim_ua %>%
-  ggplot(aes(RTbin, ChoiceProb_sup,
-             color=as.factor(Support_bin))) +
-  geom_violin(draw_quantiles=c(.5)) +
-  geom_point(data=dg2, position=position_dodge2(width=1)) +
-  geom_path(data=dg2, aes(group=as.factor(Support_bin)),
-            position=position_dodge2(width=1)) +
-  geom_hline(yintercept = 0.5, alpha=.5, linetype="dashed") +
-  theme_classic() 
-```
-
-```{r}
 sim_perf <- tibble(
   support = rep(c(-2,-1,0,1,2), each=30),
   rts = c(rnorm(30, 300, 75),
@@ -711,7 +645,7 @@ ggplot(sim_perf, aes(support, rts)) +
 
 
 ```{r}
-png('binned_choice_rt.png', res=120, width=600, height=450)
+png('in_person_binned_choice_rt.png', res=120, width=600, height=450)
 dg <- d_trim %>%
   group_by(RTbin, Support_bin) %>% 
   summarize(Choice.m = 
@@ -746,21 +680,6 @@ mm <- glmer(ChooseLeft ~ logRT * LeftRDV +
 
 ```{r}
 plot_model(mm, type="pred",
-           terms=c("logRT [all]", 
-                   "LeftRDV [2,1,0,-1,-2]"),
-           colors="RdYlBu") +
-  theme_classic() 
-```
-
-
-```{r}
-mm_ua <- glmer(ChooseLeft ~ logRT * LeftRDV +
-              (LeftRDV|SID) , data = d_trim_ua,
-            family='binomial')
-```
-
-```{r}
-plot_model(mm_ua, type="pred",
            terms=c("logRT [all]", 
                    "LeftRDV [2,1,0,-1,-2]"),
            colors="RdYlBu") +
@@ -914,7 +833,6 @@ for (i in 1:length(unique(bin_choice_mc$Subj))) {
 }
 lines(bin_choice_mcm$Moral_bin, bin_choice_mcm$ChooseLeft, lwd=2)
 ```
-
 ```{r}
 bin_choice %>%
   filter(Support_bin == -2 & ChooseLeft > .6)
@@ -1106,12 +1024,6 @@ d_trim$LeftAbs <- abs(d_trim$LeftAdjDiff)
 d_trim$LeftMorAbs <- abs(d_trim$LeftMoral_diff)
 d_trim$MoralPair <- (d_trim$RightMoral_z + d_trim$LeftMoral_z)/2
 d_trim$SupportPair <- (d_trim$LeftSupport_z + d_trim$RightSupport_z)/2
-
-
-d_trim_ua$LeftAbs <- abs(d_trim_ua$LeftAdjDiff)
-d_trim_ua$LeftMorAbs <- abs(d_trim_ua$LeftMoral_diff)
-d_trim_ua$MoralPair <- (d_trim_ua$RightMoral_z + d_trim_ua$LeftMoral_z)/2
-d_trim_ua$SupportPair <- (d_trim_ua$LeftSupport_z + d_trim_ua$RightSupport_z)/2
 ```
 
 ```{r}
@@ -1142,7 +1054,6 @@ mm.r2 <- lmerTest::lmer(log(RTs) ~
                      )
 anova(mm, mm.r, mm.r2)
 ```
-
 ```{r}
 summary(mm.r)
 ```
@@ -1157,18 +1068,14 @@ p3 <- plot_model(mm.r, type='pred', terms='SupportPair')+
    labs(x="Average Support", y="RT (sec)") + theme_classic()
 p4 <- plot_model(mm.r, type='pred', terms='MoralPair')+
    labs(x="Average MC", y="RT (sec)") + theme_classic()
-patch <- (p1 | p2) /
+(p1 | p2) /
   (p3 | p4)
-
-patch + plot_annotation(title='All trials', 
-                       subtitle="Fixed slope",
-                       tag_levels="A")
-ggsave('marginals_alltrials.png', width=6, height=5)
 ```
 
 
 
 ```{r}
+require(patchwork)
 p1 <- plot_model(mm, type='pred', terms='LeftAdjDiff') +
    labs(x="Relative Support", y="RT (sec)") + theme_classic()
 p2 <- plot_model(mm, type='pred', terms='LeftMoral_diff')+
@@ -1178,72 +1085,12 @@ p3 <- plot_model(mm, type='pred', terms='SupportPair')+
    labs(x="Average Support", y="RT (sec)") + theme_classic()
 p4 <- plot_model(mm, type='pred', terms='MoralPair')+
    labs(x="Average MC", y="RT (sec)") + theme_classic()
-
-patch <- (p1 | p2) /
-  (p3 | p4)
-patch + plot_annotation(title='All trials', 
-                       subtitle="Random slope for poly(LeftSupport)")
-ggsave('marginals_alltrials_rs.png', width=6, height=5)
 ```
 
 ```{r}
-
-mm_ua <- lmerTest::lmer(log(RTs) ~
-                       poly(LeftMoral_diff, 2) +
-                       poly(LeftAdjDiff, 2) +
-                       MoralPair + SupportPair +
-                       (1|Subject),
-                     data = d_trim_ua
-                     )
-mm_ua.r <- lmerTest::lmer(log(RTs) ~
-                       poly(LeftMoral_diff, 2) +
-                       poly(LeftAdjDiff, 2) +
-                       MoralPair + SupportPair +
-                       (poly(LeftAdjDiff,2)|Subject),
-                     data = d_trim_ua
-                     )
-```
-
-
-
-```{r}
-p1 <- plot_model(mm_ua, type='pred', terms='LeftAdjDiff') +
-   labs(x="Relative Support", y="RT (sec)") + theme_classic()
-p2 <- plot_model(mm_ua, type='pred', terms='LeftMoral_diff')+
-   labs(x="Relative Moral Conviction", y="RT (sec)") +
-  theme_classic()
-p3 <- plot_model(mm_ua, type='pred', terms='SupportPair')+
-   labs(x="Average Support", y="RT (sec)") + theme_classic()
-p4 <- plot_model(mm_ua, type='pred', terms='MoralPair')+
-   labs(x="Average MC", y="RT (sec)") + theme_classic()
-
-patch <- (p1 | p2) /
+(p1 | p2) /
   (p3 | p4)
-
-patch + plot_annotation(title='Unambiguous trials', 
-                       subtitle="Fixed slope")
-ggsave('marginals_cleartrials.png', width=6, height=5)
 ```
-
-
-
-```{r}
-p1 <- plot_model(mm_ua.r, type='pred', terms='LeftAdjDiff') +
-   labs(x="Relative Support", y="RT (sec)") + theme_classic()
-p2 <- plot_model(mm_ua.r, type='pred', terms='LeftMoral_diff')+
-   labs(x="Relative Moral Conviction", y="RT (sec)") +
-  theme_classic()
-p3 <- plot_model(mm_ua.r, type='pred', terms='SupportPair')+
-   labs(x="Average Support", y="RT (sec)") + theme_classic()
-p4 <- plot_model(mm_ua.r, type='pred', terms='MoralPair')+
-   labs(x="Average MC", y="RT (sec)") + theme_classic()
-patch <- (p1 | p2) /
-  (p3 | p4)
-patch + plot_annotation(title='Unambiguous trials', 
-                       subtitle="Random slope for poly(LeftSupport)")
-ggsave('marginals_cleartrials_rs.png', width=6, height=5)
-```
-
 
 ```{r}
 d_check <- d_trim %>%
@@ -1365,7 +1212,7 @@ rt.mod7c <- lmerTest::lmer(log(RTs) ~ LeftAbs*time_bin +
                           data = d_trim,
                control=lmerControl(optimizer='bobyqa'))
 rt.mod7d <- lmerTest::lmer(log(RTs) ~ LeftAbs*time_bin + 
-                             LeftMorAbs*time_bin +
+                             LeftMoral_zm*time_bin +
                              LeftMoral_zm +
                             (time_bin|Subject),
                           data = d_trim,
@@ -1383,7 +1230,7 @@ rt.mod7e <- lmerTest::lmer(log(RTs) ~ LeftAbs*time_bin +
 bbmle::AICctab(rt.mod, rt.mod7, rt.mod6, rt.mod7c, rt.mod7d, rt.mod7e)
 ```
 ```{r}
-plot_model(rt.mod7d, type='pred', terms = 'LeftMorAbs')
+plot_model(rt.mod7d, type='pred', terms = 'LeftMoral_zm')
 ```
 
 ```{r}
@@ -1437,16 +1284,6 @@ d_trim %>%
 ```{r}
 d_trim %>% count(Subj) %>% filter(n < 80)
 ```
-
-```{r}
-plot(NULL, xlim=c(1,K), ylim=c(-.5, 1),
-     xlab="Time bin", ylab="Beta (log RT ~ abs(Support) )")
-for (i in c(1, 18, 38, 49)) {
-  lines(1:K, RTBeta[i,], col=grau(.2))
-}
-abline(h=0, lty=2)
-```
-
 
 
 
@@ -1516,42 +1353,6 @@ ggplot(art, aes(Support_bin, RTs)) +
 
 
 
-```{r}
-dat_listr_avg <- list(
-  L = d_trim$ChooseLeft,
-  RDV = d_trim$LeftAdjDiff,
-  RDV2 = poly_ortho(d_trim$LeftAdjDiff, 2),
-  RMC = d_trim$LeftMoral_diff,
-  RMC2 = poly_ortho(d_trim$LeftMoral_diff, 2),
-  MoralPair = d_trim$MoralPair,
-  SupportPair = d_trim$SupportPair,
-  sid = d_trim$Subj
-)
-  
-  
-resp_avg.ulam2 <- ulam(
-  alist(
-    L ~ dbinom(1, p),
-    logit(p) <- a_sid[sid] + b_sup[sid]*RDV + b_mc[sid]*RMC +
-      b_sup2[sid]*RDV2 + b_mavg[sid]*MoralPair + b_savg[sid]*SupportPair,
-    
-    # adaptive priors
-    c(a_sid, b_sup, b_mc, b_sup2, b_mavg, b_savg)[sid] ~ multi_normal( 
-      c(a,bs,bm,bs2,bmavg,bsavg), Rho, sigma_sid
-      ),
-    a ~ normal(0, 1),
-    c(bs, bm, bs2, bmavg, bsavg) ~ normal(0, 0.5),
-    sigma_sid ~ exponential(1),
-    Rho ~ dlkjcorr(3)
-  ), data = dat_listr_avg, chains=4, cores=4, iter=2000
-)
-```
-
-```{r}
-precis(resp_avg.ulam2)
-```
-
-
 
 ```{r}
 dat_tib <- as_tibble(dat_listr)
@@ -1593,7 +1394,7 @@ lines(acpm$RDV, acpm$L, lwd=2)
 
 
 ```{r}
-png('ValueMCMCs.png', width=800, height=800)
+png('pilot_ValueMCMCs.png', width=800, height=800)
 par(mfrow=c(2,2))
 plot(NULL, xlim=c(-6, 6), ylim=c(0, 1),
      xlab="Relative value of Left",
@@ -1615,7 +1416,7 @@ xseq <- seq(from=-6, to=6, by=1)
 post <- extract.samples(resp.ulam2)
 
 for (i in 1:20) {
-  for (s in 1:26) {
+  for (s in 1:9) {
     sub_int <- post$a[i] + post$a_sid[i,s]
     sub_slope <- post$bs[i] + post$b_sup[i,s]
     y = sub_int + sub_slope*xseq
@@ -1643,7 +1444,7 @@ xseq <- seq(from=-8, to=8, by=1)
 post <- extract.samples(resp.ulam2)
 
 for (i in 1:20) {
-  for (s in 1:26) {
+  for (s in 1:9) {
     sub_int <- post$a[i] + post$a_sid[i,s]
     sub_slope <- post$bm[i] + post$b_mc[i,s]
     y = sub_int + sub_slope*xseq
@@ -1654,7 +1455,7 @@ dev.off()
 ```
 
 ```{r}
-png('ValueMCMC.png', width=800, height=450)
+png('pilot_ValueMCMC.png', width=800, height=450)
 par(mfrow=c(1,2))
 plot(NULL, xlim=c(-6, 6), ylim=c(0, 1),
      xlab="Relative value of Left",
@@ -1676,7 +1477,7 @@ xseq <- seq(from=-6, to=6, by=1)
 post <- extract.samples(resp.ulam)
 
 for (i in 1:20) {
-  for (s in 1:26) {
+  for (s in 1:9) {
     sub_int <- post$a[i] + post$a_sid[i,s]
     sub_slope <- post$b[i] + post$b_sid[i,s]
     y = sub_int + sub_slope*xseq
@@ -2055,7 +1856,7 @@ D_list$RDVl <- DVRight
 
 
 ```{r}
-fit <- rstan::stan(file = '../../scratch-foo/choice_linearvalue_ddm2.stan', 
+fit <- rstan::stan(file = '../../scratch-foo/choice_linearvalue_ddm.stan', 
             data=D_list, chains=1)
 ```
 
