@@ -14,7 +14,7 @@ require(patchwork)
 # Import data
 Read in Observed response data
 ```{r}
-obs <- read_csv('choice_hddm.csv')
+obs <- read_csv('choice_hddm_con.csv')
 obs <- obs %>%
   mutate(rts = case_when(
     response == 0 ~ rt * -1,
@@ -29,7 +29,7 @@ for (i in 1:length(osubs)) {
     pull()
 }
 
-obs_late <- read_csv('choice_hddm_late.csv')
+obs_late <- read_csv('choice_hddm_late_con.csv')
 obs_late <- obs_late %>%
   mutate(rts = case_when(
     response == 0 ~ rt * -1,
@@ -210,7 +210,7 @@ patch <- (p1 | p2) /
   (p5 | p6)
 
 patch + plot_annotation(title='Model Posteriors')
-ggsave('posteriors_model5.png', width=6, height=8)
+ggsave('posteriors_model5_con.png', width=6, height=8)
 ```
 
 
@@ -360,7 +360,7 @@ patch_late <- (p1_late | p2_late) /
   (p5_late | p6_late)
 
 patch_late + plot_annotation(title='Model Posteriors')
-ggsave('posteriors_model5_late.png', width=6, height=8)
+ggsave('posteriors_model5_con_late.png', width=6, height=8)
 ```
 
 
@@ -397,7 +397,7 @@ plot_dat %>% ggplot(aes(Subject, Estimate)) +
 ### For all trials
 Read in predictions from hddm models
 ```{r}
-s1 <- read_csv('c:/chddm/model1_samples.csv', 
+s1 <- read_csv('c:/chddm/model1_con_samples.csv', 
                col_names = c('Subject', 'Sample', 'SimID', 'RT'),
                skip = 1, col_types = cols(
                  .default=col_double(),
@@ -406,25 +406,25 @@ s1 <- read_csv('c:/chddm/model1_samples.csv',
 # Sample the id of the simulated data set (1 per simulation, 0..499)
 # SimID is id of the resp within a simulated set (1 per resp)
 s1 %>% head()
-s2 <- read_csv('c:/chddm/model2_samples.csv', 
+s2 <- read_csv('c:/chddm/model2_con_samples.csv', 
                col_names = c('Subject', 'Sample', 'SimID', 'RT'),
                skip = 1, col_types = cols(
                  .default=col_double(),
                  Subject = col_character()
                ))
-s3 <- read_csv('c:/chddm/model3_samples.csv', 
+s3 <- read_csv('c:/chddm/model3_con_samples.csv', 
                col_names = c('Subject', 'Sample', 'SimID', 'RT'),
                skip = 1, col_types = cols(
                  .default=col_double(),
                  Subject = col_character()
                ))
-s4 <- read_csv('c:/chddm/model4_samples.csv', 
+s4 <- read_csv('c:/chddm/model4_con_samples.csv', 
                col_names = c('Subject', 'Sample', 'SimID', 'RT'),
                skip = 1, col_types = cols(
                  .default=col_double(),
                  Subject = col_character()
                ))
-s5 <- read_csv('c:/chddm/model5_samples.csv', 
+s5 <- read_csv('c:/chddm/model5_con_samples.csv', 
                col_names = c('Subject', 'Sample', 'SimID', 'RT'),
                skip = 1, col_types = cols(
                  .default=col_double(),
@@ -432,7 +432,7 @@ s5 <- read_csv('c:/chddm/model5_samples.csv',
                ))
 ```
 
-Helper functions for extracting samples and plotting observed vs predicted
+#### Helper functions for extracting samples and plotting observed vs predicted
 ```{r}
 sample_subject <- function(d, n_sim=20) {
   samps <- unique(d$Sample)
@@ -458,10 +458,10 @@ plot_preds <- function(orig, sims, n_sim=20) {
   
   n_subs <- length(subs)
   
-  par(mfrow=c(4,7))
+  par(mfrow=c(4,4))
   for (i in 1:n_subs) {
     #rtm <- max(abs(range(orig[[i]])))
-    if (i %in% c(2, 18)) 
+    if (i %in% c()) 
       ymax = 2.0
     else
       ymax = 0.35
@@ -487,7 +487,7 @@ rts2mat <- function(d, subject) {
 `v ~ 1 + support`
 `z ~ 1 + moral`
 ```{r}
-png('model1_preds.png', width=1600, height=1000, res = 120)
+png('model1_con_preds.png', width=1000, height=1000, res = 120)
 plot_preds(orig, s1, n_sim=30)
 dev.off()
 ```
@@ -496,7 +496,7 @@ dev.off()
 `v ~ 1 + support`
 `a ~ 1 + moral`
 ```{r}
-png('model2_preds.png', width=1600, height=1000, res = 120)
+png('model2_con_preds.png', width=1000, height=1000, res = 120)
 plot_preds(orig, s2, n_sim=30)
 dev.off()
 ```
@@ -504,7 +504,7 @@ dev.off()
 #### Model 3
 `v ~ 1 + support + moral`
 ```{r}
-png('model3_preds.png', width=1600, height=1000, res = 120)
+png('model3_con_preds.png', width=1000, height=1000, res = 120)
 plot_preds(orig, s3, n_sim=30)
 dev.off()
 ```
@@ -512,7 +512,7 @@ dev.off()
 #### Model 4
 `v ~ 1 + support`
 ```{r}
-png('model4_preds.png', width=1600, height=1000, res = 120)
+png('model4_con_preds.png', width=1000, height=1000, res = 120)
 plot_preds(orig, s4, n_sim=30)
 dev.off()
 ```
@@ -522,7 +522,7 @@ dev.off()
 `a ~ 1 + support + moral`
 `z ~ 1 + support + moral`
 ```{r}
-png('model5_preds.png', width=1600, height=1000, res = 120)
+png('model5_con_preds.png', width=1000, height=1000, res = 120)
 plot_preds(orig, s5, n_sim=30)
 dev.off()
 ```
@@ -531,14 +531,32 @@ dev.off()
 ### For late trials
 
 ```{r}
-s2late <- read_csv('c:/chddm/model2_late_samples.csv', 
+s1late <- read_csv('c:/chddm/model1_con_late_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+s2late <- read_csv('c:/chddm/model2_con_late_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+s3late <- read_csv('c:/chddm/model3_con_late_samples.csv', 
+               col_names = c('Subject', 'Sample', 'SimID', 'RT'),
+               skip = 1, col_types = cols(
+                 .default=col_double(),
+                 Subject = col_character()
+               ))
+s4late <- read_csv('c:/chddm/model4_con_late_samples.csv', 
                col_names = c('Subject', 'Sample', 'SimID', 'RT'),
                skip = 1, col_types = cols(
                  .default=col_double(),
                  Subject = col_character()
                ))
 
-s5late <- read_csv('c:/chddm/model5_late_samples.csv', 
+s5late <- read_csv('c:/chddm/model5_con_late_samples.csv', 
                col_names = c('Subject', 'Sample', 'SimID', 'RT'),
                skip = 1, col_types = cols(
                  .default=col_double(),
@@ -547,12 +565,37 @@ s5late <- read_csv('c:/chddm/model5_late_samples.csv',
 ```
 
 
+#### Model 1
+`v ~ 1 + support`
+`z ~ 1 + moral`
+```{r}
+png('model1_con_late_preds.png', width=1000, height=1000, res = 120)
+plot_preds(orig_late, s1late, n_sim=30)
+dev.off()
+```
+
 #### Model 2
 `v ~ 1 + support`
 `a ~ 1 + moral`
 ```{r}
-png('model2_late_preds.png', width=800, height=800, res = 120)
+png('model2_con_late_preds.png', width=1000, height=1000, res = 120)
 plot_preds(orig_late, s2late, n_sim=30)
+dev.off()
+```
+
+#### Model 3
+`v ~ 1 + support + moral`
+```{r}
+png('model3_con_late_preds.png', width=1000, height=1000, res = 120)
+plot_preds(orig_late, s3late, n_sim=30)
+dev.off()
+```
+
+#### Model 4
+`v ~ 1 + support`
+```{r}
+png('model4_con_late_preds.png', width=1000, height=1000, res = 120)
+plot_preds(orig_late, s4late, n_sim=30)
 dev.off()
 ```
 
@@ -561,7 +604,7 @@ dev.off()
 `a ~ 1 + support + moral`
 `z ~ 1 + support + moral`
 ```{r}
-png('model5_late_preds.png', width=800, height=800, res = 120)
+png('model5_con_late_preds.png', width=1000, height=1000, res = 120)
 plot_preds(orig_late, s5late, n_sim=30)
 dev.off()
 ```
