@@ -1,22 +1,13 @@
 /*
-    task_main_con
+    task_main_survey
 
-    Participants are first asked to indicate their:
+    Participants are asked to indicate their:
     - familiarity (1-7) 
     - support (1-7) and
     - moral conviction (two items, 1-5 each, for 2-10) 
     about 40 political issues
 
-    They are then shown 100 pairs of photographs, ostensibly taken at protests
-    about those same issues. Participants are asked to indicate which protestors
-    they support more. Each pair differs in moral conviction, support, or both.
-
-    This version of the task only uses congruent protestor positions.
-    i.e. whatever position the first protestors take is the position of the second
-
-    This version is more appropriate for modeling with drift diffusion models.
 */
-
 
 /* experiment parameters */
 var FIXATION_DURATION = 3; // in seconds
@@ -147,24 +138,17 @@ function flip(support) {
 
 /* generate all support-moral mappings */
 function find_unique(support, moral) {
-    // var ind_resps = [];
+    var ind_resps = [];
     var unique_ratings = [];
     //console.log(support)
     //console.log(moral)
     for (var i = 0; i < support.length; i++) {
-        var label = support[i] + '_' + moral[i];
-        if (!unique_ratings.includes(label)) {
-            unique_ratings.push(label)
-        }
-        //ind_resps.push(support[i] + "_" + moral[i]);
-        //ind_resps.push(flip(support[i]) + "_" + moral[i])
+        ind_resps.push(support[i] + "_" + moral[i]);
+        ind_resps.push(flip(support[i]) + "_" + moral[i])
     }
-    /*
     console.log(ind_resps);
     unique_ratings = removeDup(ind_resps);
     console.log('After removing duplicates, unique_ratings is:');
-    */
-    console.log('unique ratings are:')
     console.log(unique_ratings);
     return unique_ratings;
 }
@@ -254,8 +238,9 @@ function populate_pairs(unique_pairs, issue_array) {
         }
         // find the match needed
         pair_to_find = unique_pairs[j]
-        console.log('Searching for ' + pair_to_find)
 
+        //console.log("pair_to_find:")
+        //console.log(pair_to_find)
         s1 = pair_to_find[0];
         m1 = pair_to_find[2];
         s2 = pair_to_find[4];
@@ -271,55 +256,47 @@ function populate_pairs(unique_pairs, issue_array) {
         if (iss2.length > 1) {
             iss2 = shuffle(iss2);
         }
-        console.log(iss1)
-        console.log(iss2)
         // Use the first issue in the list to prepare the stimuli
         iss1_vals = [iss1[0].slice(0,1), iss1[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
         iss2_vals = [iss2[0].slice(0,1), iss2[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
 
-        // First add positive issue
         issue1 = issue_list.find(x => x.IssueID == iss1_vals[1]);
         issue2 = issue_list.find(x => x.IssueID == iss2_vals[1]);
-        iss1_vals[0] = "ThumbsUp.jpg";
-        iss1_vals[2] = issue1.For
-        iss2_vals[0] = "ThumbsUp.jpg";
-        iss2_vals[2] = issue2.For;
+
+        if (iss1_vals[0] == "+") {
+            iss1_vals[0] = "ThumbsUp.jpg";
+            iss1_vals[2] = issue1.For;
+        } else {
+            iss1_vals[0] = "ThumbsDown.jpg";
+            iss1_vals[2] = issue1.Against;
+        }
+        if (iss2_vals[0] == "+") {
+            iss2_vals[0] = "ThumbsUp.jpg";
+            iss2_vals[2] = issue2.For;
+        } else {
+            iss2_vals[0] = "ThumbsDown.jpg";
+            iss2_vals[2] = issue2.Against;
+        }
+        // update issue ID with issue text
         iss1_vals[1] = issue1.Issue;
         iss2_vals[1] = issue2.Issue;
-        // Randomize side of issues
+
         issue_pair = shuffle([iss1_vals, iss2_vals])
-        trial_list_unshuf.push(issue_pair[0].concat(issue_pair[1]));
+        //console.log('s1  m1')
+        //console.log([s1, m1])
+        //console.log('s2  m2')
+        //console.log([s2, m2])
+        //console.log('iss1   iss2')
+        //console.log([iss1_vals, iss2_vals])
 
-        i = i+1;
-        j = j+1;
-
-        // Make sure we didn't run out of stimuli to create
-        if (i == STIM_N) {
-            break;
-        }
-        if (j == unique_pairs.length ) {
-            j = 0;
-        }
+        // decode for/against
         
-        // Now add negative issue
-        iss1_vals = [iss1[0].slice(0,1), iss1[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
-        iss2_vals = [iss2[0].slice(0,1), iss2[0].slice(1), 'PhotoTmp']; // [+/-, IssueID, Photo]
-        issue1 = issue_list.find(x => x.IssueID == iss1_vals[1]);
-        issue2 = issue_list.find(x => x.IssueID == iss2_vals[1]);
-        iss1_vals[0] = "ThumbsDown.jpg";
-        iss1_vals[2] = issue1.Against
-        iss2_vals[0] = "ThumbsDown.jpg";
-        iss2_vals[2] = issue2.Against;
-        iss1_vals[1] = issue1.Issue;
-        iss2_vals[1] = issue2.Issue;
-        // Randomize side of issues
-        issue_pair = shuffle([iss1_vals, iss2_vals])
+
         trial_list_unshuf.push(issue_pair[0].concat(issue_pair[1]));
 
         i = i+1;
         j = j+1;
     }
-    // Randomize trial order
     trial_list = shuffle(trial_list_unshuf);
     console.log("trial_list inside population_pairs()")
     console.log(trial_list)
@@ -518,368 +495,6 @@ var issues_with_variables = {
 
 timeline.push(issues_with_variables)
 
-
-/* score the responses and generate a list of issue pairs */
-var process_resps = {
-    type: 'html-keyboard-response',
-    stimulus: '<p>Preparing next task...</p>',
-    trial_duration: 2000,
-    on_start: function() {
-        var ratings = jsPsych.data.get().filter({task: 'rating', dnk: false})
-        var familiar = ratings.select('familiar').values
-        var support = ratings.select('support').values
-        var moral = ratings.select('moral').values
-        var trial_idx = ratings.select('trial_index').values
-        var issues_orig = ratings.select('Issue').values
-        var issue_ids_orig = ratings.select('IssueID').values
-        /*
-        console.log("Trial index:")
-        console.log(trial_idx)
-        console.log("Familiarity ratings:")
-        console.log(familiar)
-        */
-        console.log("Moral ratings:")
-        console.log(moral)
-        console.log("Support ratings:")
-        console.log(support)
-
-        
-        // Add protest coding - all initial events are positive
-        // + at first char means support
-        // - at first char means oppose
-        
-        //var support_pos = support; // all original support ratings are positive
-        var issues = [];
-        // var support_neg = [];
-        // var issue_neg = [];
-
-        // Add protest code and flipped support values
-        for (var idx=0; idx < support.length; idx++) {
-            issues.push( '+' + issue_ids_orig[idx])
-            //support_neg.push(flip(support[idx]))
-        }
-        
-        //var issues = issue_pos.concat(issue_neg);
-        //var support = support_pos.concat(support_neg);
-
-        // Sort by support rating
-
-        var a7 = []
-        var a6 = []
-        var a5 = []
-        var a4 = []
-        var a3 = []
-        var a2 = []
-        var a1 = []
-        var i = 0
-        while (i < support.length) {
-            switch (support[i]) {
-                case 0:
-                    a1.push(i);
-                    break;
-                case 1:
-                    a2.push(i);
-                    break;
-                case 2: 
-                    a3.push(i);
-                    break;
-                case 3:
-                    a4.push(i);
-                    break;
-                case 4:
-                    a5.push(i);
-                    break;
-                case 5: 
-                    a6.push(i);
-                    break;
-                case 6:
-                    a7.push(i);   
-            }
-            i++;
-        }
-        sort_order = sort_order.concat(a7, a6, a5, a4, a3, a2, a1)
-        console.log('Sort order:')
-        console.log(sort_order);
-
-        // Create arrays of scene id, familiarity, support, and moral
-        // sorted by support ratings in descending order
-
-        var support_sorted = []
-        var familiar_sorted = []
-        var moral_sorted = []
-        var issues_sorted = []
-        var trial_idx_sorted = []
-        var idx = 0
-        for (ii = 0; ii < sort_order.length; ii++) {
-            idx = sort_order[ii];
-            support_sorted.push(support[idx]);
-            familiar_sorted.push(familiar[idx]);
-            moral_sorted.push(moral[idx]);
-            trial_idx_sorted.push(trial_idx[idx]); // 1-indexed
-            issues_sorted.push(issues[idx]);
-        }
-        
-        console.log('trial_idx_sorted:')
-        console.log(trial_idx_sorted)
-        console.log('support_sorted:')
-        console.log(support_sorted)
-        console.log('moral_sorted:')
-        console.log(moral_sorted)
-        console.log('issues_sorted:')
-        console.log(issues_sorted)
-        
-
-        console.log('Identifying unique issues')
-        // generate list of unique support-moral responses
-        unique_ratings = find_unique(support_sorted, moral_sorted)
-
-        console.log('Preparing issue array')
-        console.log('unique_ratings:')
-        console.log(unique_ratings)
-        // prepare the list of issues to use
-        issue_array = prep_issue_array(unique_ratings, issues_sorted, support_sorted, moral_sorted);
-
-        console.log('Mapping unique issues')
-        // generate list of unique pairs of support and moral ratings
-        unique_pairs = map_unique(unique_ratings)
-        // ASSERT: unique_pairs now contains the list of all n choose 2
-        // pairs of support-moral ratings, sorting in descending order of
-        // support for first issue, then descending by second
-        console.log('unique_pairs:')
-        console.log(unique_pairs)
-        trial_list = populate_pairs(unique_pairs, issue_array)
-        
-
-        //console.log("trial_list returned:")
-        //console.log(trial_list)
-
-        //build_stim_list()
-
-        console.log('Prepairing stim_list. Currently:')
-        console.log(stim_list)
-
-        // update stim_list
-        for (i=0; i < Math.min(STIM_N, trial_list.length); i++) {
-            //console.log('Setting trial:')
-            //console.log(i)
-            stim_list[i].pos_l = trial_list[i][0];
-            stim_list[i].iss_l = trial_list[i][1];
-            stim_list[i].photo_l = trial_list[i][2];
-            stim_list[i].pos_r = trial_list[i][3];
-            stim_list[i].iss_r = trial_list[i][4];
-            stim_list[i].photo_r = trial_list[i][5];
-        }
-    },
-    on_finish: function() {
-        document.getElementById("display_stage").style.color = "black";
-        document.getElementById("display_stage").style.backgroundColor = "white";
-        //document.getElementById("SurveyEngineBody").style.color = "black";
-        //document.getElementById("SurveyEngineBody").style.backgroundColor = "white";
-    }
-}
-timeline.push(process_resps)
-
-var images_left = issue_list.map(x => "https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/" + x.For)
-var images_right = issue_list.map(x => "https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/" + x.Against)
-var images = images_left.concat(images_right);
-
-var preload = {
-    type: 'preload',
-    auto_preload: true,
-    images: images
-}
-
-timeline.push(preload);
-
-/* create choice instructions */
-var choice_inst = {
-    type: 'html-keyboard-response',
-    stimulus: `<p>For the last part of the study, you will see photographs of two groups of protestors.<br>
-                  Your job is to decide which group of protestors you support more.<br><br>
-                  Above each photograph you will see what each protest was about.<br><br></p>`,
-    choices: jsPsych.ALL_KEYS,
-    prompt: '<p>Press any key to continue.</p>',
-    on_start: function() {
-        document.getElementById("display_stage").style.color = "white";
-        document.getElementById("display_stage").style.backgroundColor = "black";
-        //document.getElementById("SurveyEngineBody").style.color = "white";
-        //document.getElementById("SurveyEngineBody").style.backgroundColor = "black";
-    }
-}
-timeline.push(choice_inst);
-
-var choice_inst2 = {
-    type: 'html-keyboard-response',
-    stimulus: `<p>You will also see whether the protestors were FOR or AGAINST the issue.<br>
-                  If they supported the issue, you will see a thumbs up:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsUp.jpg"/><br><br>
-                  If they were against the issue, you will see a thumbs down:<img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/ThumbsDown.jpg" />.<br><br></p>`,
-    choices: jsPsych.ALL_KEYS,
-    prompt: '<p>Press any key to continue.</p>'
-}
-timeline.push(choice_inst2);
-
-var choice_inst3 = {
-    type: 'html-keyboard-response',
-    stimulus: `<p>You will use the 'f' and 'j' keys to indicate your response.<br>
-        Press 'f' if you support the group on the left more.<br><br>
-        Press 'j' if you support the group on the right more.<br><br></p>`,
-    choices: jsPsych.ALL_KEYS,
-    prompt: '<p>Press any key to continue.</p>'
-}
-timeline.push(choice_inst3);
-
-var choice_inst4 = {
-    type: 'html-keyboard-response',
-    stimulus: `<p>Between each pair of protests, you'll see crosshairs like this: <br><br><br>
-    +<br><br><br>
-    </p>`,
-    choices: jsPsych.ALL_KEYS,
-    prompt: '<p>Press any key to continue.</p>'
-}
-timeline.push(choice_inst4);
-
-var choice_inst5 = {
-    type: 'html-keyboard-response',
-    stimulus: `<p>Press the 'f' or 'j' key as soon as you make your decision.<br>You must respond within 6 seconds<br><br></p>`,
-    choices: jsPsych.ALL_KEYS,
-    prompt: '<p>When you are ready, press any key to begin.</p>'
-}
-timeline.push(choice_inst5);
-
-/* create the trials */
-var first_fixation = {
-    type: 'html-keyboard-response',
-    stimulus: '<p style="font-size:x-large;">+</p>',
-    choices: jsPsych.NO_KEYS,
-    trial_duration: 30
-};
-timeline.push(first_fixation)
-
-var fixation = {
-    type: 'html-keyboard-response',
-    stimulus: '<p style="font-size:x-large;">+</p>',
-    choices: jsPsych.NO_KEYS,
-    trial_duration: function() {
-        return randExp()
-    },
-    data: {
-        task: 'fixation'
-    }
-
-};
-
-// add all of the relevant variables to the data field so they
-// will appear in the results
-var trial = {
-    type: 'html-keyboard-response',
-    // prompt: "<p>'f' <-        -> 'j'</p>",
-    stimulus: function () {
-        // note: the outer parentheses are only here so we can break the line
-        return (           
-            '<span id="grid"><div>Which protestors do you support more?</div>'
-            + '<div class="issue"><img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/'+jsPsych.timelineVariable("pos_l", true)+'">'
-            + '<p>'+jsPsych.timelineVariable("iss_l",true)+'</p></div>'
-            + '<div class="issue"><img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/'+jsPsych.timelineVariable("pos_r", true)+'">'
-            + '<p>'+jsPsych.timelineVariable("iss_r",true)+'</p></div>'
-            + '<div class="protest"><img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/'+jsPsych.timelineVariable("photo_l", true)+'"></div>'
-            + '<div class="protest"><img src="https://social-cognitive-neuroscience-lab.github.io/SocialValuesTask/img/'+jsPsych.timelineVariable("photo_r", true)+'"></div>'
-            + '</span>'
-            );
-    },
-    choices: ['f', 'j', 'ArrowLeft', 'ArrowRight'],
-    trial_duration: 6000,
-    data: {
-        fixation_duration: FIXATION_DURATION, //jsPsych.timelineVariable('fixation_duration'),
-        stimulus_duration: STIMULUS_DURATION, //jsPsych.timelineVariable('stimulus_duration'),
-        pos_l: jsPsych.timelineVariable('pos_l'),
-        pos_r: jsPsych.timelineVariable('pos_r'),
-        photo_l: jsPsych.timelineVariable('photo_l'),
-        photo_r: jsPsych.timelineVariable('photo_r'),
-        iss_l: jsPsych.timelineVariable('iss_l'),
-        iss_r: jsPsych.timelineVariable('iss_r'),
-        task: 'choice'
-    }
-};
-
-var faster_trial = {
-    type: 'html-keyboard-response',
-    stimulus: "<p>Please remember to respond within 6 seconds.<br><br>Press 'f' or 'j' to continue.</p>",
-    choices: ['f', 'j']
-}
-
-var faster_check = {
-    timeline: [faster_trial],
-    conditional_function: function() {
-        var resp = jsPsych.data.get().last(1).values()[0];
-        if (resp.response == null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-
-var halfway_break = {
-    type: 'html-keyboard-response',
-    stimulus: `<p>You are halfway done. <br><br>Keep up the good work!<br><br></p>`,
-    choices: jsPsych.ALL_KEYS,
-    prompt: '<p>When you are ready to continue, press any key.</p>'
-}
-
-var trials_with_variables1 = {
-    timeline: [fixation, trial, faster_check],
-    timeline_variables: stim_list.slice(0,STIM_N/2)
-};
-
-var trials_with_variables2 = {
-    timeline: [fixation, trial],
-    timeline_variables: stim_list.slice(STIM_N/2, STIM_N)
-};
-
-/* Catch trial */
-
-var catch_options = [
-    'ball',
-    'book',
-    'bone',
-    'banana',
-    'bubble'
-];
-
-var attention_options = [
-    'Prefer not to answer',
-    '1 - answered without reading',
-    '2',
-    '3',
-    '4',
-    '5 - complete focus'
-];
-
-var catch_trial = {
-    type: 'survey-likert',
-    questions: [
-        {
-            prompt: 'For this question, please select the answer with a fruit.',
-            labels: catch_options,
-            name: 'catch',
-            required: true
-        }
-    ],
-    data: {
-        task: 'catch',
-    }, 
-    on_start: function() {
-        document.getElementById("display_stage").style.color = "black";
-        document.getElementById("display_stage").style.backgroundColor = "white";
-    },
-    on_finish: function(data){
-        data.catch = data.response['catch'];
-        document.getElementById("display_stage").style.color = "white";
-        document.getElementById("display_stage").style.backgroundColor = "black";
-    }
-}
-
-
 var attention_trial = {
     type: 'survey-likert',
     questions: [
@@ -902,9 +517,5 @@ var attention_trial = {
     }
 }
 
-timeline.push(trials_with_variables1);
-timeline.push(halfway_break);
-timeline.push(catch_trial);
-timeline.push(trials_with_variables2);
 timeline.push(attention_trial);
 
