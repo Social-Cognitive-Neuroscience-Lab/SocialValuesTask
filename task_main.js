@@ -436,7 +436,7 @@ var issue_trial = {
     },
     questions: [
         {prompt: function () {
-            return ('How familiar are you with arguments for or against '+jsPsych.timelineVariable("Issue", true) +'?');
+            return ('How familiar are you with arguments for or against '+jsPsych.timelineVariable("IssueText", true) +'?');
             }, 
             name: 'Familiar', labels: familiar_options, required: true},
         {prompt: function () {
